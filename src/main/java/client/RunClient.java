@@ -7,7 +7,7 @@ import model.Message;
 
 import java.io.IOException;
 
-public class AppStarter extends Application {
+public class RunClient extends Application {
     @Override
     public void start(Stage stage) {
         try {
