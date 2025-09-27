@@ -72,7 +72,7 @@
                 </executions>
                 <configuration>
                     <!-- Thay bằng class Main của bạn -->
-                    <mainClass>client.AppStarter</mainClass>
+                    <mainClass>client.RunClient</mainClass>
                     <commandlineArgs>--add-modules javafx.controls,javafx.fxml</commandlineArgs>
                 </configuration>
             </plugin>
@@ -83,7 +83,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>client.AppStarter</mainClass>
+                    <mainClass>client.RunClient</mainClass>
                 </configuration>
             </plugin>
         </plugins>

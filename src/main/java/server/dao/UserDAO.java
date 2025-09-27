@@ -5,6 +5,8 @@ import model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO extends DAO{
     public UserDAO() {
@@ -49,4 +51,28 @@ public class UserDAO extends DAO{
         }
         return null;
     }
+
+    public List<User> getList() {
+        List<User> users = new ArrayList<>();
+        String SQL_QUERY = "SELECT * FROM users";
+
+        try {
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User user = new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getInt("points")
+                );
+                users.add(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+
 }

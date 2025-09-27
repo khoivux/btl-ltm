@@ -1,44 +1,49 @@
 package server;
 
-import model.Message;
-import model.User;
-import server.dao.UserDAO;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.sql.SQLException;
+
+import model.Message;
+import model.User;
+import server.controller.UserController;
 
 public class ClientHandler implements Runnable{
     private final Socket socket;
-    private final Server server;
+    private RunServer server;
     private ObjectInputStream in;
     private ObjectOutputStream out;
-    private DBManager dbManager;
     private volatile boolean isRunning = true;
     // Object
     private User user;
+    // Controller
+    private final UserController userController = new UserController();
 
 
-    public ClientHandler(Socket socket, Server server, DBManager dbManager) {
+    public ClientHandler(Socket socket, RunServer server) {
         this.socket = socket;
         this.server = server;
-        this.dbManager = dbManager;
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(socket.getInputStream());
+            System.out.println("=== ClientHandler TẠO THÀNH CÔNG ===");
         } catch (IOException e) {
+            System.out.println("=== LỖI TẠO ClientHandler ===");
             e.printStackTrace();
         }
     }
 
     @Override
     public void run() {
+        System.out.println("=== ClientHandler THREAD BẮT ĐẦU CHẠY ===");
         try {
+            System.out.println("=== vào try catch ===");
             while (isRunning) {
+                System.out.println("Đang chờ message...");
                 Message message = (Message) in.readObject();
+                System.out.println("Nhận được message: " + (message != null ? message.getType() : "null"));
                 if (message != null) {
                     handleMessage(message);
                 }
@@ -68,34 +73,49 @@ public class ClientHandler implements Runnable{
     }
 
     private void handleMessage(Message message) {
-        switch (message.getType()) {
-            case "login":
-                handleLogin(message);
-                break;
-            case "register":
-                //
-                break;
+        try {
+            switch (message.getType()) {
+                case "login":
+                    System.out.println("=== XỬ LÝ LOGIN ===");
+                    handleLogin(message);
+                    System.out.println("=== LOGIN XONG ===");
+                    break;
+            }
+        } catch (Exception e) {
+            System.out.println("=== LỖI TRONG handleMessage ===");
+            e.printStackTrace();
         }
     }
 
-    /*
-    Đăng nhập
-     */
     private void handleLogin(Message message) {
-        User loginInfo = (User) message.getContent();
-        User authenticatedUser = dbManager.authenticateUser(loginInfo);
         try {
+            User loginInfo = (User) message.getContent();
+            User authenticatedUser = userController.login(loginInfo);
+
             if (authenticatedUser != null) {
                 this.user = authenticatedUser;
-                System.out.println("User đăng nhập thành công: " + user.getUsername());
-            }
-            else {
-                // sai username/password
-                out.writeObject(new Message("login_fail", "Sai username hoặc password"));
+                System.out.println("LOGIN SUCCESS with User: " + authenticatedUser.getUsername());
+                Message response = new Message("login_success", authenticatedUser);
+                out.writeObject(response);
+                out.flush();
+
+            } else {
+                Message response = new Message("login_fail", "Sai username hoặc password");
+                out.writeObject(response);
                 out.flush();
             }
         } catch (Exception e) {
+            System.out.println("=== EXCEPTION trong handleLogin ===");
+            System.out.println("Exception type: " + e.getClass().getSimpleName());
+            System.out.println("Message: " + e.getMessage());
             e.printStackTrace();
+
+            try {
+                out.writeObject(new Message("login_fail", "Server error"));
+                out.flush();
+            } catch (Exception ex) {
+                System.out.println("Không thể gửi error response: " + ex.getMessage());
+            }
         }
     }
 }
