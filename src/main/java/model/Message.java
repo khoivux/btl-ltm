@@ -1,18 +1,20 @@
 package model;
 
+import constant.MessageType;
+
 import java.io.Serializable;
 
 public class Message implements Serializable {
-    private String type;
+    private MessageType type;
     private Object content;
 
-    public Message(String type, Object content) {
+    public Message(MessageType type, Object content) {
         this.type = type;
         this.content = content;
     }
 
     // Getters
-    public String getType() {
+    public MessageType getType() {
         return type;
     }
 

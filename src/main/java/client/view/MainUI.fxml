@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="600.0" prefWidth="900.0"
+            fx:controller="client.controller.MainController">
+
+    <!-- Bên trái: các nút chức năng -->
+    <left>
+        <VBox spacing="15.0" alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="20" left="20" right="20" bottom="20"/>
+            </padding>
+            <Button text="Xem lịch sử thi đấu" fx:id="btnHistory"/>
+            <Button text="Xem bảng xếp hạng" fx:id="btnRanking"/>
+            <Button text="Chỉnh sửa thông tin" fx:id="btnEditInfo"/>
+            <Button text="Đăng xuất" onAction="#handleLogout"/>
+        </VBox>
+    </left>
+
+    <!-- Bên phải: bảng danh sách user online -->
+    <center>
+        <VBox spacing="10.0" alignment="TOP_CENTER" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="20" left="20" right="20" bottom="20"/>
+            </padding>
+
+            <TableView fx:id="userTable" prefWidth="500.0" prefHeight="500.0">
+                <columns>
+                    <TableColumn fx:id="colUsername" text="Tên người dùng" prefWidth="250.0"/>
+                </columns>
+            </TableView>
+
+        </VBox>
+    </center>
+
+</BorderPane>

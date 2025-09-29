@@ -1,6 +1,8 @@
 package client;
 
 import client.controller.LoginController;
+import client.controller.MainController;
+import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,10 +12,13 @@ import javafx.stage.Stage;
 import model.Message;
 import model.User;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.List;
 
 public class Client {
     private Socket socket;
@@ -24,6 +29,7 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
+    private MainController mainController;
 
     private volatile boolean isRunning = true;
 
@@ -35,28 +41,20 @@ public class Client {
     Connect server
      */
     public void startConnection(String address, int port) {
-        System.out.println("=== BẮT ĐẦU startConnection ===");
         System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
         try {
-            System.out.println("=== Tạo Socket ===");
             socket = new Socket(address, port);
-            System.out.println("Socket created: " + socket);
-
-            System.out.println("=== Tạo ObjectOutputStream ===");
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
 
-            System.out.println("=== Tạo ObjectInputStream ===");
             in = new ObjectInputStream(socket.getInputStream());
 
             isRunning = true;
             System.out.println("Kết nối server hoàn tất!");
-
             System.out.println("=== Bắt đầu listenForMessages ===");
             listenForMessages();
 
         } catch (IOException e) {
-            System.out.println("=== LỖI trong startConnection ===");
             e.printStackTrace();
             showErrorAlert("Không thể kết nối tới server.");
         }
@@ -65,7 +63,6 @@ public class Client {
     private void listenForMessages() {
         System.out.println("=== BẮT ĐẦU tạo listening thread ===");
         new Thread(() -> {
-            System.out.println("=== Listening thread STARTED ===");
             isRunning = true;
             try {
                 while (isRunning) {
@@ -77,52 +74,97 @@ public class Client {
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
-                ex.printStackTrace();
+                if (ex instanceof EOFException) {
+                    System.out.println("=== Server đã đóng kết nối===");
+                } else if (ex instanceof SocketException && ex.getMessage().contains("Socket closed")) {
+                    System.out.println("=== Socket đã được đóng ===");
+                } else {
+                    ex.printStackTrace();
+                }
 
                 if (isRunning) {
-                    System.out.println("=== Connection bị ngắt bất ngờ ===");
+                    System.out.println("=== Connection bị ngắt  ===");
                     Platform.runLater(() -> {
                         showLoginUI();
                     });
-                } else {
-                    System.out.println("=== Đã đóng kết nối, dừng luồng lắng nghe ===");
                 }
             }
-            System.out.println("=== Listening thread KẾT THÚC ===");
         }).start();
-        System.out.println("=== Đã start listening thread ===");
     }
 
-    private void handleMessage(Message message) {
+    private void handleMessage(Message message) throws IOException {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         
         switch (message.getType()) {
-            case "login_success":
-                User user = (User) message.getContent();
-                this.user = user;
-                System.out.println("Đăng nhập thành công: " + user.getUsername());
+            case MessageType.LOGIN_SUCCESS:
+                handleLoginSuccess(message);
+                break;
+                
+            case MessageType.LOGIN_FAILURE:
+                handleLoginFailure(message);
+                break;
 
+            case MessageType.LOGOUT_SUCCESS:
+                handleLogout(message);
                 break;
-                
-            case "login_fail":
-                String errorMsg = (String) message.getContent();
-                Platform.runLater(() -> {
-                    System.out.println("Đăng nhập thất bại: " + errorMsg);
-                    if (loginController != null) {
-                        loginController.showError(errorMsg);
-                    }
-                });
+
+            case MessageType.ONLINE_LIST:
+                handleOnlineUsers(message);
                 break;
-                
+
+            case MessageType.UPDATE_USER_STATUS:
+                sendMessage(new Message(MessageType.ONLINE_LIST, null));
+                break;
+
             default:
-                System.out.println("Unknown message type: " + message.getType());
+                System.out.println("ERROR: Message không hợp lệ ");
                 break;
         }
     }
 
+    private void handleLoginSuccess(Message message) {
+        User user = (User) message.getContent();
+        this.user = user;
+        System.out.println("Đăng nhập thành công: " + user.getUsername());
+        Platform.runLater(this::showMainUI);
+    }
+
+    private void handleLoginFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Đăng nhập thất bại: " + errorMsg);
+            if (loginController != null) {
+                loginController.showError(errorMsg);
+            }
+        });
+    }
+
+    private void handleLogout(Message message) {
+        this.user = null;
+        isRunning = false;
+        Platform.runLater(() -> {
+            try {
+                closeConnection();
+                showLoginUI();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void handleOnlineUsers(Message message) {
+        List<User> users = (List<User>) message.getContent();
+        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
+        Platform.runLater(() -> {
+            if (mainController != null) {
+                mainController.updateOnlineUsers(users);  // Cập nhật table
+            }
+        });
+    }
+
     public void showLoginUI() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/view/LoginUI.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginUI.fxml"));
             Parent root = loader.load();
 
             loginController = loader.getController();
@@ -135,6 +177,25 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện đăng nhập.");
+        }
+    }
+
+    public void showMainUI() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
+            Parent root = loader.load();
+
+            mainController = loader.getController();
+            if (mainController != null) {
+                mainController.setClient(this);
+            }
+
+            stage.setScene(new Scene(root));
+            stage.show();
+            sendMessage(new Message(MessageType.ONLINE_LIST, null));
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể tải giao diện chính.");
         }
     }
 

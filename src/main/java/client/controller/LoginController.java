@@ -1,6 +1,7 @@
 package client.controller;
 
 import client.Client;
+import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -34,7 +35,7 @@ public class LoginController {
             return;
         }
 
-        Message loginMessage = new Message("login", new User(username, password));
+        Message loginMessage = new Message(MessageType.LOGIN, new User(username, password));
         client.sendMessage(loginMessage);
     }
 

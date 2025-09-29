@@ -9,7 +9,7 @@ import model.User;
 
 import java.io.IOException;
 
-public class RunClient extends Application {
+public class RunClient1 extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
