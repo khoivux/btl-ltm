@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 
+import constant.MessageType;
 import model.Message;
 import model.User;
 import server.controller.UserController;
@@ -12,6 +14,7 @@ import server.controller.UserController;
 public class ClientHandler implements Runnable{
     private final Socket socket;
     private RunServer server;
+    private ClientManager clientManager;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private volatile boolean isRunning = true;
@@ -24,6 +27,7 @@ public class ClientHandler implements Runnable{
     public ClientHandler(Socket socket, RunServer server) {
         this.socket = socket;
         this.server = server;
+        this.clientManager = server.getClientManager();
         try {
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
@@ -39,7 +43,6 @@ public class ClientHandler implements Runnable{
     public void run() {
         System.out.println("=== ClientHandler THREAD BẮT ĐẦU CHẠY ===");
         try {
-            System.out.println("=== vào try catch ===");
             while (isRunning) {
                 System.out.println("Đang chờ message...");
                 Message message = (Message) in.readObject();
@@ -75,14 +78,27 @@ public class ClientHandler implements Runnable{
     private void handleMessage(Message message) {
         try {
             switch (message.getType()) {
-                case "login":
-                    System.out.println("=== XỬ LÝ LOGIN ===");
+
+                case MessageType.LOGIN:
+                    System.out.println("--- Xử lý login ---");
                     handleLogin(message);
-                    System.out.println("=== LOGIN XONG ===");
+                    break;
+
+                case MessageType.LOGOUT:
+                    System.out.println("--- Xử lý logout ---");
+                    handleLogout();
+                    break;
+
+                case MessageType.ONLINE_LIST:
+                    System.out.println("--- Xử lý danh sách online ---");
+                    handleGetOnlineUsers();
+                    break;
+
+                default:
+                    System.out.println("ERROR: Message không hợp lệ ");
                     break;
             }
         } catch (Exception e) {
-            System.out.println("=== LỖI TRONG handleMessage ===");
             e.printStackTrace();
         }
     }
@@ -94,28 +110,55 @@ public class ClientHandler implements Runnable{
 
             if (authenticatedUser != null) {
                 this.user = authenticatedUser;
-                System.out.println("LOGIN SUCCESS with User: " + authenticatedUser.getUsername());
-                Message response = new Message("login_success", authenticatedUser);
-                out.writeObject(response);
-                out.flush();
-
+                clientManager.addClient(this);
+                clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, authenticatedUser.getUsername() + "đã online"));
+                sendResponse(new Message(MessageType.LOGIN_SUCCESS, authenticatedUser));
+                System.out.println("Login thành công với username: " + authenticatedUser.getUsername());
             } else {
-                Message response = new Message("login_fail", "Sai username hoặc password");
-                out.writeObject(response);
-                out.flush();
+                sendResponse(new Message(MessageType.LOGIN_FAILURE, "Sai username hoặc password"));
             }
         } catch (Exception e) {
-            System.out.println("=== EXCEPTION trong handleLogin ===");
-            System.out.println("Exception type: " + e.getClass().getSimpleName());
-            System.out.println("Message: " + e.getMessage());
             e.printStackTrace();
+            sendResponse(new Message(MessageType.LOGIN_FAILURE, "Server error"));
+        }
+    }
 
+    private void handleLogout()  throws IOException {
+        if(user != null) {
+            clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, user.getUsername() + " đã offline"));
+            if (socket != null && !socket.isClosed()) {
+                sendResponse(new Message(MessageType.LOGOUT_SUCCESS, "Đăng xuất thành công."));
+            }
+            isRunning = false;
+            clientManager.removeClient(this);
+            socket.close();
+        }
+    }
+
+    public void handleGetOnlineUsers() {
+        List<User> users = clientManager.getOnlineUsers();
+        sendResponse(new Message(MessageType.ONLINE_LIST, users));
+    }
+
+
+    public void sendResponse(Message response) {
+        if (socket == null || socket.isClosed()) {
+            System.out.println("Socket đã đóng, không thể gửi phản hồi tới " + (user != null ? user.getUsername() : "client"));
+            return;
+        }
+
+        try {
+            out.writeObject(response);
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("Lỗi khi gửi phản hồi tới " + (user != null ? user.getUsername() : "client") + ": " + e.getMessage());
             try {
-                out.writeObject(new Message("login_fail", "Server error"));
-                out.flush();
-            } catch (Exception ex) {
-                System.out.println("Không thể gửi error response: " + ex.getMessage());
+                socket.close(); // đánh dấu client ngắt kết nối
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
+
+    public User getUser(){return this.user;}
 }

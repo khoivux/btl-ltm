@@ -6,6 +6,7 @@ public class User implements Serializable {
     private int id;
     private String username;
     private String password;
+    private String status;
     private int points;
 
     public User(String username, String password) {
@@ -45,6 +46,14 @@ public class User implements Serializable {
 
     public int getPoints() {
         return points;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public void setPoints(int points) {
