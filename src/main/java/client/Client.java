@@ -1,5 +1,12 @@
 package client;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.SocketException;
+
 import client.controller.LoginController;
 import client.controller.MainController;
 import constant.MessageType;
@@ -12,14 +19,6 @@ import javafx.stage.Stage;
 import model.Message;
 import model.User;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.SocketException;
-import java.util.List;
-
 public class Client {
     private Socket socket;
     private ObjectOutputStream out;
@@ -29,12 +28,12 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
-    private MainController mainController;
 
     private volatile boolean isRunning = true;
 
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
+        stage.setResizable(false);
     }
 
     /*
@@ -92,7 +91,7 @@ public class Client {
         }).start();
     }
 
-    private void handleMessage(Message message) throws IOException {
+    private void handleMessage(Message message) {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         
         switch (message.getType()) {
@@ -108,16 +107,8 @@ public class Client {
                 handleLogout(message);
                 break;
 
-            case MessageType.ONLINE_LIST:
-                handleOnlineUsers(message);
-                break;
-
-            case MessageType.UPDATE_USER_STATUS:
-                sendMessage(new Message(MessageType.ONLINE_LIST, null));
-                break;
-
             default:
-                System.out.println("ERROR: Message không hợp lệ ");
+                System.out.println("Unknown message type: " + message.getType());
                 break;
         }
     }
@@ -152,16 +143,6 @@ public class Client {
         });
     }
 
-    private void handleOnlineUsers(Message message) {
-        List<User> users = (List<User>) message.getContent();
-        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
-        Platform.runLater(() -> {
-            if (mainController != null) {
-                mainController.updateOnlineUsers(users);  // Cập nhật table
-            }
-        });
-    }
-
     public void showLoginUI() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginUI.fxml"));
@@ -185,14 +166,13 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-            mainController = loader.getController();
+            MainController mainController = loader.getController();
             if (mainController != null) {
                 mainController.setClient(this);
             }
 
             stage.setScene(new Scene(root));
             stage.show();
-            sendMessage(new Message(MessageType.ONLINE_LIST, null));
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
