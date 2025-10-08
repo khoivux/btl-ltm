@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DAO  {
     public static Connection con;
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/btl_ltm?autoReconnect=true&useSSL=false";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/btl_ltm?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "root";
     private static final String PASSWORD = "khoi21102004";
     private static final String DB_CLASS = "com.mysql.cj.jdbc.Driver";

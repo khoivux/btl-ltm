@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
@@ -28,6 +29,7 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
+    private MainController mainController;
 
     private volatile boolean isRunning = true;
 
@@ -91,7 +93,7 @@ public class Client {
         }).start();
     }
 
-    private void handleMessage(Message message) {
+    private void handleMessage(Message message) throws IOException{
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         
         switch (message.getType()) {
@@ -107,11 +109,30 @@ public class Client {
                 handleLogout(message);
                 break;
 
+            case MessageType.ONLINE_LIST:
+                handleOnlineUsers(message);
+                break;
+
+            case MessageType.UPDATE_USER_STATUS:
+                sendMessage(new Message(MessageType.ONLINE_LIST, null));
+                break;
+
             default:
                 System.out.println("Unknown message type: " + message.getType());
                 break;
         }
     }
+
+    private void handleOnlineUsers(Message message) {
+        List<User> users = (List<User>) message.getContent();
+        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
+        Platform.runLater(() -> {
+            if (mainController != null) {
+                mainController.updateOnlineUsers(users);
+            }
+        });
+    }
+
 
     private void handleLoginSuccess(Message message) {
         User user = (User) message.getContent();
@@ -166,7 +187,7 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-            MainController mainController = loader.getController();
+           mainController = loader.getController();
             if (mainController != null) {
                 mainController.setClient(this);
             }
