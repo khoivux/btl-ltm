@@ -52,6 +52,10 @@ public class ClientHandler implements Runnable{
                 }
             }
         } catch (IOException | ClassNotFoundException  e) {
+            System.out.println("=== LỖI CHI TIẾT ===");
+            System.out.println("Loại lỗi: " + e.getClass().getSimpleName());
+            System.out.println("Thông báo lỗi: " + e.getMessage());
+            e.printStackTrace();
             System.out.println("Kết nối với " + (user != null ? user.getUsername() : "client") + " bị ngắt.");
             isRunning = false;
         } finally {
