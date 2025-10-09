@@ -9,6 +9,7 @@ import java.net.SocketException;
 
 import client.controller.LoginController;
 import client.controller.MainController;
+import client.controller.LeaderboardController;
 import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -19,6 +20,7 @@ import javafx.stage.Stage;
 import model.Message;
 import model.User;
 
+// client gồm kênh TCP (socket), đầu vào, đầu ra, người dùng, cửa sổ ứng dụng (Stage)
 public class Client {
     private Socket socket;
     private ObjectOutputStream out;
@@ -28,16 +30,23 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
+    private LeaderboardController leaderboardController;
 
+    // volatile để đảm bảo tính toàn vẹn dữ liệu khi có nhiều thread truy cập
     private volatile boolean isRunning = true;
 
+    // Khởi tạo client
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
         stage.setResizable(false);
     }
 
     /*
-    Connect server
+    Connect server: đầu vào gồm địa chỉ IP và cổng
+    địa chỉ IP là địa chỉ của server (nếu dùng Radmin thì là IP radmin của máy chủ)
+    mở một socket sau đó khởi tạo out - input
+    set trạng thái isRunning = true để chạy
+    sau đó nghe các Message từ server
      */
     public void startConnection(String address, int port) {
         System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
@@ -58,9 +67,12 @@ public class Client {
             showErrorAlert("Không thể kết nối tới server.");
         }
     }
-
+    /*
+     * hàm nghe message từ server
+     */
     private void listenForMessages() {
         System.out.println("=== BẮT ĐẦU tạo listening thread ===");
+        // tạo một thread mới để nghe message từ server, sau đó lặp các lần handleMessage đến khi server đóng kết nối
         new Thread(() -> {
             isRunning = true;
             try {
@@ -105,6 +117,14 @@ public class Client {
 
             case MessageType.LOGOUT_SUCCESS:
                 handleLogout(message);
+                break;
+
+            case MessageType.RANK_SUCCESS:
+                handleUserRankSuccess(message);
+                break;
+            
+            case MessageType.RANK_FAILURE:
+                handleUserRankFailure(message);
                 break;
 
             default:
@@ -179,6 +199,43 @@ public class Client {
         }
     }
 
+    public void showLeaderboardUI() {
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Leaderboard.fxml"));
+            Parent root = loader.load();
+
+            LeaderboardController leaderboardController = loader.getController();
+            if (leaderboardController != null) {
+                leaderboardController.setClient(this);
+            }
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể tải giao diện leaderboard.");
+        }
+    }
+
+    private void handleUserRankSuccess(Message message) {
+        User user = (User) message.getContent();
+        Platform.runLater(() -> {
+            if(leaderboardController != null){
+                leaderboardController.setUser(user);
+                leaderboardController.updateUserRank(user);
+            }
+            else{
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleUserRankFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy rank thất bại: " + errorMsg);
+        });
+        // leaderboardController.showError(errorMsg);
+    }
 
     /*
    Gửi message về server

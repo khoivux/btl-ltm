@@ -14,6 +14,17 @@ public enum MessageType {
     // GET
     ONLINE_LIST("online_list"),
 
+    // LEADERBOARD
+    LEADERBOARD("leaderboard"),
+    LEADERBOARD_SUCCESS("leaderboard_success"),
+    LEADERBOARD_FAILURE("leaderboard_failure"),
+    LEADERBOARD_UPDATE("leaderboard_update"),
+
+    // RANK
+    RANK("rank"),
+    RANK_SUCCESS("rank_success"),
+    RANK_FAILURE("rank_failure"),
+
     TEST("hihi");
     private final String value;
 

@@ -75,4 +75,51 @@ public class UserDAO extends DAO{
         return users;
     }
 
+    public List<User> getLeaderboard() {
+        List<User> users = new ArrayList<>();
+        String SQL_QUERY = "SELECT username, points FROM users ORDER BY points DESC";
+        
+        try {
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ResultSet rs = ps.executeQuery();
+            int rank = 1;
+            while (rs.next()) {
+                User user = new User(
+                    rs.getString("username"),
+                    rs.getInt("points"),
+                    rank
+                );
+                users.add(user);
+                rank++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public User getRankByUsername(String username) {
+        String SQL_QUERY ="SELECT t.username, t.points, t.rank FROM (" +
+            "  SELECT u.username, DENSE_RANK() OVER (ORDER BY u.points DESC) AS rank" +
+            "  FROM users u" +
+            ") t WHERE t.username = ?";
+
+        try{
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                User user = new User(
+                    rs.getString("username"),
+                    rs.getInt("points"),
+                    rs.getInt("rank")
+                );
+                return user;
+            }
+        }   
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

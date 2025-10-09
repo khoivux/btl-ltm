@@ -19,7 +19,7 @@
                 <Insets top="20" left="20" right="20" bottom="20"/>
             </padding>
             <Button text="Xem lịch sử thi đấu" fx:id="btnHistory"/>
-            <Button text="Xem bảng xếp hạng" fx:id="btnRanking"/>
+            <Button text="Xem bảng xếp hạng" fx:id="btnRanking" onAction="#handleLeaderboard"/>
             <Button text="Chỉnh sửa thông tin" fx:id="btnEditInfo"/>
             <Button text="Đăng xuất" onAction="#handleLogout"/>
         </VBox>

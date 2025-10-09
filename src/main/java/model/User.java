@@ -3,11 +3,13 @@ package model;
 import java.io.Serializable;
 
 public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private String username;
     private String password;
     private String status;
     private int points;
+    private int rank;
 
     public User(String username, String password) {
         this.username = username;
@@ -18,6 +20,12 @@ public class User implements Serializable {
         this.id = id;
         this.username = username;
         this.points = points;
+    }
+
+    public User(String username, int points, int rank) {
+        this.username = username;
+        this.points = points;
+        this.rank = rank;
     }
 
     public String getUsername() {
@@ -58,5 +66,13 @@ public class User implements Serializable {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 }
