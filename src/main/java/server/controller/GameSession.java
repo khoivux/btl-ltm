@@ -1,8 +1,10 @@
 // model/GameSession.java
 package server.controller;
 
+import model.Match;
 import model.User;
 import server.GameBoardManager;
+import server.dao.MatchDAO;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -16,6 +18,7 @@ public class GameSession {
     private List<String> targetColors;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private MatchDAO matchDAO;
 
     public GameSession(User p1, User p2, List<String> targetColors) {
         this.player1 = p1;
@@ -135,6 +138,7 @@ public class GameSession {
         // update users' points
         player1.setPoints(player1.getPoints() + award1);
         player2.setPoints(player2.getPoints() + award2);
+        matchDAO.saveMatch(new Match(startTime,endTime));
 
         return new MatchResult(score1, score2, winner, award1, award2);
     }
