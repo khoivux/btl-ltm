@@ -23,11 +23,6 @@ public class MatchDAO {
         String sql = "INSERT INTO matches (player1, player2, player1_score, player2_score, winner, start_time, end_time) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, match.getPlayer1());
-            stmt.setString(2, match.getPlayer2());
-            stmt.setInt(3, match.getPlayer1Score());
-            stmt.setInt(4, match.getPlayer2Score());
-            stmt.setString(5, match.getWinner());
             stmt.setTimestamp(6, Timestamp.valueOf(match.getStartTime()));
             stmt.setTimestamp(7, Timestamp.valueOf(match.getEndTime()));
             stmt.executeUpdate();
@@ -83,11 +78,6 @@ public class MatchDAO {
     private Match extractMatchFromResultSet(ResultSet rs) throws SQLException {
         Match match = new Match();
         match.setMatchId(rs.getInt("match_id"));
-        match.setPlayer1(rs.getString("player1"));
-        match.setPlayer2(rs.getString("player2"));
-        match.setPlayer1Score(rs.getInt("player1_score"));
-        match.setPlayer2Score(rs.getInt("player2_score"));
-        match.setWinner(rs.getString("winner"));
         match.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
         match.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
         return match;

@@ -127,7 +127,7 @@ public class Client {
                 handleInviteRejected(message);
                 break;
 
-//            case MessageType.START_GAME:
+            case MessageType.START_GAME:
             case MessageType.GAME_START:
                 handleStartGame(message);
                 break;
@@ -373,14 +373,35 @@ public class Client {
 
     // Khi server thông báo bắt đầu trận
     private void handleStartGame(Message message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Trận đấu bắt đầu!");
-            alert.setHeaderText(null);
-            alert.setContentText("Trò chơi đang được khởi tạo...");
-            alert.showAndWait();
-            // TODO: Sau này sẽ chuyển sang giao diện phòng chơi
-        });
+        // payload expected: Object[]{ List<String> colors, String myName, String opponentName }
+        Object content = message.getContent();
+        if (content instanceof Object[]) {
+            Object[] arr = (Object[]) content;
+            try {
+                @SuppressWarnings("unchecked")
+                List<String> colors = (List<String>) arr[0];
+                String myName = (String) arr[1];
+                String opp = (String) arr[2];
+                Platform.runLater(() -> {
+                    // ensure UI loaded
+                    showGameUI();
+                    if (gameController != null) {
+                        gameController.onSessionStart(colors, myName, opp);
+                    }
+                });
+            } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                System.err.println("Invalid START_GAME payload");
+            }
+        } else {
+            // fallback: simple notification
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Trận đấu bắt đầu!");
+                alert.setHeaderText(null);
+                alert.setContentText("Trò chơi đang được khởi tạo...");
+                alert.showAndWait();
+            });
+        }
     }
 
     // 
