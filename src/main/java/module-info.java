@@ -3,7 +3,8 @@ module btl.ltm {
     requires javafx.fxml;
     requires java.sql;
     requires java.desktop;
-    
+    requires kotlin.stdlib;
+
     exports client;
     exports client.controller;
     exports model;
@@ -12,4 +13,5 @@ module btl.ltm {
     
     // Cho phép JavaFX FXML truy cập vào controller để inject @FXML fields
     opens client.controller to javafx.fxml;
+    exports server.controller;
 }

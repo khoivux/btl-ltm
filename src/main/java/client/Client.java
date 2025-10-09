@@ -1,5 +1,18 @@
 package client;
 
+import client.controller.LoginController;
+import client.controller.MainController;
+import constant.MessageType;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
+import model.Message;
+import model.User;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,21 +21,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
 
-import client.controller.LoginController;
-import client.controller.MainController;
-import client.controller.LeaderboardController;
-import constant.MessageType;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.stage.Stage;
-import model.Chat;
-import model.Message;
-import model.User;
-
-// client gồm kênh TCP (socket), đầu vào, đầu ra, người dùng, cửa sổ ứng dụng (Stage)
 public class Client {
     private Socket socket;
     private ObjectOutputStream out;
@@ -32,24 +30,18 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
-    private LeaderboardController leaderboardController;
     private MainController mainController;
 
-    // volatile để đảm bảo tính toàn vẹn dữ liệu khi có nhiều thread truy cập
     private volatile boolean isRunning = true;
+    // Game controller reference
+    private client.controller.GameController gameController;
 
-    // Khởi tạo client
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
-        stage.setResizable(false);
     }
 
     /*
-    Connect server: đầu vào gồm địa chỉ IP và cổng
-    địa chỉ IP là địa chỉ của server (nếu dùng Radmin thì là IP radmin của máy chủ)
-    mở một socket sau đó khởi tạo out - input
-    set trạng thái isRunning = true để chạy
-    sau đó nghe các Message từ server
+    Connect server
      */
     public void startConnection(String address, int port) {
         System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
@@ -70,12 +62,9 @@ public class Client {
             showErrorAlert("Không thể kết nối tới server.");
         }
     }
-    /*
-     * hàm nghe message từ server
-     */
+
     private void listenForMessages() {
         System.out.println("=== BẮT ĐẦU tạo listening thread ===");
-        // tạo một thread mới để nghe message từ server, sau đó lặp các lần handleMessage đến khi server đóng kết nối
         new Thread(() -> {
             isRunning = true;
             try {
@@ -106,11 +95,8 @@ public class Client {
         }).start();
     }
 
-    private void handleMessage(Message message) {
-        System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
-        // if (message.getType().equals(MessageType.RANK_SUCCESS)){
-        //     System.out.println(message.getContent().getClass());
-        // }
+    private void handleMessage(Message message) throws IOException {
+        System.out.println("=== CLIENT NHẬN ĐƯỢC TỪ SEVER: " + message.getType() + " ===");
         
         switch (message.getType()) {
             case MessageType.LOGIN_SUCCESS:
@@ -125,39 +111,104 @@ public class Client {
                 handleLogout(message);
                 break;
 
-            case MessageType.RANK_SUCCESS:
-                handleUserRankSuccess(message);
-                break;
-            
-            case MessageType.RANK_FAILURE:
-                handleUserRankFailure(message);
+            case MessageType.ONLINE_LIST:
+                handleOnlineUsers(message);
                 break;
 
-            case MessageType.LEADERBOARD_SUCCESS:
-                handleLeaderboardSuccess(message);
+            case MessageType.INVITE_RECEIVED:
+                handleInviteReceived(message);
                 break;
 
-            case MessageType.LEADERBOARD_FAILURE:
-                handleLeaderboardFailure(message);
+            case MessageType.INVITE_ACCEPT:
+                handleInviteAccepted(message);
                 break;
 
-            case MessageType.CHAT_SUCCESS:
-                handleChatSuccess(message);
+            case MessageType.INVITE_REJECT:
+                handleInviteRejected(message);
                 break;
 
-            case MessageType.CHAT_FAILURE:
-                handleChatFailure(message);
+//            case MessageType.START_GAME:
+            case MessageType.GAME_START:
+                handleStartGame(message);
                 break;
 
-            case MessageType.ADD_CHAT_SUCCESS:
-                handleAddChatSuccess(message);
+            // Game messages forwarded to gameController if present
+            case MessageType.SHOW_COLORS:
+                // ensure game UI is visible
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                    System.out.println("null");
+                }
+                if (gameController != null && message.getContent() instanceof List) {
+                    System.out.println("!=null");
+                    List<?> raw = (List<?>) message.getContent();
+                    // try to cast to List<String>
+                    try {
+                        @SuppressWarnings("unchecked")
+                        List<String> colors = (List<String>) raw;
+                        gameController.onShowColors(colors);
+                    } catch (ClassCastException ex) {
+                        System.err.println("SHOW_COLORS content not List<String>");
+                    }
+                }
                 break;
 
-            case MessageType.ADD_CHAT_FAILURE:
-                handleAddChatFailure(message);
+            case MessageType.GAME_TICK:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Integer) {
+                    Integer sec = (Integer) message.getContent();
+                    gameController.onGameTick(sec);
+                }
                 break;
+
+            case MessageType.PICK_RESULT:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Object[]) {
+                    Object[] arr = (Object[]) message.getContent();
+                    try {
+                        int row = (Integer) arr[0];
+                        int col = (Integer) arr[1];
+                        boolean hit = (Boolean) arr[2];
+                        String marker = (String) arr[3];
+                        int s1 = (Integer) arr[4];
+                        int s2 = (Integer) arr[5];
+                        gameController.onPickResult(row, col, hit, marker, s1, s2);
+                    } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                        System.err.println("Invalid PICK_RESULT payload");
+                    }
+                }
+                break;
+
+            case MessageType.MATCH_RESULT:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Object[]) {
+                    Object[] arr = (Object[]) message.getContent();
+                    try {
+                        int s1 = (Integer) arr[0];
+                        int s2 = (Integer) arr[1];
+                        String winner = (String) arr[2];
+                        int a1 = (Integer) arr[3];
+                        int a2 = (Integer) arr[4];
+                        gameController.onGameEnd(s1, s2, winner, a1, a2);
+                    } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                        System.err.println("Invalid MATCH_RESULT payload");
+                    }
+                }
+                break;
+
+            case MessageType.UPDATE_USER_STATUS:
+                sendMessage(new Message(MessageType.ONLINE_LIST, null));
+                break;
+
+
             default:
-                System.out.println("Unknown message type: " + message.getType());
+                System.out.println("ERROR: Message không hợp lệ ");
                 break;
         }
     }
@@ -192,6 +243,16 @@ public class Client {
         });
     }
 
+    private void handleOnlineUsers(Message message) {
+        List<User> users = (List<User>) message.getContent();
+        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
+        Platform.runLater(() -> {
+            if (mainController != null) {
+                mainController.updateOnlineUsers(users);  // Cập nhật table
+            }
+        });
+    }
+
     public void showLoginUI() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginUI.fxml"));
@@ -215,107 +276,116 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-            this.mainController = loader.getController();
-            if (this.mainController != null) {
-                this.mainController.setClient(this);
+            mainController = loader.getController();
+            if (mainController != null) {
+                mainController.setClient(this);
             }
 
             stage.setScene(new Scene(root));
             stage.show();
-            sendMessage(new Message(MessageType.CHAT, null));
+            sendMessage(new Message(MessageType.ONLINE_LIST, null));
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
         }
     }
-
-    public void showLeaderboardUI() {
-        try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Leaderboard.fxml"));
+    
+    public void showGameUI() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GameView.fxml"));
             Parent root = loader.load();
-
-            leaderboardController = loader.getController();
-            if (leaderboardController != null) {
-                leaderboardController.setClient(this);
+            gameController = loader.getController();
+            if (gameController != null) {
+                gameController.setClient(this);
             }
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("Không thể tải giao diện leaderboard.");
+            showErrorAlert("Không thể tải giao diện game.");
+        }
+    }
+// 
+   // Gửi lời mời
+    public void sendInvite(String opponentName) {
+        try {
+            System.out.println("Gửi lời mời đến: " + opponentName);
+            Message inviteMsg = new Message(MessageType.INVITE_REQUEST, opponentName);
+            sendMessage(inviteMsg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể gửi lời mời tới " + opponentName);
         }
     }
 
-    private void handleUserRankSuccess(Message message) {
-        User user = (User) message.getContent();
-        System.out.println("=== Received user from server ===");
-        Platform.runLater(() -> {
-            if(leaderboardController != null){
-                leaderboardController.setUser(user);
-                leaderboardController.updateUserRank(user);
-            }
-            else{
-                System.out.println("leaderboardController là giá trị null");
-            }
-        });
-    }
+    // Khi nhận được lời mời từ người khác
+    private void handleInviteReceived(Message message) {
+        String fromUser = (String) message.getContent();
+        System.out.println("Nhận được lời mời từ: " + fromUser);
 
-    private void handleUserRankFailure(Message message) {
-        String errorMsg = (String) message.getContent();
         Platform.runLater(() -> {
-            System.out.println("Lấy rank thất bại: " + errorMsg);
-        });
-        // leaderboardController.showError(errorMsg);
-    }
-
-    private void handleLeaderboardSuccess(Message message) {
-        @SuppressWarnings("unchecked")
-        List<User> users = (List<User>) message.getContent();
-        Platform.runLater(() -> {
-            if (leaderboardController != null) {
-                leaderboardController.updateLeaderboard(users);
-            } else {
-                System.out.println("leaderboardController là giá trị null");
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Lời mời thách đấu");
+            alert.setHeaderText("Người chơi " + fromUser + " mời bạn chơi!");
+            alert.setContentText("Bạn có muốn chấp nhận không?");
+            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
+            try {
+                Message reply;
+                if (result == ButtonType.OK) {
+                    reply = new Message(MessageType.INVITE_ACCEPT, fromUser);
+                    // Load the game UI immediately so SHOW_COLORS/GAME_TICK are handled
+                    Platform.runLater(this::showGameUI);
+                } else {
+                    reply = new Message(MessageType.INVITE_REJECT, fromUser);
+                }
+                sendMessage(reply);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }
 
-    private void handleLeaderboardFailure(Message message) {
-        String errorMsg = (String) message.getContent();
+    // Khi đối thủ chấp nhận lời mời
+    private void handleInviteAccepted(Message message) {
+        String opponent = (String) message.getContent();
         Platform.runLater(() -> {
-            System.out.println("Lấy leaderboard thất bại: " + errorMsg);
+            // Open the game UI so incoming SHOW_COLORS will be displayed
+            showGameUI();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Lời mời đã được chấp nhận");
+            alert.setHeaderText(null);
+            alert.setContentText("Người chơi " + opponent + " đã chấp nhận lời mời của bạn!");
+            alert.showAndWait();
         });
     }
 
-    private void handleChatSuccess(Message message){
-        List<Chat> chats = (List<Chat>) message.getContent();
+    // Khi đối thủ từ chối lời mời
+    private void handleInviteRejected(Message message) {
+        String opponent = (String) message.getContent();
         Platform.runLater(() -> {
-            if (mainController != null){
-                mainController.updateChat(chats);
-            }
-            else {
-                System.out.println("mainController la null");
-            }
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Lời mời bị từ chối");
+            alert.setHeaderText(null);
+            alert.setContentText("Người chơi " + opponent + " đã từ chối lời mời của bạn.");
+            alert.showAndWait();
         });
     }
 
-    private void handleChatFailure(Message message){
-        String errorMsg = (String) message.getContent();
+    // Khi server thông báo bắt đầu trận
+    private void handleStartGame(Message message) {
         Platform.runLater(() -> {
-            System.out.println("Lấy chat thất bại: " + errorMsg);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Trận đấu bắt đầu!");
+            alert.setHeaderText(null);
+            alert.setContentText("Trò chơi đang được khởi tạo...");
+            alert.showAndWait();
+            // TODO: Sau này sẽ chuyển sang giao diện phòng chơi
         });
     }
 
-    private void handleAddChatSuccess(Message message){
-        
-    }
+    // 
+    
 
-    private void handleAddChatFailure(Message message){
-        String errorMsg = (String) message.getContent();
-        Platform.runLater(() -> {
-            System.out.println("Them chat thất bại: " + errorMsg);
-        });
-    }
 
     /*
    Gửi message về server
@@ -323,9 +393,6 @@ public class Client {
     // Thêm debug trong sendMessage()
 public void sendMessage(Message message) throws IOException {
     System.out.println("Đang gửi message: " + message.getType());
-    // if(message.getType() == MessageType.RANK){
-    //     System.out.println(message.getContent());
-    // }
     if (out == null) {
         System.out.println("ERROR: out is null!");
         return;
