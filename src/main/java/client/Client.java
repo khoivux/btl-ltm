@@ -6,11 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
-import client.controller.RegisterController;
 import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -30,8 +28,6 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
-    private MainController mainController;
-    private RegisterController registerController;
 
     private volatile boolean isRunning = true;
 
@@ -95,23 +91,10 @@ public class Client {
         }).start();
     }
 
-    private void handleMessage(Message message) throws IOException{
+    private void handleMessage(Message message) {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         
         switch (message.getType()) {
-            case MessageType.REGISTER_SUCCESS:
-                Platform.runLater(this::showLoginUI);
-                break;
-
-            case MessageType.REGISTER_FAILURE:
-                String errorMsg = (String) message.getContent();
-                Platform.runLater(() -> {
-                    if (registerController != null) {
-                        registerController.showError(errorMsg);
-                    }
-                });
-                break;
-
             case MessageType.LOGIN_SUCCESS:
                 handleLoginSuccess(message);
                 break;
@@ -124,40 +107,23 @@ public class Client {
                 handleLogout(message);
                 break;
 
-            case MessageType.ONLINE_LIST:
-                handleOnlineUsers(message);
-                break;
-
-            case MessageType.UPDATE_USER_STATUS:
-                sendMessage(new Message(MessageType.ONLINE_LIST, null));
-                break;
-
             default:
                 System.out.println("Unknown message type: " + message.getType());
                 break;
         }
     }
 
-    private void handleOnlineUsers(Message message) {
-        List<User> users = (List<User>) message.getContent();
-        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
-        Platform.runLater(() -> {
-            if (mainController != null) {
-                mainController.updateOnlineUsers(users);
-            }
-        });
-    }
-
-
     private void handleLoginSuccess(Message message) {
         User user = (User) message.getContent();
         this.user = user;
+        System.out.println("Đăng nhập thành công: " + user.getUsername());
         Platform.runLater(this::showMainUI);
     }
 
     private void handleLoginFailure(Message message) {
         String errorMsg = (String) message.getContent();
         Platform.runLater(() -> {
+            System.out.println("Đăng nhập thất bại: " + errorMsg);
             if (loginController != null) {
                 loginController.showError(errorMsg);
             }
@@ -200,7 +166,7 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-           mainController = loader.getController();
+            MainController mainController = loader.getController();
             if (mainController != null) {
                 mainController.setClient(this);
             }
@@ -210,23 +176,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
-        }
-    }
-
-    public void showRegisterUI() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegisterUI.fxml"));
-            Parent root = loader.load();
-
-           registerController = loader.getController();
-            if (registerController != null) {
-                registerController.setClient(this);
-            }
-
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

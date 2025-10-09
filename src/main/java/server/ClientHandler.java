@@ -12,6 +12,11 @@ import model.Message;
 import model.User;
 import server.controller.UserController;
 
+/**
+ * ClientHandler là lớp này đại diện cho mỗi client kết nối tới server, mỗi client (user) khi dùng sẽ có 1 clientHandler
+ * => bao gồm server và socket, clientManager để biết clientHandler thuộc về clientManager nào
+ * có đầu vào, đầu ra và User tương ứng với clientHandle
+ */
 public class ClientHandler implements Runnable{
     private final Socket socket;
     private RunServer server;
@@ -24,7 +29,9 @@ public class ClientHandler implements Runnable{
     // Controller
     private final UserController userController = new UserController();
 
-
+    /*
+     * khởi tạo khi có client kết nối tới server 
+     */
     public ClientHandler(Socket socket, RunServer server) {
         this.socket = socket;
         this.server = server;
@@ -44,10 +51,13 @@ public class ClientHandler implements Runnable{
     public void run() {
         System.out.println("=== ClientHandler THREAD BẮT ĐẦU CHẠY ===");
         try {
+            // Khi còn chạy
             while (isRunning) {
                 System.out.println("Đang chờ message...");
+                // đọc message từ client
                 Message message = (Message) in.readObject();
                 System.out.println("Nhận được message: " + (message != null ? message.getType() : "null"));
+                // xử lý message
                 if (message != null) {
                     handleMessage(message);
                 }
@@ -58,6 +68,8 @@ public class ClientHandler implements Runnable{
             System.out.println("Thông báo lỗi: " + e.getMessage());
             e.printStackTrace();
             System.out.println("Kết nối với " + (user != null ? user.getUsername() : "client") + " bị ngắt.");
+            System.out.println(e.getClass().getSimpleName());
+            e.printStackTrace();
             isRunning = false;
         } finally {
             try {
@@ -98,6 +110,16 @@ public class ClientHandler implements Runnable{
 
                 case MessageType.ONLINE_LIST:
                     handleGetOnlineUsers();
+                    break;
+
+                case MessageType.LEADERBOARD:
+                    System.out.println("--- Lấy top 10 user có điểm cao nhất ---");
+                    handleGetLeaderboard();
+                    break;
+
+                case MessageType.RANK:
+                    System.out.println("--- Xử lý lấy rank ---");
+                    handleGetRank(message);
                     break;
 
                 default:
@@ -151,6 +173,36 @@ public class ClientHandler implements Runnable{
     public void handleGetOnlineUsers() {
         List<User> users = clientManager.getOnlineUsers();
         sendResponse(new Message(MessageType.ONLINE_LIST, users));
+    }
+
+    public void handleGetLeaderboard(){
+        try{
+            List<User> users = userController.getLeaderboard();
+            if (!users.isEmpty()){
+                sendResponse(new Message(MessageType.LEADERBOARD_SUCCESS, users));
+                System.out.println("Gửi yêu cầu lấy bảng xếp hạng thành công");
+            } else {
+                sendResponse(new Message(MessageType.LEADERBOARD_FAILURE, "Không có user nào"));
+                System.out.println("Không có user nào trong CSDL");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            sendResponse(new Message(MessageType.LEADERBOARD_FAILURE, "Server error"));
+            System.out.println("Lỗi Server khi gửi yêu cầu lấy BXH");
+        }
+    }
+
+    public void handleGetRank(Message message){
+        try{
+            String username = (String) message.getContent();
+            User user = userController.getRankByUsername(username);
+            sendResponse(new Message(MessageType.RANK_SUCCESS, user));
+            System.out.println("Gửi yêu cầu lấy xếp hạng cá nhân thành công");
+        } catch(Exception e){
+            e.printStackTrace();
+            sendResponse(new Message(MessageType.RANK_FAILURE, "Server error"));
+            System.out.println("Lỗi Server khi gửi yêu cầu lấy XH cá nhân");
+        }
     }
 
 

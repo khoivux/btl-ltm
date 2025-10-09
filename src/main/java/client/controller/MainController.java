@@ -44,6 +44,10 @@ public class MainController {
         });
     }
 
+    public void handleLeaderboard() throws IOException {
+        client.showLeaderboardUI();
+    }
+
     @FXML
     public void initialize() {
         System.out.println("colUsername = " + colUsername);
