@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import model.Message;
 import model.User;
@@ -32,6 +33,8 @@ public class Client {
     private MainController mainController;
 
     private volatile boolean isRunning = true;
+    // Game controller reference
+    private client.controller.GameController gameController;
 
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
@@ -93,7 +96,7 @@ public class Client {
     }
 
     private void handleMessage(Message message) throws IOException {
-        System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
+        System.out.println("=== CLIENT NHẬN ĐƯỢC TỪ SEVER: " + message.getType() + " ===");
         
         switch (message.getType()) {
             case MessageType.LOGIN_SUCCESS:
@@ -112,9 +115,97 @@ public class Client {
                 handleOnlineUsers(message);
                 break;
 
+            case MessageType.INVITE_RECEIVED:
+                handleInviteReceived(message);
+                break;
+
+            case MessageType.INVITE_ACCEPT:
+                handleInviteAccepted(message);
+                break;
+
+            case MessageType.INVITE_REJECT:
+                handleInviteRejected(message);
+                break;
+
+//            case MessageType.START_GAME:
+            case MessageType.GAME_START:
+                handleStartGame(message);
+                break;
+
+            // Game messages forwarded to gameController if present
+            case MessageType.SHOW_COLORS:
+                // ensure game UI is visible
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                    System.out.println("null");
+                }
+                if (gameController != null && message.getContent() instanceof List) {
+                    System.out.println("!=null");
+                    List<?> raw = (List<?>) message.getContent();
+                    // try to cast to List<String>
+                    try {
+                        @SuppressWarnings("unchecked")
+                        List<String> colors = (List<String>) raw;
+                        gameController.onShowColors(colors);
+                    } catch (ClassCastException ex) {
+                        System.err.println("SHOW_COLORS content not List<String>");
+                    }
+                }
+                break;
+
+            case MessageType.GAME_TICK:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Integer) {
+                    Integer sec = (Integer) message.getContent();
+                    gameController.onGameTick(sec);
+                }
+                break;
+
+            case MessageType.PICK_RESULT:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Object[]) {
+                    Object[] arr = (Object[]) message.getContent();
+                    try {
+                        int row = (Integer) arr[0];
+                        int col = (Integer) arr[1];
+                        boolean hit = (Boolean) arr[2];
+                        String marker = (String) arr[3];
+                        int s1 = (Integer) arr[4];
+                        int s2 = (Integer) arr[5];
+                        gameController.onPickResult(row, col, hit, marker, s1, s2);
+                    } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                        System.err.println("Invalid PICK_RESULT payload");
+                    }
+                }
+                break;
+
+            case MessageType.MATCH_RESULT:
+                if (gameController == null) {
+                    Platform.runLater(this::showGameUI);
+                }
+                if (gameController != null && message.getContent() instanceof Object[]) {
+                    Object[] arr = (Object[]) message.getContent();
+                    try {
+                        int s1 = (Integer) arr[0];
+                        int s2 = (Integer) arr[1];
+                        String winner = (String) arr[2];
+                        int a1 = (Integer) arr[3];
+                        int a2 = (Integer) arr[4];
+                        gameController.onGameEnd(s1, s2, winner, a1, a2);
+                    } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                        System.err.println("Invalid MATCH_RESULT payload");
+                    }
+                }
+                break;
+
             case MessageType.UPDATE_USER_STATUS:
                 sendMessage(new Message(MessageType.ONLINE_LIST, null));
                 break;
+
 
             default:
                 System.out.println("ERROR: Message không hợp lệ ");
@@ -198,6 +289,102 @@ public class Client {
             showErrorAlert("Không thể tải giao diện chính.");
         }
     }
+    
+    public void showGameUI() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GameView.fxml"));
+            Parent root = loader.load();
+            gameController = loader.getController();
+            if (gameController != null) {
+                gameController.setClient(this);
+            }
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể tải giao diện game.");
+        }
+    }
+// 
+   // Gửi lời mời
+    public void sendInvite(String opponentName) {
+        try {
+            System.out.println("Gửi lời mời đến: " + opponentName);
+            Message inviteMsg = new Message(MessageType.INVITE_REQUEST, opponentName);
+            sendMessage(inviteMsg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể gửi lời mời tới " + opponentName);
+        }
+    }
+
+    // Khi nhận được lời mời từ người khác
+    private void handleInviteReceived(Message message) {
+        String fromUser = (String) message.getContent();
+        System.out.println("Nhận được lời mời từ: " + fromUser);
+
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Lời mời thách đấu");
+            alert.setHeaderText("Người chơi " + fromUser + " mời bạn chơi!");
+            alert.setContentText("Bạn có muốn chấp nhận không?");
+            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
+            try {
+                Message reply;
+                if (result == ButtonType.OK) {
+                    reply = new Message(MessageType.INVITE_ACCEPT, fromUser);
+                    // Load the game UI immediately so SHOW_COLORS/GAME_TICK are handled
+                    Platform.runLater(this::showGameUI);
+                } else {
+                    reply = new Message(MessageType.INVITE_REJECT, fromUser);
+                }
+                sendMessage(reply);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    // Khi đối thủ chấp nhận lời mời
+    private void handleInviteAccepted(Message message) {
+        String opponent = (String) message.getContent();
+        Platform.runLater(() -> {
+            // Open the game UI so incoming SHOW_COLORS will be displayed
+            showGameUI();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Lời mời đã được chấp nhận");
+            alert.setHeaderText(null);
+            alert.setContentText("Người chơi " + opponent + " đã chấp nhận lời mời của bạn!");
+            alert.showAndWait();
+        });
+    }
+
+    // Khi đối thủ từ chối lời mời
+    private void handleInviteRejected(Message message) {
+        String opponent = (String) message.getContent();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Lời mời bị từ chối");
+            alert.setHeaderText(null);
+            alert.setContentText("Người chơi " + opponent + " đã từ chối lời mời của bạn.");
+            alert.showAndWait();
+        });
+    }
+
+    // Khi server thông báo bắt đầu trận
+    private void handleStartGame(Message message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Trận đấu bắt đầu!");
+            alert.setHeaderText(null);
+            alert.setContentText("Trò chơi đang được khởi tạo...");
+            alert.showAndWait();
+            // TODO: Sau này sẽ chuyển sang giao diện phòng chơi
+        });
+    }
+
+    // 
+    
 
 
     /*

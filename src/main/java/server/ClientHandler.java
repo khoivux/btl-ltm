@@ -66,6 +66,14 @@ public class ClientHandler implements Runnable{
 //                            user.getUsername() + " đã offline."));
 //                    server.removeClient(this);
                 }
+                // notify game manager (if any) that this client disconnected
+                try {
+                    if (server != null && server.getGameManager() != null) {
+                        server.getGameManager().handleExit(this);
+                    }
+                } catch (Exception ex) {
+                    // ignore
+                }
                 if (in != null) in.close();
                 if (out != null) out.close();
                 if (socket != null && !socket.isClosed()) socket.close();
@@ -92,6 +100,80 @@ public class ClientHandler implements Runnable{
                 case MessageType.ONLINE_LIST:
                     System.out.println("--- Xử lý danh sách online ---");
                     handleGetOnlineUsers();
+                    break;
+
+                case MessageType.INVITE_REQUEST:
+                    // content: String opponentUsername
+                    try {
+                        String targetName = (String) message.getContent();
+                        if (targetName != null && user != null) {
+                            ClientHandler target = clientManager.getClientByUsername(targetName);
+                            if (target != null) {
+                                // forward invite to target
+                                System.out.println("Forwarding INVITE_REQUEST from " + user.getUsername() + " to " + targetName);
+                                target.sendResponse(new Message(MessageType.INVITE_RECEIVED, user.getUsername()));
+                            } else {
+                                // target not online
+                                sendResponse(new Message(MessageType.INVITE_REJECT, "Target not online"));
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Invalid INVITE_REQUEST payload");
+                    }
+                    break;
+
+                case MessageType.INVITE_ACCEPT:
+                    // content: String inviterUsername
+                    try {
+                        String inviter = (String) message.getContent();
+                        if (inviter != null && user != null) {
+                            ClientHandler inviterHandler = clientManager.getClientByUsername(inviter);
+                            if (inviterHandler != null) {
+                                // notify inviter and create session
+                                System.out.println("INVITE_ACCEPT received from " + user.getUsername() + " for inviter=" + inviter);
+                                inviterHandler.sendResponse(new Message(MessageType.INVITE_ACCEPT, user.getUsername()));
+                                System.out.println("Creating game session between " + inviter + " and " + user.getUsername());
+                                server.getGameManager().createSession(inviterHandler, this);
+                            } else {
+                                System.out.println("INVITE_ACCEPT: inviter not found: " + inviter);
+                                sendResponse(new Message(MessageType.INVITE_REJECT, "Inviter not online"));
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Invalid INVITE_ACCEPT payload");
+                    }
+                    break;
+
+                case MessageType.INVITE_REJECT:
+                    // content: String inviterUsername
+                    try {
+                        String inviter = (String) message.getContent();
+                        if (inviter != null && user != null) {
+                            ClientHandler inviterHandler = clientManager.getClientByUsername(inviter);
+                            if (inviterHandler != null) {
+                                System.out.println("INVITE_REJECT from " + user.getUsername() + " to inviter=" + inviter);
+                                inviterHandler.sendResponse(new Message(MessageType.INVITE_REJECT, user.getUsername()));
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Invalid INVITE_REJECT payload");
+                    }
+                    break;
+
+                
+                case MessageType.PICK_CELL:
+                    // content: int[]{row,col}
+                    try {
+                        int[] rc = (int[]) message.getContent();
+                        server.getGameManager().handlePick(this, rc[0], rc[1]);
+                    } catch (Exception ex) {
+                        System.err.println("Invalid PICK_CELL payload");
+                    }
+                    break;
+
+                case MessageType.EXIT_GAME:
+                    // a player wants to exit current game
+                    server.getGameManager().handleExit(this);
                     break;
 
                 default:

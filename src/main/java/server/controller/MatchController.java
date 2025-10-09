@@ -5,7 +5,7 @@ import model.*;
 
 import java.util.*;
 
-public class GameController {
+public class MatchController {
     private GameSession session;
 
     public void startNewGame(User p1, User p2, List<String> targetColors) {

@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Message;
@@ -48,5 +49,19 @@ public class MainController {
     public void initialize() {
         System.out.println("colUsername = " + colUsername);
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+
+        // double-click a row to send invite
+        userTable.setRowFactory(tv -> {
+            TableRow<User> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    User selected = row.getItem();
+                    if (selected != null && client != null) {
+                        client.sendInvite(selected.getUsername());
+                    }
+                }
+            });
+            return row;
+        });
     }
 }
