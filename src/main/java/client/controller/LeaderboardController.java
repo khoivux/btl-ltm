@@ -7,6 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.Message;
 import model.User;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import java.io.IOException;
@@ -30,6 +32,8 @@ public class LeaderboardController {
     private Label userTop2Score;
     @FXML
     private Label userTop3Score;
+    @FXML
+    private ListView<User> underTop3Users;
 
     private Client client;
     private List<User> users;
@@ -48,6 +52,17 @@ public class LeaderboardController {
         if (curUser != null){
             userScore.setText("Your score is: " + String.valueOf(curUser.getPoints()));
             requestUserRank(curUser.getUsername());
+            requestLeaderboard();
+        }
+    }
+
+    private void requestLeaderboard(){
+        try{
+            Message message = new Message(MessageType.LEADERBOARD, null);
+            client.sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+            client.showErrorAlert("Lỗi khi gửi message leaderboard");
         }
     }
 
@@ -63,6 +78,8 @@ public class LeaderboardController {
 
     public void setClient(Client client) {
         this.client = client;
+        // When client is set after FXML load, trigger initial data fetch
+        loadCurrentUserInfo();
     }
 
     public void setUser(User user) {
@@ -74,39 +91,55 @@ public class LeaderboardController {
         client.showMainUI();
     }
 
-    @FXML
-    public void handleUserRank() throws IOException {
-        try{
-            String username = client.getUser().getUsername();
-            Message message = new Message(MessageType.RANK, username);
-            client.sendMessage(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-            client.showErrorAlert("Lỗi khi gửi message");
-        }
-    }
+    // @FXML
+    // public void handleUserRank() throws IOException {
+    //     try{
+    //         String username = client.getUser().getUsername();
+    //         Message message = new Message(MessageType.RANK, username);
+    //         client.sendMessage(message);
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         client.showErrorAlert("Lỗi khi gửi message");
+    //     }
+    // }
 
     @FXML
     public void updateUserRank(User user) {
         Platform.runLater(() -> {
-            userRank.setText("Rank: " + String.valueOf(user.getRank()));
             userScore.setText("Your score is: " + String.valueOf(user.getPoints()));
+            userRank.setText("Rank: " + String.valueOf(user.getRank()));
         });
     }
 
 
 
-    // public void updateLeaderboard() {
-    //     users = client.getLeaderboard();
-    //     Platform.runLater(() -> {
-    //         userTop1.setText(users.get(0).getUsername());
-    //         userTop1Score.setText(String.valueOf(users.get(0).getPoints()));
-    //         userTop2.setText(users.get(1).getUsername());
-    //         userTop2Score.setText(String.valueOf(users.get(1).getPoints()));
-    //         userTop3.setText(users.get(2).getUsername());
-    //         userTop3Score.setText(String.valueOf(users.get(2).getPoints()));
-    //         userRank.setText(String.valueOf(users.get(0).getRank()));
-    //         userScore.setText(String.valueOf(users.get(0).getPoints()));
-    //     });
-    // }
+    public void updateLeaderboard(List<User> topUsers) {
+        if (topUsers == null || topUsers.isEmpty()) {
+            return;
+        }
+        this.users = topUsers;
+        Platform.runLater(() -> {
+            if (users.size() >= 1) {
+                userTop1.setText(users.get(0).getUsername());
+                userTop1Score.setText(String.valueOf(users.get(0).getPoints()));
+            }
+            if (users.size() >= 2) {
+                userTop2.setText(users.get(1).getUsername());
+                userTop2Score.setText(String.valueOf(users.get(1).getPoints()));
+            }
+            if (users.size() >= 3) {
+                userTop3.setText(users.get(2).getUsername());
+                userTop3Score.setText(String.valueOf(users.get(2).getPoints()));
+            }
+
+            // Lấy các users từ vị trí thứ 4 trở đi (không thuộc top 3)
+            ArrayList<User> remainingUsers = new ArrayList<User>();
+            for(int i = 3; i < topUsers.size(); i++){
+                remainingUsers.add(topUsers.get(i));
+            }
+            // Cập nhật ListView với các users còn lại
+            underTop3Users.getItems().clear();
+            underTop3Users.getItems().addAll(remainingUsers);
+        });
+    }
 }

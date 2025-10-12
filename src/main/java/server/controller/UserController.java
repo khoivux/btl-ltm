@@ -17,4 +17,8 @@ public class UserController {
     public void register(User registerInfo) throws Exception {
         userDAO.insertUser(registerInfo);
     }
+
+    public User getUserById(int id){
+        return userDAO.getUserById(id);
+    }
 }
