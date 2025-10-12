@@ -22,4 +22,8 @@ public class UserController {
     public User getRankByUsername(String username) {
         return userDAO.getRankByUsername(username);
     }
+
+    public User getUserById(int id){
+        return userDAO.getUserById(id);
+    }
 }

@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane prefHeight="660" prefWidth="164.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.LeaderboardController">
+<StackPane prefHeight="660" prefWidth="164.0" style="-fx-background-color: transparent;" stylesheets="@../css/leaderboard.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.LeaderboardController">
    <children>
       <ImageView fitHeight="660.0" fitWidth="380.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -16,7 +16,7 @@
              <Rectangle arcHeight="30" arcWidth="30" height="660" width="308" />
          </clip>
       </ImageView>
-      <AnchorPane prefHeight="660.0" prefWidth="250.0">
+      <AnchorPane prefHeight="660.0" prefWidth="330.0">
          <children>
             <Button fx:id="btnBack" layoutX="14.0" layoutY="17.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="24.0" prefWidth="22.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;" />
             <Label fx:id="userScore" layoutX="32.0" layoutY="76.0" prefHeight="22.0" prefWidth="150.0" text="" textFill="WHITE">
@@ -43,21 +43,22 @@
                   <Font name="Inter Semi Bold" size="16.0" />
                </font>
             </Label>
-            <Label fx:id="userTop1Score" layoutX="141.0" layoutY="260.0" prefHeight="22.0" prefWidth="30.0" text="379" textAlignment="CENTER" textFill="WHITE">
+            <Label fx:id="userTop1Score" layoutX="149.0" layoutY="260.0" prefHeight="22.0" prefWidth="22.0" text="9" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="Inter Semi Bold" size="16.0" />
                </font>
             </Label>
-            <Label fx:id="userTop2Score" layoutX="53.0" layoutY="289.0" prefHeight="22.0" prefWidth="30.0" text="379" textAlignment="CENTER" textFill="WHITE">
+            <Label fx:id="userTop2Score" layoutX="61.0" layoutY="289.0" prefHeight="22.0" prefWidth="22.0" text="3" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="Inter Semi Bold" size="16.0" />
                </font>
             </Label>
-            <Label fx:id="userTop3Score" layoutX="238.0" layoutY="289.0" prefHeight="22.0" prefWidth="30.0" text="379" textAlignment="CENTER" textFill="WHITE">
+            <Label fx:id="userTop3Score" layoutX="246.0" layoutY="289.0" prefHeight="22.0" prefWidth="22.0" text="7" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font name="Inter Semi Bold" size="16.0" />
                </font>
             </Label>
+            <ListView fx:id="underTop3Users" layoutX="71.0" layoutY="334.0" opacity="1.0" prefHeight="324.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-control-inner-background: transparent;" styleClass="list-view" />
          </children>
       </AnchorPane>
    </children>

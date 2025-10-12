@@ -1,14 +1,13 @@
 package server;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.List;
 
 import constant.MessageType;
 import model.Message;
 import model.User;
+import server.controller.ChatController;
 import server.controller.UserController;
 
 /**
@@ -27,7 +26,7 @@ public class ClientHandler implements Runnable{
     private User user;
     // Controller
     private final UserController userController = new UserController();
-
+    private final ChatController chatController = new ChatController();
     /*
      * khởi tạo khi có client kết nối tới server 
      */
@@ -165,6 +164,9 @@ public class ClientHandler implements Runnable{
     public void handleGetLeaderboard(){
         try{
             List<User> users = userController.getLeaderboard();
+            for(User user : users){
+                System.out.println(user.getUsername());
+            }
             if (!users.isEmpty()){
                 sendResponse(new Message(MessageType.LEADERBOARD_SUCCESS, users));
                 System.out.println("Gửi yêu cầu lấy bảng xếp hạng thành công");
@@ -183,13 +185,18 @@ public class ClientHandler implements Runnable{
         try{
             String username = (String) message.getContent();
             User user = userController.getRankByUsername(username);
-            sendResponse(new Message(MessageType.RANK_SUCCESS, user));
+            if(user != null){
+                sendResponse(new Message(MessageType.RANK_SUCCESS, user));
+            } 
+            else {
+                sendResponse(new Message(MessageType.RANK_FAILURE, "User not found"));
+            }
             System.out.println("Gửi yêu cầu lấy xếp hạng cá nhân thành công");
         } catch(Exception e){
             e.printStackTrace();
             sendResponse(new Message(MessageType.RANK_FAILURE, "Server error"));
             System.out.println("Lỗi Server khi gửi yêu cầu lấy XH cá nhân");
-        }
+        } 
     }
 
 
@@ -212,5 +219,7 @@ public class ClientHandler implements Runnable{
         }
     }
 
+
     public User getUser(){return this.user;}
 }
+

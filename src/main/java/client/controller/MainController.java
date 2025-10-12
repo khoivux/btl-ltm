@@ -45,6 +45,15 @@ public class MainController {
     }
 
     public void handleLeaderboard() throws IOException {
+        User currentUser = client.getUser();
+        if (currentUser != null) {
+            try {
+                client.sendMessage(new Message(MessageType.RANK, currentUser.getUsername()));
+                client.sendMessage(new Message(MessageType.LEADERBOARD, null));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         client.showLeaderboardUI();
     }
 

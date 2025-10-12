@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
@@ -105,6 +106,9 @@ public class Client {
 
     private void handleMessage(Message message) {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
+        // if (message.getType().equals(MessageType.RANK_SUCCESS)){
+        //     System.out.println(message.getContent().getClass());
+        // }
         
         switch (message.getType()) {
             case MessageType.LOGIN_SUCCESS:
@@ -125,6 +129,14 @@ public class Client {
             
             case MessageType.RANK_FAILURE:
                 handleUserRankFailure(message);
+                break;
+
+            case MessageType.LEADERBOARD_SUCCESS:
+                handleLeaderboardSuccess(message);
+                break;
+
+            case MessageType.LEADERBOARD_FAILURE:
+                handleLeaderboardFailure(message);
                 break;
 
             default:
@@ -204,7 +216,7 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Leaderboard.fxml"));
             Parent root = loader.load();
 
-            LeaderboardController leaderboardController = loader.getController();
+            leaderboardController = loader.getController();
             if (leaderboardController != null) {
                 leaderboardController.setClient(this);
             }
@@ -218,6 +230,7 @@ public class Client {
 
     private void handleUserRankSuccess(Message message) {
         User user = (User) message.getContent();
+        System.out.println("=== Received user from server ===");
         Platform.runLater(() -> {
             if(leaderboardController != null){
                 leaderboardController.setUser(user);
@@ -237,12 +250,34 @@ public class Client {
         // leaderboardController.showError(errorMsg);
     }
 
+    private void handleLeaderboardSuccess(Message message) {
+        @SuppressWarnings("unchecked")
+        List<User> users = (List<User>) message.getContent();
+        Platform.runLater(() -> {
+            if (leaderboardController != null) {
+                leaderboardController.updateLeaderboard(users);
+            } else {
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleLeaderboardFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy leaderboard thất bại: " + errorMsg);
+        });
+    }
+
     /*
    Gửi message về server
     */
     // Thêm debug trong sendMessage()
 public void sendMessage(Message message) throws IOException {
     System.out.println("Đang gửi message: " + message.getType());
+    // if(message.getType() == MessageType.RANK){
+    //     System.out.println(message.getContent());
+    // }
     if (out == null) {
         System.out.println("ERROR: out is null!");
         return;

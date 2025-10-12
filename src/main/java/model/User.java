@@ -11,9 +11,17 @@ public class User implements Serializable {
     private int points;
     private int rank;
 
+    public User() {
+    }
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public User(int id, String username) {
+        this.id = id;
+        this.username = username;
     }
 
     public User(int id, String username, int points) {
@@ -74,5 +82,10 @@ public class User implements Serializable {
 
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("#%d \t %s \t\t %dpts", rank, username, points);
     }
 }
