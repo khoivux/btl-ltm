@@ -11,6 +11,12 @@ public class Chat {
         this.user = user;
     }
 
+    public Chat(String content, User user, int id) {
+        this.content = content;
+        this.user = user;
+        this.id = id;
+    }
+
     public Chat(){}
 
     public String getContent() {
@@ -27,5 +33,18 @@ public class Chat {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString(){
+        return (this.user.getUsername() + ": " + this.content);
     }
 }

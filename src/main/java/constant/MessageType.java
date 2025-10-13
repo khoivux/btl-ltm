@@ -18,12 +18,22 @@ public enum MessageType {
     LEADERBOARD("leaderboard"),
     LEADERBOARD_SUCCESS("leaderboard_success"),
     LEADERBOARD_FAILURE("leaderboard_failure"),
-    LEADERBOARD_UPDATE("leaderboard_update"),
+
+    // CHAT
+    CHAT("chat"),
+    CHAT_SUCCESS("chat_success"),
+    CHAT_FAILURE("chat_failure"),
+    ADD_CHAT("add_chat"),
+    ADD_CHAT_SUCCESS("add_chat_success"),
+    ADD_CHAT_FAILURE("add_chat_failure"),
 
     // RANK
     RANK("rank"),
     RANK_SUCCESS("rank_success"),
     RANK_FAILURE("rank_failure"),
+
+
+
 
     TEST("hihi");
     private final String value;

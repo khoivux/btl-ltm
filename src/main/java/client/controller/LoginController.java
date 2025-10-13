@@ -37,6 +37,8 @@ public class LoginController {
 
         Message loginMessage = new Message(MessageType.LOGIN, new User(username, password));
         client.sendMessage(loginMessage);
+        Message showChat = new Message(MessageType.CHAT, null);
+        client.sendMessage(showChat);
     }
 
     public void showError(String error) {

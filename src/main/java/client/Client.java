@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import model.Chat;
 import model.Message;
 import model.User;
 
@@ -32,6 +33,7 @@ public class Client {
     // Controllers
     private LoginController loginController;
     private LeaderboardController leaderboardController;
+    private MainController mainController;
 
     // volatile để đảm bảo tính toàn vẹn dữ liệu khi có nhiều thread truy cập
     private volatile boolean isRunning = true;
@@ -139,6 +141,21 @@ public class Client {
                 handleLeaderboardFailure(message);
                 break;
 
+            case MessageType.CHAT_SUCCESS:
+                handleChatSuccess(message);
+                break;
+
+            case MessageType.CHAT_FAILURE:
+                handleChatFailure(message);
+                break;
+
+            case MessageType.ADD_CHAT_SUCCESS:
+                handleAddChatSuccess(message);
+                break;
+
+            case MessageType.ADD_CHAT_FAILURE:
+                handleAddChatFailure(message);
+                break;
             default:
                 System.out.println("Unknown message type: " + message.getType());
                 break;
@@ -266,6 +283,33 @@ public class Client {
         String errorMsg = (String) message.getContent();
         Platform.runLater(() -> {
             System.out.println("Lấy leaderboard thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleChatSuccess(Message message){
+        List<Chat> chats = (List<Chat>) message.getContent();
+        Platform.runLater(() -> {
+            if (mainController != null){
+                mainController.;
+            }
+        });
+    }
+
+    private void handleChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy chat thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleAddChatSuccess(Message message){
+
+    }
+
+    private void handleAddChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Them chat thất bại: " + errorMsg);
         });
     }
 
