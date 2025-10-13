@@ -32,7 +32,8 @@
                 </columns>
             </TableView>
          <ListView fx:id="listChats" prefHeight="120.0" prefWidth="698.0" />
-         <TextField fx:id="addedChat" promptText="Nhap tin nhan cua ban..." />
+         <TextField fx:id="addedChat" promptText="Nhap tin nhan cua ban..." onAction="#handleAddChat" />
+         <Button onAction="#handleAddChat" mnemonicParsing="false" text="Send" />
 
         </VBox>
     </center>

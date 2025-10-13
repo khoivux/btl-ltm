@@ -215,13 +215,14 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-            MainController mainController = loader.getController();
-            if (mainController != null) {
-                mainController.setClient(this);
+            this.mainController = loader.getController();
+            if (this.mainController != null) {
+                this.mainController.setClient(this);
             }
 
             stage.setScene(new Scene(root));
             stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
@@ -290,7 +291,10 @@ public class Client {
         List<Chat> chats = (List<Chat>) message.getContent();
         Platform.runLater(() -> {
             if (mainController != null){
-                mainController.;
+                mainController.updateChat(chats);
+            }
+            else {
+                System.out.println("mainController la null");
             }
         });
     }
@@ -303,7 +307,7 @@ public class Client {
     }
 
     private void handleAddChatSuccess(Message message){
-
+        
     }
 
     private void handleAddChatFailure(Message message){

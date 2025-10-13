@@ -34,7 +34,7 @@ public class ChatDAO extends DAO{
     }
 
     public List<Chat> getAllChats(){
-        String SQL_QUERY = "SELECT id, content, user_id FROM chats ORDER BY id DESC";
+        String SQL_QUERY = "SELECT id, content, user_id FROM chats ORDER BY id ASC";
         List<Chat> result = new ArrayList<>();
 
         try{
