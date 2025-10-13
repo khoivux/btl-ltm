@@ -6,6 +6,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import constant.MessageType;
+import model.Chat;
 import model.Message;
 import model.User;
 import server.controller.ChatController;
@@ -121,6 +122,14 @@ public class ClientHandler implements Runnable{
                     handleGetRank(message);
                     break;
 
+                case MessageType.ADD_CHAT:
+                    handleAddChat(message);
+                    break;
+
+                case MessageType.CHAT:
+                    handleChat();
+                    break;
+
                 default:
                     System.out.println("ERROR: Message không hợp lệ ");
                     break;
@@ -169,12 +178,43 @@ public class ClientHandler implements Runnable{
         }
     }
 
-    public void handleGetOnlineUsers() {
+    private void handleAddChat(Message message){
+        try{
+            Chat chat = (Chat) message.getContent();
+            boolean isAdded = chatController.saveChat(chat);
+            if(isAdded){
+                sendResponse(new Message(MessageType.ADD_CHAT_SUCCESS, "Them chat thanh cong"));
+            }
+            else {
+                sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Them chat that bai"));
+            }
+        } catch (Exception e) {
+            sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Server errpr"));
+            e.printStackTrace();
+        }
+    }
+
+    private void handleChat(){
+        try{
+            List<Chat> chats = chatController.getAllChat();
+            if(!chats.isEmpty()){
+                clientManager.broadcast(new Message(MessageType.CHAT, chats));
+            }
+            else{
+                clientManager.broadcast(new Message(MessageType.CHAT_FAILURE, "No chat found."));
+            }
+        } catch (Exception e){
+            clientManager.broadcast(new Message(MessageType.CHAT_FAILURE, "Server error"));
+            e.printStackTrace();
+        }
+    }
+
+    private void handleGetOnlineUsers() {
         List<User> users = clientManager.getOnlineUsers();
         sendResponse(new Message(MessageType.ONLINE_LIST, users));
     }
 
-    public void handleGetLeaderboard(){
+    private void handleGetLeaderboard(){
         try{
             List<User> users = userController.getLeaderboard();
             for(User user : users){

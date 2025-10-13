@@ -6,9 +6,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import model.Chat;
 import model.Message;
 import model.User;
 
@@ -18,6 +21,8 @@ import java.util.List;
 public class MainController {
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, String> colUsername;
+    @FXML private ListView<Chat> listChats;
+    @FXML private TextField addedChat;
 //    @FXML private TableColumn<User, String> colStatus;
 
     private Client client;
@@ -55,6 +60,18 @@ public class MainController {
             }
         }
         client.showLeaderboardUI();
+    }
+
+    public void handleAddChat(){
+        User user = client.getUser();
+        String content = addedChat.getText().trim();
+    }
+
+    public void updateChat(List<Chat> chats){
+        Platform.runLater(()->{
+            listChats.getItems().clear();
+            listChats.getItems().addAll(chats);
+        });
     }
 
     @FXML

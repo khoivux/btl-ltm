@@ -12,7 +12,11 @@ public class ChatController {
         this.chatDAO = new ChatDAO();
     }
 
-    public List<Chat> getALlChat(){
+    public List<Chat> getAllChat(){
         return chatDAO.getAllChats();
+    }
+
+    public boolean saveChat(Chat chat) {
+        return chatDAO.saveChat(chat);
     }
 }

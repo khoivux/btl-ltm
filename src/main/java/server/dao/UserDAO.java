@@ -23,7 +23,7 @@ public class UserDAO extends DAO{
     }
 
     public User getUserById(int id){
-        String SQL_QUERY = "SELECT * FROM user WHERE id = ?";
+        String SQL_QUERY = "SELECT * FROM users WHERE id = ?";
 
         try{
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -149,13 +149,13 @@ public class UserDAO extends DAO{
         }
         return null;
     }
-//    public static void main(String[] args) {
+//     public static void main(String[] args) {
 //        System.out.println("=== Testing UserDAO ===");
-//
+
 //        UserDAO userDAO = new UserDAO();
 //        User user = userDAO.getRankByUsername("lamngu");
 //        System.out.println(user.getUsername() + " " + user.getPoints() + " " + user.getRank());
-//
+
 //    }
 }
 

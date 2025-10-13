@@ -5,7 +5,7 @@ import model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +15,7 @@ public class ChatDAO extends DAO{
 
     public ChatDAO(){
         super();
+        this.userDAO = new UserDAO();
     }
 
     public boolean saveChat(Chat newChat){
@@ -24,7 +25,7 @@ public class ChatDAO extends DAO{
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
             ps.setString(1, newChat.getContent());
             ps.setInt(2, newChat.getUser().getId());
-            ps.executeQuery();
+            ps.executeUpdate();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,22 +34,29 @@ public class ChatDAO extends DAO{
     }
 
     public List<Chat> getAllChats(){
-        String SQL_QUERY = "SELECT (content, user_id) FROM chats";
+        String SQL_QUERY = "SELECT id, content, user_id FROM chats ORDER BY id DESC";
         List<Chat> result = new ArrayList<>();
 
         try{
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()){
+            while (rs.next()){
                 User user = userDAO.getUserById(rs.getInt("user_id"));
                 result.add(new Chat(
                         rs.getString("content"),
-                        user
+                        user,
+                        rs.getInt("id")
                 ));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
+    }
+
+    public static void main(String[] args) {
+        ChatDAO chatDAO = new ChatDAO();
+        chatDAO.saveChat(new Chat("dm lam ngu", new User(1, "lamngu")));
     }
 }

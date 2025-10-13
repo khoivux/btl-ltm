@@ -6,9 +6,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
+import client.controller.LeaderboardController;
 import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,9 +18,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import model.Chat;
 import model.Message;
 import model.User;
 
+// client gồm kênh TCP (socket), đầu vào, đầu ra, người dùng, cửa sổ ứng dụng (Stage)
 public class Client {
     private Socket socket;
     private ObjectOutputStream out;
@@ -28,16 +32,24 @@ public class Client {
 
     // Controllers
     private LoginController loginController;
+    private LeaderboardController leaderboardController;
+    private MainController mainController;
 
+    // volatile để đảm bảo tính toàn vẹn dữ liệu khi có nhiều thread truy cập
     private volatile boolean isRunning = true;
 
+    // Khởi tạo client
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
         stage.setResizable(false);
     }
 
     /*
-    Connect server
+    Connect server: đầu vào gồm địa chỉ IP và cổng
+    địa chỉ IP là địa chỉ của server (nếu dùng Radmin thì là IP radmin của máy chủ)
+    mở một socket sau đó khởi tạo out - input
+    set trạng thái isRunning = true để chạy
+    sau đó nghe các Message từ server
      */
     public void startConnection(String address, int port) {
         System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
@@ -58,9 +70,12 @@ public class Client {
             showErrorAlert("Không thể kết nối tới server.");
         }
     }
-
+    /*
+     * hàm nghe message từ server
+     */
     private void listenForMessages() {
         System.out.println("=== BẮT ĐẦU tạo listening thread ===");
+        // tạo một thread mới để nghe message từ server, sau đó lặp các lần handleMessage đến khi server đóng kết nối
         new Thread(() -> {
             isRunning = true;
             try {
@@ -93,6 +108,9 @@ public class Client {
 
     private void handleMessage(Message message) {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
+        // if (message.getType().equals(MessageType.RANK_SUCCESS)){
+        //     System.out.println(message.getContent().getClass());
+        // }
         
         switch (message.getType()) {
             case MessageType.LOGIN_SUCCESS:
@@ -107,6 +125,37 @@ public class Client {
                 handleLogout(message);
                 break;
 
+            case MessageType.RANK_SUCCESS:
+                handleUserRankSuccess(message);
+                break;
+            
+            case MessageType.RANK_FAILURE:
+                handleUserRankFailure(message);
+                break;
+
+            case MessageType.LEADERBOARD_SUCCESS:
+                handleLeaderboardSuccess(message);
+                break;
+
+            case MessageType.LEADERBOARD_FAILURE:
+                handleLeaderboardFailure(message);
+                break;
+
+            case MessageType.CHAT_SUCCESS:
+                handleChatSuccess(message);
+                break;
+
+            case MessageType.CHAT_FAILURE:
+                handleChatFailure(message);
+                break;
+
+            case MessageType.ADD_CHAT_SUCCESS:
+                handleAddChatSuccess(message);
+                break;
+
+            case MessageType.ADD_CHAT_FAILURE:
+                handleAddChatFailure(message);
+                break;
             default:
                 System.out.println("Unknown message type: " + message.getType());
                 break;
@@ -179,6 +228,90 @@ public class Client {
         }
     }
 
+    public void showLeaderboardUI() {
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Leaderboard.fxml"));
+            Parent root = loader.load();
+
+            leaderboardController = loader.getController();
+            if (leaderboardController != null) {
+                leaderboardController.setClient(this);
+            }
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể tải giao diện leaderboard.");
+        }
+    }
+
+    private void handleUserRankSuccess(Message message) {
+        User user = (User) message.getContent();
+        System.out.println("=== Received user from server ===");
+        Platform.runLater(() -> {
+            if(leaderboardController != null){
+                leaderboardController.setUser(user);
+                leaderboardController.updateUserRank(user);
+            }
+            else{
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleUserRankFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy rank thất bại: " + errorMsg);
+        });
+        // leaderboardController.showError(errorMsg);
+    }
+
+    private void handleLeaderboardSuccess(Message message) {
+        @SuppressWarnings("unchecked")
+        List<User> users = (List<User>) message.getContent();
+        Platform.runLater(() -> {
+            if (leaderboardController != null) {
+                leaderboardController.updateLeaderboard(users);
+            } else {
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleLeaderboardFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy leaderboard thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleChatSuccess(Message message){
+        List<Chat> chats = (List<Chat>) message.getContent();
+        Platform.runLater(() -> {
+            if (mainController != null){
+                mainController.;
+            }
+        });
+    }
+
+    private void handleChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy chat thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleAddChatSuccess(Message message){
+
+    }
+
+    private void handleAddChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Them chat thất bại: " + errorMsg);
+        });
+    }
 
     /*
    Gửi message về server
@@ -186,6 +319,9 @@ public class Client {
     // Thêm debug trong sendMessage()
 public void sendMessage(Message message) throws IOException {
     System.out.println("Đang gửi message: " + message.getType());
+    // if(message.getType() == MessageType.RANK){
+    //     System.out.println(message.getContent());
+    // }
     if (out == null) {
         System.out.println("ERROR: out is null!");
         return;
