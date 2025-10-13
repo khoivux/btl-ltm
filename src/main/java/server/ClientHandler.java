@@ -190,13 +190,13 @@ public class ClientHandler implements Runnable{
         try{
             List<Chat> chats = chatController.getAllChat();
             if(!chats.isEmpty()){
-                clientManager.broadcast(new Message(MessageType.CHAT_SUCCESS, chats));
+                sendResponse(new Message(MessageType.CHAT_SUCCESS, chats));
             }
             else{
-                clientManager.broadcast(new Message(MessageType.CHAT_FAILURE, "No chat found."));
+                sendResponse(new Message(MessageType.CHAT_FAILURE, "No chat found."));
             }
         } catch (Exception e){
-            clientManager.broadcast(new Message(MessageType.CHAT_FAILURE, "Server error"));
+            sendResponse(new Message(MessageType.CHAT_FAILURE, "Server error"));
             e.printStackTrace();
         }
     }
