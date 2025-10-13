@@ -6,9 +6,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import model.Chat;
 import model.Message;
 import model.User;
 
@@ -18,6 +21,8 @@ import java.util.List;
 public class MainController {
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, String> colUsername;
+    @FXML private ListView<Chat> listChats;
+    @FXML private TextField addedChat;
 //    @FXML private TableColumn<User, String> colStatus;
 
     private Client client;
@@ -41,6 +46,46 @@ public class MainController {
             onlineUsers.setAll(users);
             userTable.setItems(onlineUsers);
             userTable.refresh();
+        });
+    }
+
+    public void handleLeaderboard() throws IOException {
+        User currentUser = client.getUser();
+        if (currentUser != null) {
+            try {
+                client.sendMessage(new Message(MessageType.RANK, currentUser.getUsername()));
+                client.sendMessage(new Message(MessageType.LEADERBOARD, null));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        client.showLeaderboardUI();
+    }
+
+    public void handleAddChat(){
+        try{
+            User user = client.getUser();
+            String content = addedChat.getText().trim();
+            if (content.isEmpty()){
+                System.out.println("Vui long nhap noi dung chat");
+            }
+            else{
+                Message newChat = new Message(MessageType.ADD_CHAT, new Chat(content, user));
+                client.sendMessage(newChat);
+                addedChat.clear();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void updateChat(List<Chat> chats){
+        Platform.runLater(()->{
+            listChats.getItems().clear();
+            listChats.getItems().addAll(chats);
+            if (!chats.isEmpty()) {
+                listChats.scrollTo(chats.size() );
+            }
         });
     }
 

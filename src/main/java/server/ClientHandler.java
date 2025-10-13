@@ -1,17 +1,22 @@
 package server;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import constant.MessageType;
+import model.Chat;
 import model.Message;
 import model.User;
+import server.controller.ChatController;
 import server.controller.UserController;
 
+/**
+ * ClientHandler là lớp này đại diện cho mỗi client kết nối tới server, mỗi client (user) khi dùng sẽ có 1 clientHandler
+ * => bao gồm server và socket, clientManager để biết clientHandler thuộc về clientManager nào
+ * có đầu vào, đầu ra và User tương ứng với clientHandle
+ */
 public class ClientHandler implements Runnable{
     private final Socket socket;
     private RunServer server;
@@ -23,8 +28,10 @@ public class ClientHandler implements Runnable{
     private User user;
     // Controller
     private final UserController userController = new UserController();
-
-
+    private final ChatController chatController = new ChatController();
+    /*
+     * khởi tạo khi có client kết nối tới server 
+     */
     public ClientHandler(Socket socket, RunServer server) {
         this.socket = socket;
         this.server = server;
@@ -44,10 +51,13 @@ public class ClientHandler implements Runnable{
     public void run() {
         System.out.println("=== ClientHandler THREAD BẮT ĐẦU CHẠY ===");
         try {
+            // Khi còn chạy
             while (isRunning) {
                 System.out.println("Đang chờ message...");
+                // đọc message từ client
                 Message message = (Message) in.readObject();
                 System.out.println("Nhận được message: " + (message != null ? message.getType() : "null"));
+                // xử lý message
                 if (message != null) {
                     handleMessage(message);
                 }
@@ -58,6 +68,8 @@ public class ClientHandler implements Runnable{
             System.out.println("Thông báo lỗi: " + e.getMessage());
             e.printStackTrace();
             System.out.println("Kết nối với " + (user != null ? user.getUsername() : "client") + " bị ngắt.");
+            System.out.println(e.getClass().getSimpleName());
+            e.printStackTrace();
             isRunning = false;
         } finally {
             try {
@@ -98,6 +110,24 @@ public class ClientHandler implements Runnable{
 
                 case MessageType.ONLINE_LIST:
                     handleGetOnlineUsers();
+                    break;
+
+                case MessageType.LEADERBOARD:
+                    System.out.println("--- Lấy top 10 user có điểm cao nhất ---");
+                    handleGetLeaderboard();
+                    break;
+
+                case MessageType.RANK:
+                    System.out.println("--- Xử lý lấy rank ---");
+                    handleGetRank(message);
+                    break;
+
+                case MessageType.ADD_CHAT:
+                    handleAddChat(message);
+                    break;
+
+                case MessageType.CHAT:
+                    handleGetChat();
                     break;
 
                 default:
@@ -148,9 +178,83 @@ public class ClientHandler implements Runnable{
         }
     }
 
-    public void handleGetOnlineUsers() {
+    private void handleAddChat(Message message){
+        try{
+            Chat chat = (Chat) message.getContent();
+            // Ensure the message's user is the authenticated user on this connection
+            chat.setUser(this.user);
+            boolean isAdded = chatController.saveChat(chat);
+            if(isAdded){
+                sendResponse(new Message(MessageType.ADD_CHAT_SUCCESS, "Them chat thanh cong"));
+                // After successfully adding, broadcast refreshed chat list
+                List<Chat> chats = chatController.getAllChat();
+                clientManager.broadcast(new Message(MessageType.CHAT_SUCCESS, chats));
+            }
+            else {
+                sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Them chat that bai"));
+            }
+        } catch (Exception e) {
+            sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Server error"));
+            e.printStackTrace();
+        }
+    }
+
+    private void handleGetChat(){
+        try{
+            List<Chat> chats = chatController.getAllChat();
+            if(!chats.isEmpty()){
+                sendResponse(new Message(MessageType.CHAT_SUCCESS, chats));
+            }
+            else{
+                sendResponse(new Message(MessageType.CHAT_FAILURE, "No chat found."));
+            }
+        } catch (Exception e){
+            sendResponse(new Message(MessageType.CHAT_FAILURE, "Server error"));
+            e.printStackTrace();
+        }
+    }
+
+    private void handleGetOnlineUsers() {
         List<User> users = clientManager.getOnlineUsers();
         sendResponse(new Message(MessageType.ONLINE_LIST, users));
+    }
+
+    private void handleGetLeaderboard(){
+        try{
+            List<User> users = userController.getLeaderboard();
+            for(User user : users){
+                System.out.println(user.getUsername());
+            }
+            if (!users.isEmpty()){
+                sendResponse(new Message(MessageType.LEADERBOARD_SUCCESS, users));
+                System.out.println("Gửi yêu cầu lấy bảng xếp hạng thành công");
+            } else {
+                sendResponse(new Message(MessageType.LEADERBOARD_FAILURE, "Không có user nào"));
+                System.out.println("Không có user nào trong CSDL");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            sendResponse(new Message(MessageType.LEADERBOARD_FAILURE, "Server error"));
+            System.out.println("Lỗi Server khi gửi yêu cầu lấy BXH");
+        }
+    }
+
+    public void handleGetRank(Message message){
+        try{
+            String username = (String) message.getContent();
+            User user = userController.getRankByUsername(username);
+            if(user != null){
+                sendResponse(new Message(MessageType.RANK_SUCCESS, user));
+            } 
+            else {
+                sendResponse(new Message(MessageType.RANK_FAILURE, "User not found"));
+            }
+            System.out.println("Gửi yêu cầu lấy xếp hạng cá nhân thành công");
+        } catch(Exception e){
+            e.printStackTrace();
+            sendResponse(new Message(MessageType.RANK_FAILURE, "Server error"));
+            System.out.println("Lỗi Server khi gửi yêu cầu lấy XH cá nhân");
+        } 
     }
 
 
@@ -173,5 +277,7 @@ public class ClientHandler implements Runnable{
         }
     }
 
+
     public User getUser(){return this.user;}
 }
+

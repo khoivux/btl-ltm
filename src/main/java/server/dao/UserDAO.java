@@ -22,6 +22,25 @@ public class UserDAO extends DAO{
         ps.executeUpdate();
     }
 
+    public User getUserById(int id){
+        String SQL_QUERY = "SELECT * FROM users WHERE id = ?";
+
+        try{
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return new User(
+                    rs.getInt("id"),
+                    rs.getString("username")
+                );
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public User authenticateUser(User user) {
         String SQL_QUERY = "SELECT * FROM users WHERE username = ? AND password = ?";
 
@@ -66,4 +85,78 @@ public class UserDAO extends DAO{
         return users;
     }
 
+    public List<User> getLeaderboard() {
+        List<User> users = new ArrayList<>();
+        String SQL_QUERY = "SELECT username, points FROM users ORDER BY points DESC";
+        
+        try {
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ResultSet rs = ps.executeQuery();
+            int rank = 1;
+            while (rs.next()) {
+                User user = new User(
+                    rs.getString("username"),
+                    rs.getInt("points"),
+                    rank
+                );
+                users.add(user);
+                rank++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    // public User getRankByUsername(String username) {
+    //     String SQL_QUERY ="SELECT t.username, t.points, t.rank FROM (" +
+    //         "  SELECT u.username, u.points, DENSE_RANK() OVER (ORDER BY u.points DESC) AS rank" +
+    //         "  FROM users u" +
+    //         ") t WHERE t.username = ?";
+
+    //     try{
+    //         PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+    //         ps.setString(1, username);
+    //         ResultSet rs = ps.executeQuery();
+    //         if(rs.next()) {
+    //             User user = new User(
+    //                 rs.getString("username"),
+    //                 rs.getInt("points"),
+    //                 rs.getInt("rank")
+    //             );
+    //             return user;
+    //         }
+    //     }   
+    //     catch(Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     return null;
+    // }
+
+    public User getRankByUsername(String username){
+        List<User> users = getLeaderboard();
+        User user = new User();
+        int i = 0;
+        for(i = 0; i < users.size(); i++){
+            if(users.get(i).getUsername().equals(username)){
+                user = users.get(i);
+                break;
+            }
+        }
+        user.setRank(i + 1);
+        if(user != null){
+            return user;
+        }
+        return null;
+    }
+//     public static void main(String[] args) {
+//        System.out.println("=== Testing UserDAO ===");
+
+//        UserDAO userDAO = new UserDAO();
+//        User user = userDAO.getRankByUsername("lamngu");
+//        System.out.println(user.getUsername() + " " + user.getPoints() + " " + user.getRank());
+
+//    }
 }
+
+

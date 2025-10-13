@@ -10,6 +10,7 @@ import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
+import client.controller.LeaderboardController;
 import client.controller.RegisterController;
 import constant.MessageType;
 import javafx.application.Platform;
@@ -18,8 +19,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import model.Chat;
 import model.Message;
 import model.User;
+
 
 public class Client {
     private Socket socket;
@@ -28,21 +31,20 @@ public class Client {
     private User user;
     private Stage stage;
 
-    // Controllers
+
     private LoginController loginController;
+    private LeaderboardController leaderboardController;
     private MainController mainController;
     private RegisterController registerController;
 
     private volatile boolean isRunning = true;
 
+    // Khởi tạo client
     public Client(Stage primaryStage) {
         this.stage = primaryStage;
         stage.setResizable(false);
     }
 
-    /*
-    Connect server
-     */
     public void startConnection(String address, int port) {
         System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
         try {
@@ -62,7 +64,9 @@ public class Client {
             showErrorAlert("Không thể kết nối tới server.");
         }
     }
-
+    /*
+     * hàm nghe message từ server
+     */
     private void listenForMessages() {
         System.out.println("=== BẮT ĐẦU tạo listening thread ===");
         new Thread(() -> {
@@ -97,7 +101,10 @@ public class Client {
 
     private void handleMessage(Message message) throws IOException{
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
-        
+        // if (message.getType().equals(MessageType.RANK_SUCCESS)){
+        //     System.out.println(message.getContent().getClass());
+        // }
+
         switch (message.getType()) {
             case MessageType.REGISTER_SUCCESS:
                 Platform.runLater(this::showLoginUI);
@@ -124,6 +131,37 @@ public class Client {
                 handleLogout(message);
                 break;
 
+            case MessageType.RANK_SUCCESS:
+                handleUserRankSuccess(message);
+                break;
+
+            case MessageType.RANK_FAILURE:
+                handleUserRankFailure(message);
+                break;
+
+            case MessageType.LEADERBOARD_SUCCESS:
+                handleLeaderboardSuccess(message);
+                break;
+
+            case MessageType.LEADERBOARD_FAILURE:
+                handleLeaderboardFailure(message);
+                break;
+
+            case MessageType.CHAT_SUCCESS:
+                handleChatSuccess(message);
+                break;
+
+            case MessageType.CHAT_FAILURE:
+                handleChatFailure(message);
+                break;
+
+            case MessageType.ADD_CHAT_SUCCESS:
+                handleAddChatSuccess(message);
+                break;
+
+            case MessageType.ADD_CHAT_FAILURE:
+                handleAddChatFailure(message);
+                break;
             case MessageType.ONLINE_LIST:
                 handleOnlineUsers(message);
                 break;
@@ -152,12 +190,14 @@ public class Client {
     private void handleLoginSuccess(Message message) {
         User user = (User) message.getContent();
         this.user = user;
+        System.out.println("Đăng nhập thành công: " + user.getUsername());
         Platform.runLater(this::showMainUI);
     }
 
     private void handleLoginFailure(Message message) {
         String errorMsg = (String) message.getContent();
         Platform.runLater(() -> {
+            System.out.println("Đăng nhập thất bại: " + errorMsg);
             if (loginController != null) {
                 loginController.showError(errorMsg);
             }
@@ -200,19 +240,107 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainUI.fxml"));
             Parent root = loader.load();
 
-           mainController = loader.getController();
-            if (mainController != null) {
-                mainController.setClient(this);
+            this.mainController = loader.getController();
+            if (this.mainController != null) {
+                this.mainController.setClient(this);
             }
 
             stage.setScene(new Scene(root));
             stage.show();
+            sendMessage(new Message(MessageType.CHAT, null));
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
         }
     }
 
+    public void showLeaderboardUI() {
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Leaderboard.fxml"));
+            Parent root = loader.load();
+
+            leaderboardController = loader.getController();
+            if (leaderboardController != null) {
+                leaderboardController.setClient(this);
+            }
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Không thể tải giao diện leaderboard.");
+        }
+    }
+
+    private void handleUserRankSuccess(Message message) {
+        User user = (User) message.getContent();
+        System.out.println("=== Received user from server ===");
+        Platform.runLater(() -> {
+            if(leaderboardController != null){
+                leaderboardController.setUser(user);
+                leaderboardController.updateUserRank(user);
+            }
+            else{
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleUserRankFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy rank thất bại: " + errorMsg);
+        });
+        // leaderboardController.showError(errorMsg);
+    }
+
+    private void handleLeaderboardSuccess(Message message) {
+        @SuppressWarnings("unchecked")
+        List<User> users = (List<User>) message.getContent();
+        Platform.runLater(() -> {
+            if (leaderboardController != null) {
+                leaderboardController.updateLeaderboard(users);
+            } else {
+                System.out.println("leaderboardController là giá trị null");
+            }
+        });
+    }
+
+    private void handleLeaderboardFailure(Message message) {
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy leaderboard thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleChatSuccess(Message message){
+        List<Chat> chats = (List<Chat>) message.getContent();
+        Platform.runLater(() -> {
+            if (mainController != null){
+                mainController.updateChat(chats);
+            }
+            else {
+                System.out.println("mainController la null");
+            }
+        });
+    }
+
+    private void handleChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Lấy chat thất bại: " + errorMsg);
+        });
+    }
+
+    private void handleAddChatSuccess(Message message){
+
+    }
+
+    private void handleAddChatFailure(Message message){
+        String errorMsg = (String) message.getContent();
+        Platform.runLater(() -> {
+            System.out.println("Them chat thất bại: " + errorMsg);
+        });
+    }
     public void showRegisterUI() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegisterUI.fxml"));
