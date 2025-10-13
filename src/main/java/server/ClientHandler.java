@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import constant.MessageType;
@@ -83,18 +84,19 @@ public class ClientHandler implements Runnable{
         try {
             switch (message.getType()) {
 
+                case MessageType.REGISTER:
+                    handleRegister(message);
+                    break;
+
                 case MessageType.LOGIN:
-                    System.out.println("--- Xử lý login ---");
                     handleLogin(message);
                     break;
 
                 case MessageType.LOGOUT:
-                    System.out.println("--- Xử lý logout ---");
                     handleLogout();
                     break;
 
                 case MessageType.ONLINE_LIST:
-                    System.out.println("--- Xử lý danh sách online ---");
                     handleGetOnlineUsers();
                     break;
 
@@ -106,12 +108,20 @@ public class ClientHandler implements Runnable{
             e.printStackTrace();
         }
     }
+    private void handleRegister(Message message) {
+        try {
+            userController.register((User) message.getContent());
+            sendResponse(new Message(MessageType.REGISTER_SUCCESS, null));
+        } catch(SQLIntegrityConstraintViolationException e) {
+            sendResponse(new Message(MessageType.REGISTER_FAILURE, "Username đã tồn tại!"));
+        } catch (Exception e) {
+            sendResponse(new Message(MessageType.REGISTER_FAILURE, "Đăng ký thất bại!"));
+        }
+    }
 
     private void handleLogin(Message message) {
         try {
-            User loginInfo = (User) message.getContent();
-            User authenticatedUser = userController.login(loginInfo);
-
+            User authenticatedUser = userController.login((User) message.getContent());
             if (authenticatedUser != null) {
                 this.user = authenticatedUser;
                 clientManager.addClient(this);
@@ -121,8 +131,7 @@ public class ClientHandler implements Runnable{
             } else {
                 sendResponse(new Message(MessageType.LOGIN_FAILURE, "Sai username hoặc password"));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {;
             sendResponse(new Message(MessageType.LOGIN_FAILURE, "Server error"));
         }
     }
@@ -147,7 +156,7 @@ public class ClientHandler implements Runnable{
 
     public void sendResponse(Message response) {
         if (socket == null || socket.isClosed()) {
-            System.out.println("Socket đã đóng, không thể gửi phản hồi tới " + (user != null ? user.getUsername() : "client"));
+            System.out.println("Socket đã đóng: " + (user != null ? user.getUsername() : "client"));
             return;
         }
 

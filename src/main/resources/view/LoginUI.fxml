@@ -58,5 +58,13 @@
                AnchorPane.rightAnchor="40"
                AnchorPane.topAnchor="320"
                style="-fx-font-weight: bold; -fx-effect: dropshadow(gaussian, white, 1, 0.5, 0, 0);"/>
+        
+        <!-- Register Button -->
+        <Button text="Đăng ký tài khoản" onAction="#handleRegister"
+                AnchorPane.leftAnchor="40"
+                AnchorPane.rightAnchor="40"
+                AnchorPane.topAnchor="350"
+                prefHeight="30"
+                style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1; -fx-background-radius: 10; -fx-border-radius: 10; -fx-font-size: 12px; -fx-underline: true;"/>
     </AnchorPane>
 </StackPane>

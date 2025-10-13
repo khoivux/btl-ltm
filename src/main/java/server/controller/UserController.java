@@ -13,4 +13,8 @@ public class UserController {
     public User login(User loginInfo) {
         return userDAO.authenticateUser(loginInfo);
     }
+
+    public void register(User registerInfo) throws Exception {
+        userDAO.insertUser(registerInfo);
+    }
 }

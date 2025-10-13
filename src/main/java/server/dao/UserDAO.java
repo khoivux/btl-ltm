@@ -13,22 +13,13 @@ public class UserDAO extends DAO{
         super();
     }
 
-    public boolean saveUser(User loginInfo) {
+    public void insertUser(User loginInfo) throws Exception {
         String SQL_QUERY = "INSERT INTO users (username, password, points) VALUES (?, ?, ?)";
-
-        try {
-            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
-            ps.setString(1, loginInfo.getUsername());
-            ps.setString(2, loginInfo.getPassword());
-            ps.setInt(3, 0);
-            ps.executeUpdate();
-            return true;
-        } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println("Username đã tồn tại: " + loginInfo.getUsername());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+        ps.setString(1, loginInfo.getUsername());
+        ps.setString(2, loginInfo.getPassword());
+        ps.setInt(3, 0);
+        ps.executeUpdate();
     }
 
     public User authenticateUser(User user) {
