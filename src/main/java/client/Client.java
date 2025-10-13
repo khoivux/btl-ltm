@@ -222,7 +222,7 @@ public class Client {
 
             stage.setScene(new Scene(root));
             stage.show();
-
+            sendMessage(new Message(MessageType.CHAT, null));
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");

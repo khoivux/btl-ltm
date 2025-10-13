@@ -54,9 +54,4 @@ public class ChatDAO extends DAO{
         }
         return result;
     }
-
-    public static void main(String[] args) {
-        ChatDAO chatDAO = new ChatDAO();
-        chatDAO.saveChat(new Chat("dm lam ngu", new User(1, "lamngu")));
-    }
 }
