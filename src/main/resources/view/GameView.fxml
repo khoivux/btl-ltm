@@ -1,40 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="20.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="14.0">
+            <children>
+                <Label text="HÃY TÌM VÀ CHỌN 5 MÀU SAU:">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <HBox fx:id="previewBox" alignment="CENTER" prefHeight="60.0" spacing="20.0">
+                </HBox>
 
-    <top>
-        <HBox spacing="20">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10" />
-            </padding>
-            <Label text="Player 1: " fx:id="lblPlayer1"/>
-            <Label text="0" fx:id="scorePlayer1"/>
-            <Label text="Player 2: " fx:id="lblPlayer2"/>
-            <Label text="0" fx:id="scorePlayer2"/>
-            <Label text="Thời gian: "/>
-            <Label text="15" fx:id="timerLabel"/>
-        </HBox>
-    </top>
 
-    <center>
-        <GridPane fx:id="boardGrid" hgap="10" vgap="10" alignment="CENTER">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10" />
-            </padding>
-        </GridPane>
-    </center>
+                <Label fx:id="timerLabel" text="15" />
 
-    <bottom>
-        <HBox alignment="CENTER" spacing="15">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10" />
-            </padding>
-            <Button text="Kết thúc" onAction="#endGame"/>
-        </HBox>
-    </bottom>
+                <GridPane fx:id="boardGrid" hgap="10" vgap="10" alignment="CENTER">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10" />
+                    </padding>
+                </GridPane>
+            </children>
+        </VBox>
 
-</BorderPane>
+        <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-border-color: lightgray; -fx-border-width: 2; -fx-border-radius: 10;" AnchorPane.bottomAnchor="24.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="24.0" AnchorPane.leftAnchor="575.0">
+            <children>
+                <Label text="THÔNG TIN TRẬN ĐẤU">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </Label>
+                <VBox spacing="5.0" style="-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-padding: 10;">
+                    <children>
+                        <Label text="Người chơi 1">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Label text="Username:" />
+                                <Label fx:id="lblPlayer1" text="PlayerOne" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Label text="Điểm:" />
+                                <Label fx:id="scorePlayer1" text="0" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <VBox spacing="5.0" style="-fx-background-color: #ffebee; -fx-background-radius: 10; -fx-padding: 10;">
+                    <children>
+                        <Label text="Người chơi 2">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Label text="Username:" />
+                                <Label fx:id="lblPlayer2" text="PlayerTwo" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="10.0">
+                            <children>
+                                <Label text="Điểm:" />
+                                <Label fx:id="scorePlayer2" text="0" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

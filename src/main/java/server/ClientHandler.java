@@ -57,14 +57,13 @@ public class ClientHandler implements Runnable{
         } finally {
             try {
                 if (user != null) {
-//                    try {
-//                        dbManager.updateUserStatus(user.getId(), "offline");
-//                    } catch (SQLException ex) {
-//                        System.err.println("Không thể cập nhật trạng thái user: " + ex.getMessage());
-//                    }
-//                    server.broadcast(new Message("status_update",
-//                            user.getUsername() + " đã offline."));
-//                    server.removeClient(this);
+                    try {
+                        clientManager.removeClient(this);
+                        clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, user.getUsername() + " đã offline"));
+                        System.out.println("ClientHandler: removed client " + user.getUsername());
+                    } catch (Exception ex) {
+                        System.err.println("Error removing client on disconnect: " + ex.getMessage());
+                    }
                 }
                 // notify game manager (if any) that this client disconnected
                 try {
