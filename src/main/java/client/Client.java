@@ -20,6 +20,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private Socket socket;
@@ -382,11 +384,15 @@ public class Client {
                 List<String> colors = (List<String>) arr[0];
                 String myName = (String) arr[1];
                 String opp = (String) arr[2];
+                String[][] board = (String[][]) arr[3];
                 Platform.runLater(() -> {
                     // ensure UI loaded
                     showGameUI();
                     if (gameController != null) {
-                        gameController.onSessionStart(colors, myName, opp);
+                        Executors.newSingleThreadScheduledExecutor().schedule(() ->
+                                        Platform.runLater(() -> gameController.onSessionStart(colors, myName, opp,board)),
+                                200, TimeUnit.MILLISECONDS
+                        );
                     }
                 });
             } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
