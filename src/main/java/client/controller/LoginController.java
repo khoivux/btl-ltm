@@ -39,6 +39,13 @@ public class LoginController {
         client.sendMessage(loginMessage);
     }
 
+    @FXML
+    private void handleRegister() {
+        if (client != null) {
+            client.showRegisterUI();
+        }
+    }
+
     public void showError(String error) {
         Platform.runLater(() -> {
             errorLabel.setText(error);
