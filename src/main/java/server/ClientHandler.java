@@ -127,7 +127,7 @@ public class ClientHandler implements Runnable{
                     break;
 
                 case MessageType.CHAT:
-                    handleChat();
+                    handleGetChat();
                     break;
 
                 default:
@@ -181,24 +181,29 @@ public class ClientHandler implements Runnable{
     private void handleAddChat(Message message){
         try{
             Chat chat = (Chat) message.getContent();
+            // Ensure the message's user is the authenticated user on this connection
+            chat.setUser(this.user);
             boolean isAdded = chatController.saveChat(chat);
             if(isAdded){
                 sendResponse(new Message(MessageType.ADD_CHAT_SUCCESS, "Them chat thanh cong"));
+                // After successfully adding, broadcast refreshed chat list
+                List<Chat> chats = chatController.getAllChat();
+                clientManager.broadcast(new Message(MessageType.CHAT_SUCCESS, chats));
             }
             else {
                 sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Them chat that bai"));
             }
         } catch (Exception e) {
-            sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Server errpr"));
+            sendResponse(new Message(MessageType.ADD_CHAT_FAILURE, "Server error"));
             e.printStackTrace();
         }
     }
 
-    private void handleChat(){
+    private void handleGetChat(){
         try{
             List<Chat> chats = chatController.getAllChat();
             if(!chats.isEmpty()){
-                clientManager.broadcast(new Message(MessageType.CHAT, chats));
+                clientManager.broadcast(new Message(MessageType.CHAT_SUCCESS, chats));
             }
             else{
                 clientManager.broadcast(new Message(MessageType.CHAT_FAILURE, "No chat found."));

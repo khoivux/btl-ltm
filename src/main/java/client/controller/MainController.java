@@ -63,14 +63,29 @@ public class MainController {
     }
 
     public void handleAddChat(){
-        User user = client.getUser();
-        String content = addedChat.getText().trim();
+        try{
+            User user = client.getUser();
+            String content = addedChat.getText().trim();
+            if (content.isEmpty()){
+                System.out.println("Vui long nhap noi dung chat");
+            }
+            else{
+                Message newChat = new Message(MessageType.ADD_CHAT, new Chat(content, user));
+                client.sendMessage(newChat);
+                addedChat.clear();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void updateChat(List<Chat> chats){
         Platform.runLater(()->{
             listChats.getItems().clear();
             listChats.getItems().addAll(chats);
+            if (!chats.isEmpty()) {
+                listChats.scrollTo(chats.size() );
+            }
         });
     }
 
