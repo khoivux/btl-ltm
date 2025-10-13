@@ -10,6 +10,7 @@ import java.util.List;
 
 import client.controller.LoginController;
 import client.controller.MainController;
+import client.controller.RegisterController;
 import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +31,7 @@ public class Client {
     // Controllers
     private LoginController loginController;
     private MainController mainController;
+    private RegisterController registerController;
 
     private volatile boolean isRunning = true;
 
@@ -97,6 +99,19 @@ public class Client {
         System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         
         switch (message.getType()) {
+            case MessageType.REGISTER_SUCCESS:
+                Platform.runLater(this::showLoginUI);
+                break;
+
+            case MessageType.REGISTER_FAILURE:
+                String errorMsg = (String) message.getContent();
+                Platform.runLater(() -> {
+                    if (registerController != null) {
+                        registerController.showError(errorMsg);
+                    }
+                });
+                break;
+
             case MessageType.LOGIN_SUCCESS:
                 handleLoginSuccess(message);
                 break;
@@ -137,14 +152,12 @@ public class Client {
     private void handleLoginSuccess(Message message) {
         User user = (User) message.getContent();
         this.user = user;
-        System.out.println("Đăng nhập thành công: " + user.getUsername());
         Platform.runLater(this::showMainUI);
     }
 
     private void handleLoginFailure(Message message) {
         String errorMsg = (String) message.getContent();
         Platform.runLater(() -> {
-            System.out.println("Đăng nhập thất bại: " + errorMsg);
             if (loginController != null) {
                 loginController.showError(errorMsg);
             }
@@ -197,6 +210,23 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Không thể tải giao diện chính.");
+        }
+    }
+
+    public void showRegisterUI() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegisterUI.fxml"));
+            Parent root = loader.load();
+
+           registerController = loader.getController();
+            if (registerController != null) {
+                registerController.setClient(this);
+            }
+
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
