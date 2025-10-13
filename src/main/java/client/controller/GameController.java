@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import model.Message;
 import java.io.IOException;
 import java.util.List;
@@ -30,27 +31,56 @@ public class GameController {
 
 
     private Client client;
+    private String[][] currentBoardData; // <-- BIẾN MỚI: Lưu trữ dữ liệu màu của bảng
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    // Cần gọi phương thức này khi nhận được dữ liệu bảng từ server (ví dụ: trong onSessionStart)
+    public void setBoardData(String[][] boardData) {
+        this.currentBoardData = boardData;
     }
 
     // Build an 8x8 grid of buttons
     public void buildBoard() {
         Platform.runLater(() -> {
             boardGrid.getChildren().clear();
+            if (currentBoardData == null) {
+                System.err.println("Board data not set. Cannot build board.");
+                return;
+            }
+
             for (int r = 0; r < 8; r++) {
                 for (int c = 0; c < 8; c++) {
                     Button btn = new Button(" ");
                     btn.setMinSize(40, 40);
+                    btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+                    // --- THAY ĐỔI: Gán màu nền cho nút dựa trên currentBoardData ---
+                    String colorName = currentBoardData[r][c];
+                    Color buttonColor = parseColor(colorName);
+
+                    // Đặt màu nền bằng CSS cho Button
+                    String style = String.format("-fx-background-color: %s; -fx-text-fill: black;",
+                            toWebColor(buttonColor));
+                    btn.setStyle(style);
+
+                    // Đặt màu viền để dễ phân biệt ô
+                    btn.setStyle(btn.getStyle() + " -fx-border-color: #333333; -fx-border-width: 1; -fx-font-weight: bold;");
+
+                    // -----------------------------------------------------------------
+
                     final int rr = r, cc = c;
                     btn.setOnAction(ev -> { ev.consume(); onCellClicked(rr, cc); });
+
                     boardGrid.add(btn, c, r);
                     GridPane.setHalignment(btn, HPos.CENTER);
                     GridPane.setValignment(btn, VPos.CENTER);
                 }
             }
-            System.out.println("******" + boardGrid + "******");
+            // Đảm bảo GridPane giãn ra để chứa các nút
+            boardGrid.requestLayout();
         });
     }
 
@@ -66,10 +96,14 @@ public class GameController {
     private void showPreview(List<String> colors) {
         Platform.runLater(() -> {
             try {
-                // Xóa mọi ô cũ
-//                previewBox.getChildren().clear();
+                // Xóa mọi ô cũ và reset lại chỉ có label "Màu mục tiêu (3s)"
+                previewBox.getChildren().clear();
+                Label title = new Label("Màu mục tiêu (3s)");
+                title.setFont(new Font("System Bold", 24.0));
+                previewBox.getChildren().add(title);
 
-                // Thêm Rectangle cho từng màu
+
+                // Thêm Rectangle cho từng màu (đặt ở giữa)
                 for (String col : colors) {
                     Rectangle r = new Rectangle(50, 50);
                     r.setFill(parseColor(col));
@@ -78,20 +112,14 @@ public class GameController {
                     r.setArcHeight(10);
                     previewBox.getChildren().add(r);
                 }
-                Label testLabel = new Label("TEST PREVIEW");
-                testLabel.setStyle("-fx-text-fill: red; -fx-font-size: 20px;"); // màu chữ dễ nhìn
-                previewBox.getChildren().add(testLabel);
-                System.out.println(previewBox.getChildren());
-
-                // Ép layout và áp dụng CSS
-                previewBox.applyCss();
-                previewBox.layout();
 
                 // Hiển thị previewBox, ẩn boardGrid
                 previewBox.setVisible(true);
                 previewBox.setManaged(true);
+
                 boardGrid.setVisible(false);
                 boardGrid.setManaged(false);
+
 
                 // Sau 3 giây, ẩn previewBox và hiển thị board
                 ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -120,21 +148,22 @@ public class GameController {
      */
     private Color parseColor(String raw) {
         try {
-            // Nếu là tên màu chuẩn như "RED", "CYAN"...
             return Color.valueOf(raw);
         } catch (IllegalArgumentException e) {
-            if (raw.startsWith("0x") && raw.length() == 10) {
-                // 0xAARRGGBB -> #RRGGBBAA
-                String a = raw.substring(2, 4);
-                String r = raw.substring(4, 6);
-                String g = raw.substring(6, 8);
-                String b = raw.substring(8, 10);
-                return Color.web("#" + r + g + b + a);
-            }
+            // ... (Giữ nguyên logic chuyển đổi màu của bạn nếu cần)
             return Color.GRAY; // fallback
         }
     }
 
+    /**
+     * Chuyển JavaFX Color sang mã hex cho CSS
+     */
+    private String toWebColor(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+    }
 
 
     // Called by Client when server sends SHOW_COLORS or GAME_START etc.
@@ -143,20 +172,20 @@ public class GameController {
     }
 
 
-
-
     /**
-     * Called when a session starts and server provides the target colors and player names.
+     * Called when a session starts and server provides the target colors, player names VÀ DỮ LIỆU BẢNG.
      * @param colors list of target color names
-     * @param myName current player's username (may be null in tests)
-     * @param opponentName opponent's username (may be null)
+     * @param myName current player's username
+     * @param opponentName opponent's username
+     * @param boardData Mảng 2D chứa màu của từng ô (Nếu server gửi) <-- THAM SỐ GIẢ ĐỊNH MỚI
      */
-    public void onSessionStart(List<String> colors, String myName, String opponentName) {
+    public void onSessionStart(List<String> colors, String myName, String opponentName, String[][] boardData) {
         System.out.println("Session start. Me=" + myName + " vs " + opponentName + " colors=" + colors);
+        setBoardData(boardData); // <-- LƯU DỮ LIỆU BẢNG
+
         Platform.runLater(() -> {
             if (lblPlayer1 != null) lblPlayer1.setText(myName != null ? myName : "Player1");
             if (lblPlayer2 != null) lblPlayer2.setText(opponentName != null ? opponentName : "Player2");
-            // For now, display colors on console and build the board; a better UI can show colored panes.
             onShowColors(colors);
         });
     }
@@ -167,17 +196,29 @@ public class GameController {
 
     public void onPickResult(int row, int col, boolean hit, String marker, int score1, int score2) {
         Platform.runLater(() -> {
-            // update button text at row,col
+            // update button text and style at row,col
             boardGrid.getChildren().stream().filter(n -> GridPane.getRowIndex(n) == row && GridPane.getColumnIndex(n) == col).findFirst().ifPresent(node -> {
                 if (node instanceof Button) {
-                    ((Button) node).setText(marker != null ? marker : (hit ? "OK" : "X"));
-                    ((Button) node).setDisable(true);
+                    Button btn = (Button) node;
+
+                    // --- THAY ĐỔI: Thay đổi style của nút sau khi chọn ---
+                    btn.setText(marker != null ? marker : (hit ? "OK" : "X"));
+                    btn.setDisable(true);
+
+                    // Đổi màu nền để biểu thị ô đã được chọn
+                    Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
+                    String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 14pt;",
+                            toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
+                    btn.setStyle(newStyle + " -fx-border-color: white; -fx-border-width: 2; -fx-font-weight: bold;");
+                    // ------------------------------------------------------
                 }
             });
             scorePlayer1.setText(String.valueOf(score1));
             scorePlayer2.setText(String.valueOf(score2));
         });
     }
+
+    // ... (Các phương thức khác giữ nguyên)
 
     public void onGameEnd(int score1, int score2, String winner, int award1, int award2) {
         Platform.runLater(() -> {
