@@ -128,7 +128,7 @@ public class Client {
                 break;
 
             case MessageType.START_GAME:
-            case MessageType.GAME_START:
+//            case MessageType.GAME_START:
                 handleStartGame(message);
                 break;
 

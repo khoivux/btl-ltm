@@ -29,6 +29,14 @@ public class GameSession {
         scores.put(p1.getUsername(), 0);
         scores.put(p2.getUsername(), 0);
         this.startTime = LocalDateTime.now();
+        try {
+            // lazily initialize MatchDAO using the shared DAO connection
+            this.matchDAO = new server.dao.MatchDAO(server.dao.DAO.con);
+        } catch (Exception ex) {
+            // if DB is not available, just log and continue - match saving will be skipped
+            System.err.println("GameSession: cannot init MatchDAO: " + ex.getMessage());
+            this.matchDAO = null;
+        }
     }
 
     public GameBoardManager getBoard(){
@@ -138,7 +146,11 @@ public class GameSession {
         // update users' points
         player1.setPoints(player1.getPoints() + award1);
         player2.setPoints(player2.getPoints() + award2);
-        matchDAO.saveMatch(new Match(startTime,endTime));
+        if (matchDAO != null) {
+            matchDAO.saveMatch(new Match(startTime,endTime));
+        } else {
+            System.out.println("MatchDAO not initialized; skipping match persistence.");
+        }
 
         return new MatchResult(score1, score2, winner, award1, award2);
     }

@@ -9,9 +9,15 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import model.Message;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GameController {
     @FXML private Label lblPlayer1;
@@ -20,6 +26,8 @@ public class GameController {
     @FXML private Label scorePlayer2;
     @FXML private Label timerLabel;
     @FXML private GridPane boardGrid;
+    @FXML private HBox previewBox;
+
 
     private Client client;
 
@@ -55,12 +63,87 @@ public class GameController {
         }
     }
 
+    private void showPreview(List<String> colors) {
+        Platform.runLater(() -> {
+            try {
+                // Xóa mọi ô cũ
+//                previewBox.getChildren().clear();
+
+                // Thêm Rectangle cho từng màu
+                for (String col : colors) {
+                    Rectangle r = new Rectangle(50, 50);
+                    r.setFill(parseColor(col));
+                    r.setStroke(Color.BLACK);   // viền để dễ nhìn
+                    r.setArcWidth(10);
+                    r.setArcHeight(10);
+                    previewBox.getChildren().add(r);
+                }
+                Label testLabel = new Label("TEST PREVIEW");
+                testLabel.setStyle("-fx-text-fill: red; -fx-font-size: 20px;"); // màu chữ dễ nhìn
+                previewBox.getChildren().add(testLabel);
+                System.out.println(previewBox.getChildren());
+
+                // Ép layout và áp dụng CSS
+                previewBox.applyCss();
+                previewBox.layout();
+
+                // Hiển thị previewBox, ẩn boardGrid
+                previewBox.setVisible(true);
+                previewBox.setManaged(true);
+                boardGrid.setVisible(false);
+                boardGrid.setManaged(false);
+
+                // Sau 3 giây, ẩn previewBox và hiển thị board
+                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                scheduler.schedule(() -> {
+                    Platform.runLater(() -> {
+                        previewBox.setVisible(false);
+                        previewBox.setManaged(false);
+
+                        boardGrid.setVisible(true);
+                        boardGrid.setManaged(true);
+
+                        // Build board sau khi preview ẩn
+                        buildBoard();
+                    });
+                    scheduler.shutdown();
+                }, 3, TimeUnit.SECONDS);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Chuyển màu dạng tên hoặc ARGB sang Color JavaFX
+     */
+    private Color parseColor(String raw) {
+        try {
+            // Nếu là tên màu chuẩn như "RED", "CYAN"...
+            return Color.valueOf(raw);
+        } catch (IllegalArgumentException e) {
+            if (raw.startsWith("0x") && raw.length() == 10) {
+                // 0xAARRGGBB -> #RRGGBBAA
+                String a = raw.substring(2, 4);
+                String r = raw.substring(4, 6);
+                String g = raw.substring(6, 8);
+                String b = raw.substring(8, 10);
+                return Color.web("#" + r + g + b + a);
+            }
+            return Color.GRAY; // fallback
+        }
+    }
+
+
+
     // Called by Client when server sends SHOW_COLORS or GAME_START etc.
     public void onShowColors(List<String> colors) {
-        // display colors temporarily on UI (could be a popup). For now print and build board.
-        System.out.println("Show colors: " + colors);
-        buildBoard();
+        showPreview(colors);
     }
+
+
+
 
     /**
      * Called when a session starts and server provides the target colors and player names.
