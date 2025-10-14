@@ -90,7 +90,7 @@ public class GameManager {
             }
             if (info.secondsLeft <= 0) {
                 System.out.println("GameManager: time up for session " + info.ch1.getUser().getUsername() + " vs " + info.ch2.getUser().getUsername());
-                endSession(info);
+                endSession(info,null);
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
@@ -114,12 +114,12 @@ public class GameManager {
     /**
      * End session: compute results via GameSession.endMatch(), broadcast MATCH_RESULT and cleanup.
      */
-    private synchronized void endSession(SessionInfo info) {
+    private synchronized void endSession(SessionInfo info, String usernameQuit) {
         if (info == null || info.session == null) return;
         if (info.tickTask != null) info.tickTask.cancel(false);
 
         System.out.println("GameManager: ending session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
-        GameSession.MatchResult mr = info.session.endMatch();
+        GameSession.MatchResult mr = info.session.endMatch(usernameQuit);
         Object[] payload = new Object[]{mr.score1, mr.score2, mr.winnerUsername, mr.awardP1, mr.awardP2};
         broadcast(info, new Message(MessageType.MATCH_RESULT, payload));
 
@@ -137,7 +137,7 @@ public class GameManager {
         if (info == null) return;
 
         System.out.println("GameManager: handleExit for " + from.getUser().getUsername());
-        endSession(info);
+        endSession(info, from.getUser().getUsername());
     }
 
     private void broadcast(SessionInfo info, Message msg) {

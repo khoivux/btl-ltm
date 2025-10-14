@@ -1,5 +1,7 @@
 package model;
 
+import server.dao.UserDAO;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -10,6 +12,7 @@ public class User implements Serializable {
     private String password;
     private String status;
     private int points;
+
 
     public User(String username, String password) {
         this.username = username;
@@ -60,5 +63,6 @@ public class User implements Serializable {
 
     public void setPoints(int points) {
         this.points = points;
+
     }
 }

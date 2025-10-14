@@ -9,14 +9,21 @@ import java.time.LocalDateTime;
  */
 public class Match implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    private int matchId;// Điểm của người chơi 2
+    private int matchId;
     private LocalDateTime startTime; // Thời gian bắt đầu trận đấu
     private LocalDateTime endTime;   // Thời gian kết thúc trận đấu
-//    private DetailMatch detailMatch[];
+    private DetailMatch detailMatch[];
 
 
     public Match() {}
+
+    public DetailMatch[] getDetailMatch() {
+        return detailMatch;
+    }
+
+    public void setDetailMatch(DetailMatch[] detailMatch) {
+        this.detailMatch = detailMatch;
+    }
 
     public Match(LocalDateTime startTime, LocalDateTime endTime) {
         this.startTime = startTime;
