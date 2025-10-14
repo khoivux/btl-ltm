@@ -2,13 +2,22 @@ package model;
 
 public class DetailMatch {
     private int id;
-    private int point;
+    private User player;
+    private int score;
     private boolean isWinner;
     private boolean isQuit;
 
-    public DetailMatch(int id, int point, boolean isWinner, boolean isQuit) {
-        this.id = id;
-        this.point = point;
+    public User getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(User player) {
+        this.player = player;
+    }
+
+    public DetailMatch(User player, int point, boolean isWinner, boolean isQuit) {
+        this.player = player;
+        this.score = point;
         this.isWinner = isWinner;
         this.isQuit = isQuit;
     }
@@ -21,12 +30,12 @@ public class DetailMatch {
         this.id = id;
     }
 
-    public int getPoint() {
-        return point;
+    public int getScore() {
+        return score;
     }
 
     public void setPoint(int point) {
-        this.point = point;
+        this.score = point;
     }
 
     public boolean isWinner() {

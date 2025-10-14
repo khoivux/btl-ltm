@@ -1,6 +1,7 @@
 // model/GameSession.java
 package server.controller;
 
+import model.DetailMatch;
 import model.Match;
 import model.User;
 import server.GameBoardManager;
@@ -123,7 +124,7 @@ public class GameSession {
         }
     }
 
-    public MatchResult endMatch() {
+    public MatchResult endMatch(String usernameQuit) {
         this.endTime = LocalDateTime.now();
         int score1 = scores.getOrDefault(getPlayer1Username(), 0);
         int score2 = scores.getOrDefault(getPlayer2Username(), 0);
@@ -146,12 +147,31 @@ public class GameSession {
         // update users' points
         player1.setPoints(player1.getPoints() + award1);
         player2.setPoints(player2.getPoints() + award2);
+
+        // persist full match record
         if (matchDAO != null) {
-            matchDAO.saveMatch(new Match(startTime,endTime));
+            Match m = new Match(
+                    startTime,
+                    endTime
+            );
+            DetailMatch detailMatch1 = new DetailMatch(
+                player1, 
+                score1, 
+                winner != null && winner.equals(getPlayer1Username()),
+                getPlayer1Username().equals(usernameQuit)
+            );
+            DetailMatch detailMatch2 = new DetailMatch(
+                player2, 
+                score2,
+                winner != null && winner.equals(getPlayer2Username()),
+                getPlayer2Username().equals(usernameQuit)
+            );
+            m.setDetailMatch(new DetailMatch[]{detailMatch1, detailMatch2});
+            boolean ok = matchDAO.saveMatch(m);
+            if (!ok) System.err.println("Failed to persist match result for " + getPlayer1Username() + " vs " + getPlayer2Username());
         } else {
             System.out.println("MatchDAO not initialized; skipping match persistence.");
         }
-
         return new MatchResult(score1, score2, winner, award1, award2);
     }
 
