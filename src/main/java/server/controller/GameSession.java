@@ -96,7 +96,7 @@ public class GameSession {
             } else {
                 String username = player.getUsername();
                 int prev = scores.getOrDefault(username, 0);
-                scores.put(username, prev - 1);
+                scores.put(username, Math.max(prev - 1, 0));
             }
 
             return new PickResult(true, hit, false, marker, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), hit ? "Hit" : "Miss");
