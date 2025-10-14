@@ -41,6 +41,20 @@ public class UserDAO extends DAO{
         return null;
     }
 
+    public boolean savePoint(User user, int point){
+        String SQL_QUERY = "UPDATE `btl_ltm`.`users ` SET `points` = ? WHERE (`id` = ?);";
+        try {
+            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
+            ps.setInt(1, point);
+            ps.setInt(2, user.getId());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public User authenticateUser(User user) {
         String SQL_QUERY = "SELECT * FROM users WHERE username = ? AND password = ?";
 
@@ -88,7 +102,7 @@ public class UserDAO extends DAO{
     public List<User> getLeaderboard() {
         List<User> users = new ArrayList<>();
         String SQL_QUERY = "SELECT username, points FROM users ORDER BY points DESC";
-        
+
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
             ResultSet rs = ps.executeQuery();
@@ -135,5 +149,3 @@ public class UserDAO extends DAO{
 
 //    }
 }
-
-
