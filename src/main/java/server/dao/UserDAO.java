@@ -14,7 +14,7 @@ public class UserDAO extends DAO{
     }
 
     public boolean saveUser(User loginInfo) {
-        String SQL_QUERY = "INSERT INTO tbluser (username, password, points) VALUES (?, ?, ?)";
+        String SQL_QUERY = "INSERT INTO users (username, password, score) VALUES (?, ?, ?)";
 
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -32,7 +32,7 @@ public class UserDAO extends DAO{
     }
 
     public boolean savePoint(User user, int point){
-        String SQL_QUERY = "UPDATE `btl_ltm`.`tbluser` SET `points` = ? WHERE (`id` = ?);";
+        String SQL_QUERY = "UPDATE `btl_ltm`.`users ` SET `points` = ? WHERE (`id` = ?);";
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
             ps.setInt(1, point);
@@ -46,7 +46,7 @@ public class UserDAO extends DAO{
     }
 
     public User authenticateUser(User user) {
-        String SQL_QUERY = "SELECT * FROM tbluser WHERE username = ? AND password = ?";
+        String SQL_QUERY = "SELECT * FROM users  WHERE username = ? AND password = ?";
 
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -68,7 +68,7 @@ public class UserDAO extends DAO{
 
     public List<User> getList() {
         List<User> users = new ArrayList<>();
-        String SQL_QUERY = "SELECT * FROM tbluser";
+        String SQL_QUERY = "SELECT * FROM users ";
 
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
