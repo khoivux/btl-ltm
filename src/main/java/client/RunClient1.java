@@ -20,7 +20,6 @@ public class RunClient1 extends Application {
                     client.startConnection("26.41.147.33", 23456);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // UI phải cập nhật trên JavaFX Thread
                     Platform.runLater(() -> client.showErrorAlert("Không thể kết nối tới server."));
                 }
             }).start();
