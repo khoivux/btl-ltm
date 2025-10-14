@@ -14,14 +14,15 @@ public class DetailMatchDAO extends DAO {
         this.connection = connection;
     }
 
-    public boolean saveDetailMatch(DetailMatch detailMatch) {
-        String sql = "INSERT INTO tbldetail_match (player_id, score, is_winner, is_quit) " +
-                "VALUES (?, ?, ?, ?)";
+    public boolean saveDetailMatch(DetailMatch detailMatch, int matchId) {
+        String sql = "INSERT INTO tbldetail_match (player_id, match_id, score, is_winner, is_quit) " +
+                "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, detailMatch.getPlayer().getId());
-            stmt.setInt(2, detailMatch.getScore());
-            stmt.setBoolean(3, detailMatch.isWinner());
-            stmt.setBoolean(3, detailMatch.isQuit());
+            stmt.setInt(2, matchId);
+            stmt.setInt(3, detailMatch.getScore());
+            stmt.setBoolean(4, detailMatch.isWinner());
+            stmt.setBoolean(5, detailMatch.isQuit());
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
