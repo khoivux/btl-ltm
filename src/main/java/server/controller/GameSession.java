@@ -37,9 +37,10 @@ public class GameSession {
         try {
             // lazily initialize MatchDAO using the shared DAO connection
             this.matchDAO = new server.dao.MatchDAO(server.dao.DAO.con);
+            this.detailMatchDAO = new server.dao.DetailMatchDAO(server.dao.DAO.con);
         } catch (Exception ex) {
             // if DB is not available, just log and continue - match saving will be skipped
-            System.err.println("GameSession: cannot init MatchDAO: " + ex.getMessage());
+            System.err.println("GameSession: Không thể khởi tạo DAO: " + ex.getMessage());
             this.matchDAO = null;
         }
     }
@@ -168,11 +169,17 @@ public class GameSession {
                     getPlayer2Username().equals(usernameQuit)
             );
             m.setDetailMatch(new DetailMatch[]{detailMatch1, detailMatch2});
-            boolean ok = matchDAO.saveMatch(m);
-            if (ok)
+            boolean savematch = matchDAO.saveMatch(m);
+            if (savematch)
             {
                 if(detailMatchDAO != null){
-                    ok = detailMatchDAO.saveDetailMatch(detailMatch1) && detailMatchDAO.saveDetailMatch(detailMatch2);
+                    boolean savedetail = detailMatchDAO.saveDetailMatch(detailMatch1, m.getMatchId());
+                    if(!savedetail){System.err.println("Có lỗi xảy ra khi lưu thông tin trận đấu của " + getPlayer1Username());}
+
+                    savedetail = detailMatchDAO.saveDetailMatch(detailMatch2, m.getMatchId());
+                    if(!savedetail){System.err.println("Có lỗi xảy ra khi lưu thông tin trận đấu của " + getPlayer2Username());}
+                }else {
+                    System.out.println("DetailMatchDAO chưa được khởi tạo.");
                 }
             } else{
                 System.err.println("Có lỗi xảy ra khi lưu thông tin trận đấu giữa " + getPlayer1Username() + " và " + getPlayer2Username());

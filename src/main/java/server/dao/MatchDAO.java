@@ -22,15 +22,23 @@ public class MatchDAO {
     public boolean saveMatch(Match match) {
         String sql = "INSERT INTO tblmatch (start_time, end_time) " +
                 "VALUES (?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, match.getStartTime() != null ? Timestamp.valueOf(match.getStartTime()) : null);
             stmt.setTimestamp(2, match.getEndTime() != null ? Timestamp.valueOf(match.getEndTime()) : null);
-            stmt.executeUpdate();
-            return true;
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                // Lấy matchId được sinh tự động
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        match.setMatchId(rs.getInt(1));
+                    }
+                }
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lưu trận đấu: " + e.getMessage());
-            return false;
         }
+        return false;
     }
 
     /**
