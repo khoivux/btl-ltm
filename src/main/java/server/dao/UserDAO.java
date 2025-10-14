@@ -108,30 +108,7 @@ public class UserDAO extends DAO{
         return users;
     }
 
-    // public User getRankByUsername(String username) {
-    //     String SQL_QUERY ="SELECT t.username, t.points, t.rank FROM (" +
-    //         "  SELECT u.username, u.points, DENSE_RANK() OVER (ORDER BY u.points DESC) AS rank" +
-    //         "  FROM users u" +
-    //         ") t WHERE t.username = ?";
 
-    //     try{
-    //         PreparedStatement ps = con.prepareStatement(SQL_QUERY);
-    //         ps.setString(1, username);
-    //         ResultSet rs = ps.executeQuery();
-    //         if(rs.next()) {
-    //             User user = new User(
-    //                 rs.getString("username"),
-    //                 rs.getInt("points"),
-    //                 rs.getInt("rank")
-    //             );
-    //             return user;
-    //         }
-    //     }   
-    //     catch(Exception e) {
-    //         e.printStackTrace();
-    //     }
-    //     return null;
-    // }
 
     public User getRankByUsername(String username){
         List<User> users = getLeaderboard();
