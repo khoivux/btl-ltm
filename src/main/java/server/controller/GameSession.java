@@ -5,7 +5,9 @@ import model.DetailMatch;
 import model.Match;
 import model.User;
 import server.GameBoardManager;
+import server.dao.DetailMatchDAO;
 import server.dao.MatchDAO;
+import server.dao.UserDAO;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -20,6 +22,8 @@ public class GameSession {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private MatchDAO matchDAO;
+    private DetailMatchDAO detailMatchDAO;
+
 
     public GameSession(User p1, User p2, List<String> targetColors) {
         this.player1 = p1;
@@ -133,10 +137,8 @@ public class GameSession {
         String winner = null;
         if (score1 > score2) {
             award1 = 2;
-            award2 = 0;
             winner = getPlayer1Username();
         } else if (score2 > score1) {
-            award1 = 0;
             award2 = 2;
             winner = getPlayer2Username();
         } else {
@@ -148,29 +150,35 @@ public class GameSession {
         player1.setPoints(player1.getPoints() + award1);
         player2.setPoints(player2.getPoints() + award2);
 
-        // persist full match record
         if (matchDAO != null) {
             Match m = new Match(
                     startTime,
                     endTime
             );
             DetailMatch detailMatch1 = new DetailMatch(
-                player1, 
-                score1, 
-                winner != null && winner.equals(getPlayer1Username()),
-                getPlayer1Username().equals(usernameQuit)
+                    player1,
+                    score1,
+                    winner != null && winner.equals(getPlayer1Username()),
+                    getPlayer1Username().equals(usernameQuit)
             );
             DetailMatch detailMatch2 = new DetailMatch(
-                player2, 
-                score2,
-                winner != null && winner.equals(getPlayer2Username()),
-                getPlayer2Username().equals(usernameQuit)
+                    player2,
+                    score2,
+                    winner != null && winner.equals(getPlayer2Username()),
+                    getPlayer2Username().equals(usernameQuit)
             );
             m.setDetailMatch(new DetailMatch[]{detailMatch1, detailMatch2});
             boolean ok = matchDAO.saveMatch(m);
-            if (!ok) System.err.println("Failed to persist match result for " + getPlayer1Username() + " vs " + getPlayer2Username());
+            if (ok)
+            {
+                if(detailMatchDAO != null){
+                    ok = detailMatchDAO.saveDetailMatch(detailMatch1) && detailMatchDAO.saveDetailMatch(detailMatch2);
+                }
+            } else{
+                System.err.println("Có lỗi xảy ra khi lưu thông tin trận đấu giữa " + getPlayer1Username() + " và " + getPlayer2Username());
+            }
         } else {
-            System.out.println("MatchDAO not initialized; skipping match persistence.");
+            System.out.println("MatchDAO chưa được khởi tạo.");
         }
         return new MatchResult(score1, score2, winner, award1, award2);
     }
