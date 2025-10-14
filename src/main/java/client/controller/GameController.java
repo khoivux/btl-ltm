@@ -222,8 +222,31 @@ public class GameController {
 
     public void onGameEnd(int score1, int score2, String winner, int award1, int award2) {
         Platform.runLater(() -> {
-            // simple alert via console for now
-            System.out.println("Game ended. " + score1 + " - " + score2 + ", winner=" + winner);
+            try {
+                String title = "Kết quả trận đấu";
+                String header = null;
+                String body;
+                if (winner == null) {
+                    body = String.format("Hòa! Điểm: %d - %d\nMỗi người được +%d điểm.", score1, score2, award1);
+                } else {
+                    body = String.format("%s thắng! Điểm: %d - %d\n%s được +%d điểm.", winner, score1, score2,
+                            winner.equals(lblPlayer1.getText()) ? lblPlayer1.getText() : lblPlayer2.getText(),
+                            winner.equals(lblPlayer1.getText()) ? award1 : award2);
+                }
+
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                alert.setTitle(title);
+                alert.setHeaderText(header);
+                alert.setContentText(body);
+                alert.showAndWait();
+
+                // After acknowledging, return to main UI
+                if (client != null) {
+                    client.showMainUI();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
     }
 
