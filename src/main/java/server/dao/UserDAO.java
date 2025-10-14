@@ -35,7 +35,7 @@ public class UserDAO extends DAO{
         String SQL_QUERY = "UPDATE `btl_ltm`.`tbluser` SET `points` = ? WHERE (`id` = ?);";
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
-            ps.setInt(1,point);
+            ps.setInt(1, point);
             ps.setInt(2, user.getId());
             ps.executeUpdate();
             return true;

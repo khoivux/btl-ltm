@@ -63,6 +63,7 @@ public class User implements Serializable {
 
     public void setPoints(int points) {
         this.points = points;
-
+        UserDAO userDAO = new UserDAO();
+        userDAO.savePoint(this, points);
     }
 }
