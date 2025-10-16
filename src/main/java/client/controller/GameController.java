@@ -200,17 +200,18 @@ public class GameController {
             boardGrid.getChildren().stream().filter(n -> GridPane.getRowIndex(n) == row && GridPane.getColumnIndex(n) == col).findFirst().ifPresent(node -> {
                 if (node instanceof Button) {
                     Button btn = (Button) node;
+                    if(hit) {
 
-                    // --- THAY ĐỔI: Thay đổi style của nút sau khi chọn ---
-                    btn.setText(marker != null ? marker : (hit ? "OK" : "X"));
-                    btn.setDisable(true);
+                        // --- THAY ĐỔI: Thay đổi style của nút sau khi chọn ---
+                        btn.setText(marker != null ? marker : (hit ? "OK" : "X"));
+                        btn.setDisable(true);
 
-                    // Đổi màu nền để biểu thị ô đã được chọn
-                    Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
-                    String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 14pt;",
-                            toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
-                    btn.setStyle(newStyle + " -fx-border-color: white; -fx-border-width: 2; -fx-font-weight: bold;");
-                    // ------------------------------------------------------
+                        // Đổi màu nền để biểu thị ô đã được chọn
+                        Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
+                        String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 14pt;",
+                                toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
+                        btn.setStyle(newStyle + " -fx-border-color: white; -fx-border-width: 2; -fx-font-weight: bold;");
+                    }
                 }
             });
             scorePlayer1.setText(String.valueOf(score1));
