@@ -115,14 +115,14 @@ public class GameSession {
     public static class MatchResult {
         public final int score1;
         public final int score2;
-        public final String winnerUsername; // null nếu hòa
+        public final String winner; // null nếu hòa
         public final int awardP1; // points awarded to player1 (2/1/0)
         public final int awardP2;
 
-        public MatchResult(int score1, int score2, String winnerUsername, int awardP1, int awardP2) {
+        public MatchResult(int score1, int score2, String winner, int awardP1, int awardP2) {
             this.score1 = score1;
             this.score2 = score2;
-            this.winnerUsername = winnerUsername;
+            this.winner = winner;
             this.awardP1 = awardP1;
             this.awardP2 = awardP2;
         }

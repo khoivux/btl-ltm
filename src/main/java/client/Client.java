@@ -488,6 +488,13 @@ public class Client {
         System.out.println("Nhận được lời mời từ: " + fromUser);
 
         Platform.runLater(() -> {
+            // if a result dialog is open in the game controller, close it so invite dialog is visible
+            try {
+                if (gameController != null) {
+                    gameController.closeResultDialog();
+                }
+            } catch (Exception ignored) {}
+
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Lời mời thách đấu");
             alert.setHeaderText("Người chơi " + fromUser + " mời bạn chơi!");
@@ -531,22 +538,22 @@ public class Client {
 
     // Khi server thông báo bắt đầu trận
     private void handleStartGame(Message message) {
-        // payload expected: Object[]{ List<String> colors, String myName, String opponentName }
+        // payload expected: Object[]{ List<String> colors, String player1, String player2 }
         Object content = message.getContent();
         if (content instanceof Object[]) {
             Object[] arr = (Object[]) content;
             try {
                 @SuppressWarnings("unchecked")
                 List<String> colors = (List<String>) arr[0];
-                String myName = (String) arr[1];
-                String opp = (String) arr[2];
+                String player1 = (String) arr[1];
+                String player2 = (String) arr[2];
                 String[][] board = (String[][]) arr[3];
                 Platform.runLater(() -> {
                     // ensure UI loaded
                     showGameUI();
                     if (gameController != null) {
                         Executors.newSingleThreadScheduledExecutor().schedule(() ->
-                                        Platform.runLater(() -> gameController.onSessionStart(colors, myName, opp,board)),
+                                        Platform.runLater(() -> gameController.onSessionStart(colors, player1, player2,board)),
                                 200, TimeUnit.MILLISECONDS
                         );
                     }
