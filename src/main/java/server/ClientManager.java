@@ -1,16 +1,16 @@
 package server;
 
+import constant.MessageType;
+import constant.Status;
 import model.Message;
 import model.User;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 // lớp này quản lý tất cả các clientHandler
 public class ClientManager {
-    // cách mapping : Key là username map với value là clientHandler
     private final ConcurrentHashMap<String, ClientHandler> clientMap = new ConcurrentHashMap<>();
 
     public ClientManager() {
@@ -19,6 +19,7 @@ public class ClientManager {
     // Thêm client :  map username với clientHandler rồi cho thêm (hoặc ghi đè vào clientMap)
     public synchronized  void addClient(ClientHandler clientHandler) {
         clientMap.put(clientHandler.getUser().getUsername(), clientHandler);
+        broadcastExcept(new Message(MessageType.UPDATE_USER_STATUS, clientHandler.getUser()), clientHandler);
         System.out.println("Client added: " + clientHandler.getUser().getUsername());
     }
 
@@ -32,15 +33,15 @@ public class ClientManager {
     // Xóa theo username
     public synchronized void removeClient(ClientHandler clientHandler) {
         if(clientHandler.getUser() != null) {
-            clientMap.remove(clientHandler.getUser().getUsername());
-            System.out.println("Client removed: " + clientHandler.getUser().getUsername());
+            User logoutInfo = new User(clientHandler.getUser());
+            logoutInfo.setStatus(Status.OFFLINE);
+            broadcast(new Message(MessageType.UPDATE_USER_STATUS, logoutInfo));
         }
     }
 
     // Phát sóng một message tới tất cả các clientHandler => cập nhật thông tin realtime
     // Duyệt qua các clientHandler hiện tại rồi gửi response đến client
     public synchronized void broadcast(Message message) {
-        System.out.println("Broadcasting message to " + clientMap.size() + " clients: " + message.getType().toString());
         for (ClientHandler client : clientMap.values()) {
             try {
                 client.sendResponse(message);
@@ -100,5 +101,13 @@ public class ClientManager {
     public synchronized void disconnectAllClients() {
         System.out.println("Disconnecting all " + clientMap.size() + " clients");
         clientMap.clear();
+    }
+
+    public synchronized void updateStatus(String username, Status status) {
+        ClientHandler clientHandler = getClientByUsername(username);
+        if (clientHandler != null && clientHandler.getUser() != null) {
+            clientHandler.getUser().setStatus(status);
+            broadcast(new Message(MessageType.UPDATE_USER_STATUS, clientHandler.getUser()));
+        }
     }
 }

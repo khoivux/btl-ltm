@@ -135,8 +135,6 @@ public class GameManager {
         if (from == null || from.getUser() == null) return;
         SessionInfo info = userSessionMap.get(from.getUser().getUsername());
         if (info == null) return;
-
-        System.out.println("GameManager: handleExit for " + from.getUser().getUsername());
         endSession(info, from.getUser().getUsername());
     }
 

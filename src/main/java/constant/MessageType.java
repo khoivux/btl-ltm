@@ -10,11 +10,10 @@ public enum MessageType {
     REGISTER("register"),
     REGISTER_SUCCESS("register_success"),
     REGISTER_FAILURE("register_failure"),
+    OFFLINE("offline"),
 
     // Notification
     UPDATE_USER_STATUS("update_user_status"),
-
-    // GET
     ONLINE_LIST("online_list"),
 
     // Game-related messages
