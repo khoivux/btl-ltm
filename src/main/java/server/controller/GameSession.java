@@ -86,7 +86,7 @@ public class GameSession {
             }
 
             boolean hit = isTargetColor(cell);
-            String marker = null;
+            String marker = cell;
             if (hit) {
                 String username = player.getUsername();
                 int prev = scores.getOrDefault(username, 0);
@@ -98,7 +98,6 @@ public class GameSession {
                 int prev = scores.getOrDefault(username, 0);
                 scores.put(username, Math.max(prev - 1, 0));
             }
-
             return new PickResult(true, hit, false, marker, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), hit ? "Hit" : "Miss");
         } catch (ArrayIndexOutOfBoundsException ex) {
             return new PickResult(false, false, false, null, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), "Out of bounds");
@@ -116,14 +115,14 @@ public class GameSession {
     public static class MatchResult {
         public final int score1;
         public final int score2;
-        public final String winnerUsername; // null nếu hòa
+        public final String winner; // null nếu hòa
         public final int awardP1; // points awarded to player1 (2/1/0)
         public final int awardP2;
 
-        public MatchResult(int score1, int score2, String winnerUsername, int awardP1, int awardP2) {
+        public MatchResult(int score1, int score2, String winner, int awardP1, int awardP2) {
             this.score1 = score1;
             this.score2 = score2;
-            this.winnerUsername = winnerUsername;
+            this.winner = winner;
             this.awardP1 = awardP1;
             this.awardP2 = awardP2;
         }

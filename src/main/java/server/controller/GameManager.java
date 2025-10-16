@@ -63,7 +63,7 @@ public class GameManager {
 
         // send START_GAME (personalized payload) to both so clients can initialize UI
         Object[] payload1 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , session.getBoard().getBoardData()};
-        Object[] payload2 = new Object[]{ new ArrayList<>(targetColors), u2, u1 , session.getBoard().getBoardData()};
+        Object[] payload2 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , session.getBoard().getBoardData()};
         try { if (info.ch1 != null) info.ch1.sendResponse(new Message(MessageType.START_GAME, payload1)); } catch (Exception ignored) {}
         try { if (info.ch2 != null) info.ch2.sendResponse(new Message(MessageType.START_GAME, payload2)); } catch (Exception ignored) {}
 
@@ -120,7 +120,7 @@ public class GameManager {
 
         System.out.println("GameManager: ending session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
         GameSession.MatchResult mr = info.session.endMatch(usernameQuit);
-        Object[] payload = new Object[]{mr.score1, mr.score2, mr.winnerUsername, mr.awardP1, mr.awardP2};
+        Object[] payload = new Object[]{mr.score1, mr.score2, mr.winner, mr.awardP1, mr.awardP2};
         broadcast(info, new Message(MessageType.MATCH_RESULT, payload));
 
         // cleanup map entries for both users
