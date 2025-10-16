@@ -513,13 +513,7 @@ public class Client {
     private void handleInviteAccepted(Message message) {
         String opponent = (String) message.getContent();
         Platform.runLater(() -> {
-            // Open the game UI so incoming SHOW_COLORS will be displayed
             showGameUI();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Lời mời đã được chấp nhận");
-            alert.setHeaderText(null);
-            alert.setContentText("Người chơi " + opponent + " đã chấp nhận lời mời của bạn!");
-            alert.showAndWait();
         });
     }
 

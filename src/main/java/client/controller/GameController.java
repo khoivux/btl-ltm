@@ -190,6 +190,13 @@ public class GameController {
         });
     }
 
+    /**
+     * Backwards-compatible overload: server may send only colors,myName,opponentName.
+     */
+    public void onSessionStart(List<String> colors, String myName, String opponentName) {
+        onSessionStart(colors, myName, opponentName, null);
+    }
+
     public void onGameTick(int secondsLeft) {
         Platform.runLater(() -> timerLabel.setText(String.valueOf(secondsLeft)));
     }
@@ -201,16 +208,14 @@ public class GameController {
                 if (node instanceof Button) {
                     Button btn = (Button) node;
                     if(hit) {
-
-                        // --- THAY ĐỔI: Thay đổi style của nút sau khi chọn ---
-                        btn.setText(marker != null ? marker : (hit ? "OK" : "X"));
+                        btn.setText(marker);
                         btn.setDisable(true);
 
                         // Đổi màu nền để biểu thị ô đã được chọn
                         Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
-                        String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 14pt;",
+                        String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; ",
                                 toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
-                        btn.setStyle(newStyle + " -fx-border-color: white; -fx-border-width: 2; -fx-font-weight: bold;");
+                        btn.setStyle(newStyle);
                     }
                 }
             });
@@ -235,16 +240,53 @@ public class GameController {
                             winner.equals(lblPlayer1.getText()) ? award1 : award2);
                 }
 
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
                 alert.setTitle(title);
                 alert.setHeaderText(header);
-                alert.setContentText(body);
-                alert.showAndWait();
+                alert.setContentText(body + "\n\nBạn có muốn đấu lại không?");
 
-                // After acknowledging, return to main UI
-                if (client != null) {
-                    client.showMainUI();
+                javafx.scene.control.ButtonType rematchBtn = new javafx.scene.control.ButtonType("Đấu lại");
+                javafx.scene.control.ButtonType finishBtn = new javafx.scene.control.ButtonType("Kết thúc", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(rematchBtn, finishBtn);
+
+                javafx.scene.control.ButtonType result = alert.showAndWait().orElse(finishBtn);
+
+                // determine opponent username
+                String opponent = null;
+                try {
+                    String me = client != null && client.getUser() != null ? client.getUser().getUsername() : null;
+                    if (me != null) {
+                        if (me.equals(lblPlayer1.getText())) opponent = lblPlayer2.getText(); else opponent = lblPlayer1.getText();
+                    } else {
+                        // fallback: if lblPlayer2 not equal to lblPlayer1 take lblPlayer2
+                        opponent = lblPlayer2.getText() != null ? lblPlayer2.getText() : lblPlayer1.getText();
+                    }
+                } catch (Exception ex) {
+                    opponent = lblPlayer2.getText();
                 }
+                final String finalOpponent = opponent;
+                if (result == rematchBtn) {
+                    // Immediately return to main UI and send invite asynchronously so UI is responsive
+                    if (client != null) {
+                        client.showMainUI();
+                        if (opponent != null) {
+                            new Thread(() -> {
+                                try {
+                                    client.sendInvite(finalOpponent);
+                                } catch (Exception e) {
+                                    // sendInvite already handles IOExceptions, but catch-all to avoid thread crash
+                                    e.printStackTrace();
+                                }
+                            }).start();
+                        }
+                    }
+                } else {
+                    // finish -> just return to main UI
+                    if (client != null) {
+                        client.showMainUI();
+                    }
+                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
