@@ -1,5 +1,6 @@
 package model;
 
+import constant.Status;
 import server.dao.UserDAO;
 
 import java.io.Serializable;
@@ -9,13 +10,22 @@ public class User implements Serializable {
     private int id;
     private String username;
     private String password;
-    private String status;
+    private Status status;
     private int points;
     private int rank;
 
     public User() {
+
     }
 
+    public User(User other) {
+        this.id = other.id;
+        this.username = other.username;
+        this.password = other.password;
+        this.status = other.status;
+        this.points = other.points;
+        this.rank = other.rank;
+    }
 
     public User(String username, String password) {
         this.username = username;
@@ -67,11 +77,11 @@ public class User implements Serializable {
         return points;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -91,6 +101,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("#%d \t %s \t\t %dpts", rank, username, points);
+        return String.format("User{id=%d, username='%s', status='%s', points=%d, rank=%d}", id, username, status, points, rank);
     }
 }

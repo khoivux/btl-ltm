@@ -29,6 +29,7 @@
             <TableView fx:id="userTable" prefHeight="203.0" prefWidth="610.0">
                 <columns>
                     <TableColumn fx:id="colUsername" prefWidth="250.0" text="Tên người dùng" />
+                    <TableColumn fx:id="colStatus" prefWidth="250.0" text="Trạng thái" />
                 </columns>
             </TableView>
          <ListView fx:id="listChats" prefHeight="120.0" prefWidth="698.0" />

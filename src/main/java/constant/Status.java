@@ -1,10 +1,9 @@
 package constant;
 
 public enum Status {
-    PLAYING("Playing"),
-    WIN("Win"),
-    LOSE("Lose"),
-    DRAW("Draw");
+    AVAILABLE("Rảnh"),
+    NOT_AVAILABLE("Trong trận"),
+    OFFLINE("Offline");
     private final String value;
 
     Status(String value) {

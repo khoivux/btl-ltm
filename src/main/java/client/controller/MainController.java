@@ -2,6 +2,7 @@ package client.controller;
 
 import client.Client;
 import constant.MessageType;
+import constant.Status;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,9 +23,9 @@ import java.util.List;
 public class MainController {
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, String> colUsername;
+    @FXML private TableColumn<User, Status> colStatus;
     @FXML private ListView<Chat> listChats;
     @FXML private TextField addedChat;
-//    @FXML private TableColumn<User, String> colStatus;
 
     private Client client;
     private ObservableList<User> onlineUsers = FXCollections.observableArrayList();
@@ -49,6 +50,28 @@ public class MainController {
             userTable.refresh();
         });
     }
+
+    public void updateStatusUser(User updatedUser) {
+        Platform.runLater(() -> {
+            for (int i = 0; i < onlineUsers.size(); i++) {
+                User u = onlineUsers.get(i);
+                if (u.getUsername().equals(updatedUser.getUsername())) {
+                    if (updatedUser.getStatus() == Status.OFFLINE) {
+                        onlineUsers.remove(i);
+                    } else {
+                        onlineUsers.set(i, updatedUser);
+                    }
+                    userTable.refresh();
+                    return;
+                }
+            }
+            if (updatedUser.getStatus() != Status.OFFLINE) {
+                onlineUsers.add(updatedUser);
+                userTable.refresh();
+            }
+        });
+    }
+
 
     public void handleLeaderboard() throws IOException {
         User currentUser = client.getUser();
@@ -92,10 +115,11 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        System.out.println("colUsername = " + colUsername);
+        // Gán dữ liệu cho các cột
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        // double-click a row to send invite
+        // Double-click vào một hàng để gửi lời mời
         userTable.setRowFactory(tv -> {
             TableRow<User> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -109,4 +133,5 @@ public class MainController {
             return row;
         });
     }
+
 }

@@ -6,6 +6,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import constant.MessageType;
+import constant.Status;
 import model.Chat;
 import model.Message;
 import model.User;
@@ -64,19 +65,13 @@ public class ClientHandler implements Runnable{
             }
         } catch (IOException | ClassNotFoundException  e) {
             System.out.println("=== LỖI CHI TIẾT ===");
-            System.out.println("Loại lỗi: " + e.getClass().getSimpleName());
             System.out.println("Thông báo lỗi: " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("Kết nối với " + (user != null ? user.getUsername() : "client") + " bị ngắt.");
-            System.out.println(e.getClass().getSimpleName());
-            e.printStackTrace();
             isRunning = false;
         } finally {
             try {
                 if (user != null) {
                     try {
                         clientManager.removeClient(this);
-                        clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, user.getUsername() + " đã offline"));
                         System.out.println("ClientHandler: removed client " + user.getUsername());
                     } catch (Exception ex) {
                         System.err.println("Error removing client on disconnect: " + ex.getMessage());
@@ -143,19 +138,17 @@ public class ClientHandler implements Runnable{
                     break;
 
                 case MessageType.INVITE_ACCEPT:
-                    // content: String inviterUsername
                     try {
                         String inviter = (String) message.getContent();
                         if (inviter != null && user != null) {
                             ClientHandler inviterHandler = clientManager.getClientByUsername(inviter);
                             if (inviterHandler != null) {
-                                // notify inviter and create session
-                                System.out.println("INVITE_ACCEPT received from " + user.getUsername() + " for inviter=" + inviter);
                                 inviterHandler.sendResponse(new Message(MessageType.INVITE_ACCEPT, user.getUsername()));
                                 System.out.println("Creating game session between " + inviter + " and " + user.getUsername());
                                 server.getGameManager().createSession(inviterHandler, this);
+                                clientManager.updateStatus(inviter, Status.NOT_AVAILABLE);
+                                clientManager.updateStatus(user.getUsername(), Status.NOT_AVAILABLE);
                             } else {
-                                System.out.println("INVITE_ACCEPT: inviter not found: " + inviter);
                                 sendResponse(new Message(MessageType.INVITE_REJECT, "Inviter not online"));
                             }
                         }
@@ -197,12 +190,10 @@ public class ClientHandler implements Runnable{
                     break;
 
                 case MessageType.LEADERBOARD:
-                    System.out.println("--- Lấy top 10 user có điểm cao nhất ---");
                     handleGetLeaderboard();
                     break;
 
                 case MessageType.RANK:
-                    System.out.println("--- Xử lý lấy rank ---");
                     handleGetRank(message);
                     break;
 
@@ -237,11 +228,14 @@ public class ClientHandler implements Runnable{
         try {
             User authenticatedUser = userController.login((User) message.getContent());
             if (authenticatedUser != null) {
+                if(clientManager.isUserOnline(authenticatedUser.getUsername())) {
+                    sendResponse(new Message(MessageType.LOGIN_FAILURE, "User đã online ở thiết bị khác!"));
+                    return;
+                }
+                authenticatedUser.setStatus(Status.AVAILABLE);
                 this.user = authenticatedUser;
                 clientManager.addClient(this);
-                clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, authenticatedUser.getUsername() + "đã online"));
                 sendResponse(new Message(MessageType.LOGIN_SUCCESS, authenticatedUser));
-                System.out.println("Login thành công với username: " + authenticatedUser.getUsername());
             } else {
                 sendResponse(new Message(MessageType.LOGIN_FAILURE, "Sai username hoặc password"));
             }
@@ -252,12 +246,11 @@ public class ClientHandler implements Runnable{
 
     private void handleLogout()  throws IOException {
         if(user != null) {
-            clientManager.broadcast(new Message(MessageType.UPDATE_USER_STATUS, user.getUsername() + " đã offline"));
+            clientManager.removeClient(this);
             if (socket != null && !socket.isClosed()) {
                 sendResponse(new Message(MessageType.LOGOUT_SUCCESS, "Đăng xuất thành công."));
             }
             isRunning = false;
-            clientManager.removeClient(this);
             socket.close();
         }
     }
@@ -349,12 +342,13 @@ public class ClientHandler implements Runnable{
         }
 
         try {
+            out.reset();
             out.writeObject(response);
             out.flush();
         } catch (IOException e) {
             System.out.println("Lỗi khi gửi phản hồi tới " + (user != null ? user.getUsername() : "client") + ": " + e.getMessage());
             try {
-                socket.close(); // đánh dấu client ngắt kết nối
+                socket.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
