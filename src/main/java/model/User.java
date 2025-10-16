@@ -1,28 +1,52 @@
 package model;
 
+import constant.Status;
 import server.dao.UserDAO;
 
 import java.io.Serializable;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-    
     private int id;
     private String username;
     private String password;
-    private String status;
+    private Status status;
     private int points;
+    private int rank;
 
+    public User() {
+
+    }
+
+    public User(User other) {
+        this.id = other.id;
+        this.username = other.username;
+        this.password = other.password;
+        this.status = other.status;
+        this.points = other.points;
+        this.rank = other.rank;
+    }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
+    public User(int id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     public User(int id, String username, int points) {
         this.id = id;
         this.username = username;
         this.points = points;
+    }
+
+    public User(String username, int points, int rank) {
+        this.username = username;
+        this.points = points;
+        this.rank = rank;
     }
 
     public String getUsername() {
@@ -53,11 +77,11 @@ public class User implements Serializable {
         return points;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -65,5 +89,18 @@ public class User implements Serializable {
         this.points = points;
         UserDAO userDAO = new UserDAO();
         userDAO.savePoint(this, points);
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("User{id=%d, username='%s', status='%s', points=%d, rank=%d}", id, username, status, points, rank);
     }
 }

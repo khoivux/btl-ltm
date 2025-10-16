@@ -129,13 +129,17 @@ public class Client {
             case MessageType.LOGIN_SUCCESS:
                 handleLoginSuccess(message);
                 break;
-                
+
             case MessageType.LOGIN_FAILURE:
                 handleLoginFailure(message);
                 break;
 
             case MessageType.LOGOUT_SUCCESS:
                 handleLogout(message);
+                break;
+
+            case MessageType.UPDATE_USER_STATUS:
+                mainController.updateStatusUser((User) message.getContent());
                 break;
 
             case MessageType.RANK_SUCCESS:
@@ -260,9 +264,6 @@ public class Client {
                 }
                 break;
 
-            case MessageType.UPDATE_USER_STATUS:
-                sendMessage(new Message(MessageType.ONLINE_LIST, null));
-                break;
 
 
             default:
@@ -283,9 +284,7 @@ public class Client {
 
 
     private void handleLoginSuccess(Message message) {
-        User user = (User) message.getContent();
-        this.user = user;
-        System.out.println("Đăng nhập thành công: " + user.getUsername());
+        this.user = (User) message.getContent();
         Platform.runLater(this::showMainUI);
     }
 
