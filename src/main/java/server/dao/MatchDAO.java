@@ -7,22 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MatchDAO {
+public class MatchDAO extends DAO{
 
-    private Connection connection;
-
-    // Constructor
-    public MatchDAO(Connection connection) {
-        this.connection = connection;
+    public MatchDAO() {
+        super();
     }
-
     /**
      * Lưu một trận đấu mới vào database
      */
     public boolean saveMatch(Match match) {
         String sql = "INSERT INTO tblmatch (start_time, end_time) " +
                 "VALUES (?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setTimestamp(1, match.getStartTime() != null ? Timestamp.valueOf(match.getStartTime()) : null);
             stmt.setTimestamp(2, match.getEndTime() != null ? Timestamp.valueOf(match.getEndTime()) : null);
             int rows = stmt.executeUpdate();
@@ -47,7 +43,7 @@ public class MatchDAO {
     public List<Match> getAllMatches() {
         List<Match> matches = new ArrayList<>();
         String sql = "SELECT * FROM tblmatch ORDER BY start_time DESC";
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -65,7 +61,7 @@ public class MatchDAO {
     public List<Match> getMatchesByUser(String username) {
         List<Match> matches = new ArrayList<>();
         String sql = "SELECT * FROM tblmatch WHERE player1 = ? OR player2 = ? ORDER BY start_time DESC";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, username);
 
