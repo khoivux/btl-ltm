@@ -8,10 +8,10 @@ import java.util.List;
 
 
 public class MatchDAO extends DAO{
+
     public MatchDAO() {
         super();
     }
-
     /**
      * Lưu một trận đấu mới vào database
      */

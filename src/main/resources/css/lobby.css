@@ -1,0 +1,213 @@
+/* === Background cho toàn màn hình === */
+.root {
+    -fx-background-image: url("../assets/lobby-bg.jpg");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+}
+
+/* === Nút "Lịch sử đấu" (cam) === */
+.history-button {
+    -fx-background-color:
+    #b7f57d,
+    #d2ffb0,
+    linear-gradient(to bottom, #ffa94d, #ff922b);
+
+    -fx-background-insets: 0, 3, 6;
+    -fx-background-radius: 40, 37, 34;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10 25 10 25;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-graphic-text-gap: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 2, 2);
+}
+
+.history-button:hover {
+    -fx-background-color:
+    #bdfc88,
+    #d9ffb8,
+    linear-gradient(to bottom, #ffb84d, #ffa23b);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.history-button:pressed {
+    -fx-background-color:
+    #a8e871,
+    #caffaa,
+    linear-gradient(to bottom, #ff922b, #ff7b00);
+    -fx-translate-y: 1;
+}
+
+/* === Nút "Bảng xếp hạng" (tím) === */
+.ranking-button {
+    -fx-background-color:
+    #B160D9,
+    #FCE484,
+    linear-gradient(to bottom, #b678df, #9e50d0);
+
+    -fx-background-insets: 0, 3, 6;
+    -fx-background-radius: 40, 37, 34;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10 25 10 25;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-graphic-text-gap: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 2, 2);
+}
+
+.ranking-button:hover {
+    -fx-background-color:
+    #C075E3,
+    #FDEB9D,
+    linear-gradient(to bottom, #c987ea, #ae61da);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.ranking-button:pressed {
+    -fx-background-color:
+    #A653D1,
+    #FBE17A,
+    linear-gradient(to bottom, #9c45cb, #8b39b8);
+    -fx-translate-y: 1;
+}
+
+/* === Nút "Đăng xuất" (đỏ cam) === */
+.logout-button {
+    -fx-background-color:
+    #FD9246,
+    #FEDE84,
+    linear-gradient(to bottom, #fb585b, #fa4347);
+
+    -fx-background-insets: 0, 3, 6;
+    -fx-background-radius: 40, 37, 34;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10 25 10 25;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-graphic-text-gap: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 2, 2);
+}
+
+.logout-button:hover {
+    -fx-background-color:
+    #FEA15E,
+    #FFE69A,
+    linear-gradient(to bottom, #fc6c6e, #fb4f53);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.logout-button:pressed {
+    -fx-background-color:
+    #FB7A2D,
+    #FED86C,
+    linear-gradient(to bottom, #fa4347, #e63032);
+    -fx-translate-y: 1;
+}
+
+/* ==== Container cho bảng danh sách ==== */
+.player-list-container {
+/* 2 lớp background: lớp ngoài là gradient viền, lớp trong là nền */
+    -fx-background-color:
+    linear-gradient(to bottom, #90da8a, #F787AE), /* lớp ngoài - viền gradient */
+    linear-gradient(to bottom, #f3ffe9, #d6f5d6); /* lớp trong - nền */
+
+    /* Điều chỉnh khoảng cách giữa 2 lớp để lớp ngoài lộ ra làm viền */
+    -fx-background-insets: 0, 5;   /* 5px = độ dày viền */
+    -fx-background-radius: 35, 30; /* bo góc khớp */
+    -fx-padding: 15 20 15 20;
+
+    /* Đổ bóng nhẹ cho khối container */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 3, 3);
+}
+
+
+/* ==== Tiêu đề phía trên bảng ==== */
+.player-list-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b7a0b;
+    -fx-padding: 0 0 0 0;
+}
+
+/* ==== TableView bên trong container ==== */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 35;
+    -fx-border-color: transparent;      /* bỏ viền */
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 5, 0, 2, 2); /* bóng nhẹ */
+    -fx-padding: 5;
+}
+
+/* ==== Header Background ==== */
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #f9f9f9, #efefef);
+    -fx-background-radius: 15 15 0 0;
+    -fx-padding: 6;
+    -fx-border-color: #ddd;
+    -fx-border-width: 0 0 1 0; /* viền mảnh phía dưới header */
+}
+
+/* ==== Header Cell ==== */
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* ==== Header Text ==== */
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-alignment: CENTER;
+}
+
+/* ==== Khi hover vào header ==== */
+.table-view .column-header:hover {
+    -fx-background-color: linear-gradient(to bottom, #e6ffe6, #ccffcc);
+}
+
+
+/* ==== Dòng dữ liệu ==== */
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: linear-gradient(to bottom, #c8ffe6, #a8ffd0);
+}
+
+/* ==== Dòng xen kẽ ==== */
+.table-row-cell:odd {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+.table-row-cell:even {
+    -fx-background-color: rgba(248, 255, 248, 0.9);
+}
+
+/* ==== Căn lề trong ô ==== */
+.table-cell {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 10 6 10;
+}
+
+/* ==== Placeholder khi không có dữ liệu ==== */
+.table-view .placeholder .label {
+    -fx-text-fill: #999;
+    -fx-font-style: italic;
+}

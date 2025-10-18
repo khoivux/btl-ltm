@@ -8,16 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetailMatchDAO extends DAO {
-    private Connection connection;
-
-    public DetailMatchDAO(Connection connection) {
-        this.connection = connection;
+    public DetailMatchDAO() {
+        super();
     }
 
     public boolean saveDetailMatch(DetailMatch detailMatch, int matchId) {
         String sql = "INSERT INTO tbldetail_match (player_id, match_id, score, is_winner, is_quit) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, detailMatch.getPlayer().getId());
             stmt.setInt(2, matchId);
             stmt.setInt(3, detailMatch.getScore());

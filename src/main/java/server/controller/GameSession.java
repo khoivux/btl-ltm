@@ -36,8 +36,8 @@ public class GameSession {
         this.startTime = LocalDateTime.now();
         try {
             // lazily initialize MatchDAO using the shared DAO connection
-            this.matchDAO = new server.dao.MatchDAO(server.dao.DAO.con);
-            this.detailMatchDAO = new server.dao.DetailMatchDAO(server.dao.DAO.con);
+            this.matchDAO = new MatchDAO();
+            this.detailMatchDAO = new DetailMatchDAO();
         } catch (Exception ex) {
             // if DB is not available, just log and continue - match saving will be skipped
             System.err.println("GameSession: Không thể khởi tạo DAO: " + ex.getMessage());
