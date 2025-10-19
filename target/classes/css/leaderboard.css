@@ -1,0 +1,72 @@
+/* Style cho ListView trong Leaderboard */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-cell-size: 65px; /* Đảm bảo scroll đúng 1 cell mỗi lần */
+}
+
+/* Style cho các cell trong ListView */
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: "Inter Semi Bold";
+    -fx-font-size: 14px;
+    -fx-padding: 12px 20px; /* Giãn dọc 12px, giãn ngang 20px */
+    -fx-border-color: transparent;
+    -fx-pref-height: 65px; /* Chiều cao mỗi cell */
+    -fx-min-height: 65px;  /* Chiều cao tối thiểu */
+}
+
+/* Style khi hover */
+.list-cell:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Style khi selected */
+.list-cell:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+}
+
+/* Style cho scrollbar */
+.list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.list-view .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-background-radius: 5px;
+}
+
+.list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Ẩn scrollbar arrows */
+.list-view .scroll-bar .increment-button,
+.list-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.list-view .scroll-bar .increment-arrow,
+.list-view .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+}
+
+/* Đảm bảo scroll behavior chính xác */
+.list-view {
+    -fx-scroll-bar-policy: as-needed;
+    -fx-scroll-bar-fixed-size: 65px;
+}
+
+/* Smooth scrolling */
+.list-view .virtual-flow {
+    -fx-scroll-bar-policy: as-needed;
+}
