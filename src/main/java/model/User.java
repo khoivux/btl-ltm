@@ -103,4 +103,4 @@ public class User implements Serializable {
     public String toString() {
         return String.format("User{id=%d, username='%s', status='%s', points=%d, rank=%d}", id, username, status, points, rank);
     }
-}
+    }

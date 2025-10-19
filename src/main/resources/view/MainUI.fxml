@@ -4,16 +4,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MainController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MainController">
 
     <!-- Bên trái: các nút chức năng -->
     <left>
-        <VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="296.0" spacing="15.0" BorderPane.alignment="CENTER">
+        <VBox alignment="TOP_CENTER" spacing="15.0" BorderPane.alignment="CENTER">
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
-            <Button fx:id="btnHistory" text="Xem lịch sử thi đấu" />
-            <Button fx:id="btnRanking" text="Xem bảng xếp hạng" />
+            <Button fx:id="btnHistory" onAction="#handleMatchHistory" text="Xem lịch sử thi đấu" />
+            <Button fx:id="btnRanking" onAction="#handleLeaderboard" text="Xem bảng xếp hạng" />
             <Button fx:id="btnEditInfo" text="Chỉnh sửa thông tin" />
             <Button onAction="#handleLogout" text="Đăng xuất" />
         </VBox>
@@ -26,12 +26,15 @@
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-            <TableView fx:id="userTable" prefHeight="561.0" prefWidth="564.0">
+            <TableView fx:id="userTable" prefHeight="203.0" prefWidth="610.0">
                 <columns>
                     <TableColumn fx:id="colUsername" prefWidth="250.0" text="Tên người dùng" />
                     <TableColumn fx:id="colStatus" prefWidth="250.0" text="Trạng thái" />
                 </columns>
             </TableView>
+         <ListView fx:id="listChats" prefHeight="120.0" prefWidth="698.0" />
+         <TextField fx:id="addedChat" promptText="Nhap tin nhan cua ban..." onAction="#handleAddChat" />
+         <Button onAction="#handleAddChat" mnemonicParsing="false" text="Send" />
 
         </VBox>
     </center>
