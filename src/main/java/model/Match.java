@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Lớp Match biểu diễn một trận đấu giữa 2 người chơi.
@@ -16,6 +17,7 @@ public class Match implements Serializable {
 
 
     public Match() {}
+
 
     public DetailMatch[] getDetailMatch() {
         return detailMatch;
@@ -50,10 +52,10 @@ public class Match implements Serializable {
     public LocalDateTime getEndTime() {
         return endTime;
     }
-
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
+
 
     // ===== TO STRING =====
     @Override

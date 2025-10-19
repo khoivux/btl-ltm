@@ -140,6 +140,17 @@ public class UserDAO extends DAO{
         }
         return null;
     }
+    // xu ly lay rank va point de hien o phan lich su dau
+    public User getRankAndPointByUsername(String username) {
+        List<User> leaderboard = getLeaderboard(); // dùng hàm có sẵn của bạn
+        for (User u : leaderboard) {
+            if (u.getUsername().equals(username)) {
+                return u; // User này đã có sẵn rank và point
+            }
+        }
+        return null;
+    }
+
 //     public static void main(String[] args) {
 //        System.out.println("=== Testing UserDAO ===");
 

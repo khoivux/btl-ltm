@@ -85,6 +85,25 @@ public class MainController {
         }
         client.showLeaderboardUI();
     }
+    //handle match history
+    public void handleMatchHistory() throws IOException {
+        User currentUser = client.getUser();
+        if (currentUser != null) {
+            try {
+                // Gửi yêu cầu lấy thông tin rank và elo
+                client.sendMessage(new Message(MessageType.RANK, currentUser.getUsername()));
+
+                // Gửi yêu cầu lấy lịch sử trận đấu của user
+                client.sendMessage(new Message(MessageType.MATCH_HISTORY, currentUser.getUsername()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Hiển thị giao diện lịch sử đấu
+        client.showMatchHistoryUI();
+    }
+
 
     public void handleAddChat(){
         try{
