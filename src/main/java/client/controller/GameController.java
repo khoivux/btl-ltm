@@ -64,13 +64,17 @@ public class GameController {
                     String colorName = currentBoardData[r][c];
                     Color buttonColor = parseColor(colorName);
 
-                    // Đặt màu nền bằng CSS cho Button
-                    String style = String.format("-fx-background-color: %s; -fx-text-fill: black;",
+                    // Đặt màu nền và kiểu dáng (bo góc + viền) cho từng ô
+                    String style = String.format(
+                            "-fx-background-color: %s; " +
+                            "-fx-background-radius: 10; " +
+                            "-fx-border-color: rgba(0,0,0,0.25); " +
+                            "-fx-border-width: 1; " +
+                            "-fx-border-radius: 10; " +
+                            "-fx-text-fill: black; " +
+                            "-fx-font-weight: bold;",
                             toWebColor(buttonColor));
                     btn.setStyle(style);
-
-                    // Đặt màu viền để dễ phân biệt ô
-                    btn.setStyle(btn.getStyle() + " -fx-border-color: #333333; -fx-border-width: 1; -fx-font-weight: bold;");
 
                     // -----------------------------------------------------------------
 
@@ -209,7 +213,13 @@ public class GameController {
 
                         // Đổi màu nền để biểu thị ô đã được chọn
                         Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
-                        String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; ",
+                        String newStyle = String.format(
+                                "-fx-background-color: %s; " +
+                                "-fx-background-radius: 10; " +
+                                "-fx-border-color: rgba(0,0,0,0.35); " +
+                                "-fx-border-width: 1; " +
+                                "-fx-border-radius: 10; " +
+                                "-fx-text-fill: white; ",
                                 toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
                         btn.setStyle(newStyle);
                     }
