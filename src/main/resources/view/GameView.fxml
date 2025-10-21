@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
+<AnchorPane prefHeight="679.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
     <children>
-        <VBox alignment="TOP_CENTER" spacing="20.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="14.0">
+        <!-- Background Image -->
+        <ImageView fitHeight="679.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <image>
+                <Image url="@../assets/background.jpg" />
+            </image>
+        </ImageView>
+        
+        <VBox alignment="TOP_CENTER" layoutY="124.0" prefHeight="546.0" prefWidth="546.0" spacing="20.0" style="-fx-background-color: rgba(148, 197, 229, 0.5); -fx-background-radius: 14; -fx-border-color: rgba(255,255,255,0.8); -fx-border-width: 2; -fx-border-radius: 14;" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="240.0" AnchorPane.topAnchor="124.0">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
             <children>
-                <Label text="HÃY TÌM VÀ CHỌN 5 MÀU SAU:">
+                <Label style="-fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 0);" text="HÃY TÌM VÀ CHỌN 5 MÀU SAU:">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
@@ -24,19 +29,19 @@
                 </HBox>
 
 
-                <Label fx:id="timerLabel" text="15" />
+                <Label fx:id="timerLabel" prefHeight="20.0" prefWidth="14.0" style="-fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 0);" text="15" />
 
-                <GridPane fx:id="boardGrid" hgap="10" vgap="10" alignment="CENTER">
+                <GridPane fx:id="boardGrid" alignment="CENTER" hgap="10" prefWidth="506.0" vgap="10">
                     <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
+                        <Insets bottom="10" left="10" right="10" top="10" />
                     </padding>
                 </GridPane>
             </children>
         </VBox>
 
-        <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-border-color: lightgray; -fx-border-width: 2; -fx-border-radius: 10;" AnchorPane.bottomAnchor="24.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="24.0" AnchorPane.leftAnchor="575.0">
+        <VBox alignment="TOP_CENTER" layoutY="89.0" prefHeight="361.0" prefWidth="211.0" spacing="20.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="575.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="89.0">
             <children>
-                <Label text="THÔNG TIN TRẬN ĐẤU">
+                <Label style="-fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 0);" text="THÔNG TIN TRẬN ĐẤU">
                     <font>
                         <Font name="System Bold" size="16.0" />
                     </font>
@@ -65,7 +70,7 @@
                         </HBox>
                     </children>
                 </VBox>
-                <VBox spacing="5.0" style="-fx-background-color: #ffebee; -fx-background-radius: 10; -fx-padding: 10;">
+                <VBox prefWidth="211.0" spacing="5.0" style="-fx-background-color: #ffebee; -fx-background-radius: 10; -fx-padding: 10;">
                     <children>
                         <Label text="Người chơi 2">
                             <font>
