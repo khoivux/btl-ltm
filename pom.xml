@@ -55,6 +55,12 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>22.0.2</version> <!-- thay bằng version JavaFX bạn đang dùng -->
+        </dependency>
+
     </dependencies>
 
     <build>
