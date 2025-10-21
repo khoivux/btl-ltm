@@ -1,6 +1,6 @@
 /* === Background cho toàn màn hình === */
 .root {
-    -fx-background-image: url("../assets/lobby-bg.jpg");
+    -fx-background-image: url("../assets/bg1.jpg");
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
@@ -141,24 +141,27 @@
     -fx-padding: 0 0 0 0;
 }
 
-/* ==== TableView bên trong container ==== */
+/* ==== TableView ==== */
 .table-view {
     -fx-background-color: white;
-    -fx-background-radius: 35;
-    -fx-border-color: transparent;      /* bỏ viền */
+    -fx-background-radius: 20; /* bo đều cả header + body */
+    -fx-border-color: transparent;
     -fx-border-width: 0;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 5, 0, 2, 2); /* bóng nhẹ */
-    -fx-padding: 5;
+    -fx-padding: 0; /* bỏ padding để header sát biên */
+    -fx-table-cell-border-color: transparent;
+    -fx-control-inner-background: white;
+    -fx-control-inner-background-alt: white;
 }
 
-/* ==== Header Background ==== */
+/* ==== Header background ==== */
 .table-view .column-header-background {
-    -fx-background-color: linear-gradient(to bottom, #f9f9f9, #efefef);
-    -fx-background-radius: 15 15 0 0;
-    -fx-padding: 6;
+    -fx-background-color: linear-gradient(to bottom, #fdfdfd, #f0f0f0);
+    -fx-background-radius: 20 20 0 0; /* bo góc trên để khớp container */
+    -fx-padding: 6 0 6 0;
     -fx-border-color: #ddd;
-    -fx-border-width: 0 0 1 0; /* viền mảnh phía dưới header */
+    -fx-border-width: 0 0 1 0;
 }
+
 
 /* ==== Header Cell ==== */
 .table-view .column-header,
@@ -210,4 +213,82 @@
 .table-view .placeholder .label {
     -fx-text-fill: #999;
     -fx-font-style: italic;
+}
+/* ==== Căn lề ==== */
+.table-cell {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 10 6 10;
+}
+
+/* ==== Container chính ==== */
+.chat-container {
+    -fx-background-color: linear-gradient(to bottom, #CCE7F9, #D5E5F1);
+    -fx-background-radius: 30;
+    -fx-border-color: linear-gradient(to bottom, #50C8F8, #F4F483);
+    -fx-border-radius: 30;
+    -fx-border-width: 6;
+}
+
+/* ==== Tiêu đề ==== */
+.chat-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* ==== ListView hiển thị tin nhắn ==== */
+.chat-list {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+    -fx-border-color: transparent;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 2, 2);
+}
+
+/* ==== Bubble tin nhắn ==== */
+.chat-bubble {
+    -fx-background-radius: 15;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+
+/* ==== Màu cho từng người ==== */
+.user-purple {
+    -fx-background-color: #C06BE2;
+}
+.user-green {
+    -fx-background-color: #6AD676;
+}
+.user-orange {
+    -fx-background-color: #FFA84C;
+}
+.user-blue {
+    -fx-background-color: #53A9FF;
+}
+
+/* ==== Ô nhập tin ==== */
+.chat-input {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 20;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 14px;
+}
+
+/* ==== Nút Gửi ==== */
+.send-button {
+    -fx-background-color: linear-gradient(to bottom, #5AC8FA, #007AFF);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0, 2, 2);
+}
+.send-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #6FDBFF, #008CFF);
 }
