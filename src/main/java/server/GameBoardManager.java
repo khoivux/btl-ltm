@@ -52,7 +52,6 @@ public class GameBoardManager {
         board[row][col] = mark; // đánh dấu P1/P2
     }
 
-    // --- PHƯƠNG THỨC MỚI ĐỂ GỬI TOÀN BỘ BẢNG CHO CLIENT ---
     public String[][] getBoardData() {
         // Tạo bản sao để tránh client sửa đổi trực tiếp
         String[][] data = new String[ROWS][COLS];
@@ -63,7 +62,6 @@ public class GameBoardManager {
     }
 
     public void printBoard() {
-        // ... (Không thay đổi)
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 System.out.print(board[i][j] + "\t");
