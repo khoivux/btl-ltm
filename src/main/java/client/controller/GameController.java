@@ -65,16 +65,21 @@ public class GameController {
                     Color buttonColor = parseColor(colorName);
 
                     // Đặt màu nền và kiểu dáng (bo góc + viền) cho từng ô
-                    String style = String.format(
-                            "-fx-background-color: %s; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-border-color: rgba(0,0,0,0.25); " +
-                            "-fx-border-width: 1; " +
-                            "-fx-border-radius: 10; " +
-                            "-fx-text-fill: black; " +
-                            "-fx-font-weight: bold;",
-                            toWebColor(buttonColor));
+                    String color = toWebColor(buttonColor);
+                    String style =
+                            "-fx-background-color: derive(" + color + ", 20%); " +  // tăng sáng 20%
+                                    "-fx-background-radius: 12; " +
+                                    "-fx-border-color: rgba(255,255,255,0.4); " +           // viền sáng nhẹ
+                                    "-fx-border-width: 1; " +
+                                    "-fx-border-radius: 12; " +
+                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.2, 0, 2); " + // bóng nhẹ
+                                    "-fx-text-fill: white; " +
+                                    "-fx-font-weight: bold; " +
+                                    "-fx-font-size: 14px;";
+
                     btn.setStyle(style);
+
+
 
                     // -----------------------------------------------------------------
 
