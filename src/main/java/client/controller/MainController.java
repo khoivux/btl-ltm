@@ -140,6 +140,15 @@ public class MainController {
             });
             return row;
         });
+
+        listChats.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // click đúp
+                Chat selectedChat = listChats.getSelectionModel().getSelectedItem();
+                if (selectedChat != null && selectedChat.getUser() != null && client != null) {
+                    client.sendInvite(selectedChat.getUser().getUsername());
+                }
+            }
+        });
     }
 
     private void playBackgroundMusic() {

@@ -6,6 +6,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -15,11 +17,35 @@
     <children>
 
         <!-- ===== Nút chức năng phía trên ===== -->
-        <HBox layoutX="337.0" layoutY="150.0" spacing="40">
+        <HBox layoutX="302.0" layoutY="144.0" spacing="40">
             <children>
-                <Button fx:id="btnHistory" styleClass="history-button" text="Lịch sử đấu" />
-                <Button fx:id="btnRanking" onAction="#handleLeaderboard" styleClass="ranking-button" text="Bảng xếp hạng" />
-                <Button fx:id="btnLogout" onAction="#handleLogout" styleClass="logout-button" text="Đăng xuất" />
+                <Button fx:id="btnHistory" prefHeight="59.0" prefWidth="184.0" styleClass="history-button" text="Lịch sử đấu">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20">
+                            <image>
+                                <Image url="@../assets/icon-clock.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnRanking" onAction="#handleLeaderboard" prefHeight="60.0" prefWidth="198.0" styleClass="ranking-button" text="Bảng xếp hạng">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20">
+                            <image>
+                                <Image url="@../assets/icon-crown.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnLogout" onAction="#handleLogout" prefHeight="60.0" prefWidth="166.0" styleClass="logout-button" text="Đăng xuất">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20">
+                            <image>
+                                <Image url="@../assets/icon-exit.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
             </children>
         </HBox>
 
@@ -28,7 +54,7 @@
             <children>
 
                 <!-- Khung chat -->
-                <AnchorPane prefHeight="370.0" prefWidth="400.0" styleClass="chat-container">
+                <AnchorPane prefHeight="370.0" prefWidth="398.0" styleClass="chat-container">
                     <children>
                         <Label layoutX="130.0" layoutY="10.0" styleClass="chat-title" text="General Chat" />
 
