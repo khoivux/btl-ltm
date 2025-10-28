@@ -24,7 +24,14 @@ public class GameManager {
             "#FFA500", // ORANGE
             "#FFC0CB", // PINK
             "#800080", // PURPLE
-            "#00FFFF"  // CYAN
+            "#00FFFF",  // CYAN
+            "#FF00FF", // MAGENTA / FUCHSIA (Hồng đậm)
+            "#A52A2A", // BROWN (Nâu)
+            "#008080", // TEAL (Xanh mòng két)
+            "#32CD32", // LIME GREEN (Xanh lá mạ)
+            "#000080",
+            "#FFFFFF", // WHITE (Trắng)
+            "#808080" // GRAY (Xám)
     );
 
     public GameManager() {

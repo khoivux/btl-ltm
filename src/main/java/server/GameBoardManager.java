@@ -12,6 +12,8 @@ public class GameBoardManager {
     private final int ROWS = 8;
     private final int COLS = 8;
     private String[][] board; // each cell is a color hex (e.g. "#A1B2C3")
+    int minDelta = 50; // minimum perturbation per channel
+    int maxDelta = 200; // maximum perturbation per channel
 
     public GameBoardManager(List<String> targetColors) {
         board = new String[ROWS][COLS];
@@ -33,7 +35,7 @@ public class GameBoardManager {
                 int attempts = 0;
                 do {
                     String base = targetColors.get(rand.nextInt(targetColors.size()));
-                    variant = perturbColor(base, 100, rand);
+                    variant = perturbColor(base, minDelta, maxDelta, rand);
                     attempts++;
                     if (attempts > 100) break; // fallback to base if something odd happens
                 } while (targetColors.contains(variant));
@@ -58,12 +60,42 @@ public class GameBoardManager {
         }
     }
 
-    private String perturbColor(String hex, int maxDelta, Random rand) {
+    private String perturbColor(String hex, int minDelta, int maxDelta, Random rand) {
         int[] rgb = hexToRgb(hex);
-        int r = clamp(rgb[0] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
-        int g = clamp(rgb[1] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
-        int b = clamp(rgb[2] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
+
+        // Tạo delta ngẫu nhiên cho từng kênh bằng hàm helper mới
+        int r_delta = generateDelta(minDelta, maxDelta, rand);
+        int g_delta = generateDelta(minDelta, maxDelta, rand);
+        int b_delta = generateDelta(minDelta, maxDelta, rand);
+
+        System.out.println(String.format("Deltas: r=%d, g=%d, b=%d", r_delta, g_delta, b_delta));
+
+        // Áp dụng delta và "kẹp" giá trị trong khoảng [0, 255]
+        int r = clamp(rgb[0] + r_delta, 0, 255);
+        int g = clamp(rgb[1] + g_delta, 0, 255);
+        int b = clamp(rgb[2] + b_delta, 0, 255);
+
         return rgbToHex(r, g, b);
+    }
+
+    private int generateDelta(int minDelta, int maxDelta, Random rand) {
+        if (minDelta > maxDelta) {
+            minDelta = maxDelta;
+        }
+
+        // Nếu minDelta và maxDelta đều là 0, delta = 0
+        if (maxDelta == 0) {
+            return 0;
+        }
+
+        int rangeSize = maxDelta - minDelta + 1;
+        int magnitude = rand.nextInt(rangeSize) + minDelta;
+
+        if (rand.nextBoolean()) {
+            return magnitude;
+        } else {
+            return -magnitude;
+        }
     }
 
     private int[] hexToRgb(String hex) {

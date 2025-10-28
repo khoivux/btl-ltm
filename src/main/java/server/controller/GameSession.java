@@ -98,6 +98,7 @@ public class GameSession {
                 int prev = scores.getOrDefault(username, 0);
                 scores.put(username, Math.max(prev - 1, 0));
             }
+            System.out.println("picked: " + cell);
             return new PickResult(true, hit, false, marker, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), hit ? "Hit" : "Miss");
         } catch (ArrayIndexOutOfBoundsException ex) {
             return new PickResult(false, false, false, null, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), "Out of bounds");
