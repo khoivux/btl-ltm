@@ -1,11 +1,19 @@
 package server.controller;
 
-import model.Message;
-import constant.MessageType;
-import server.ClientHandler;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import java.util.*;
-import java.util.concurrent.*;
+import constant.MessageType;
+import model.Message;
+import server.ClientHandler;
 
 /**
  * GameManager orchestrates game sessions between two connected clients.
@@ -76,6 +84,7 @@ public class GameManager {
         scheduler.schedule(() -> startGame(info), 3, TimeUnit.SECONDS);
     }
 
+
     private void startGame(SessionInfo info) {
         if (info == null || info.ch1 == null || info.ch2 == null) return;
         info.secondsLeft = 15;
@@ -94,7 +103,6 @@ public class GameManager {
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
-
     /**
      * Handle a pick from a client: call session.pickCell and broadcast PICK_RESULT.
      */

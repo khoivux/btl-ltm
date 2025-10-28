@@ -1,0 +1,109 @@
+
+/* === Background cho toàn màn hình === */
+.root {
+    -fx-background-image: url("../assets/login-bg.jpg");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+}
+/* Nút gradient kiểu “Đăng ký” trong ảnh */
+.login-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #FC2F86, #FBB346);
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0, 0, 2);
+}
+
+/* Hiệu ứng hover: đổi hướng màu và tăng sáng */
+.login-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #7873f5, #ff6ec4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 3);
+}
+
+/* Khi bấm giữ (click) */
+.login-button:pressed {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #f5576c, #f093fb);
+    -fx-translate-y: 1px;
+}
+
+
+
+/* === Ô nhập chung === */
+.text-field, .password-field {
+    -fx-background-color: white;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 8 40 8 15; /* chừa chỗ bên phải cho icon */
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0.2, 0, 2);
+}
+
+/* === Ô Tên đăng nhập (viền xanh) === */
+.text-field.username-field {
+    -fx-border-color: #33b5ff;
+    -fx-border-width: 2;
+}
+
+/* === Ô Mật khẩu (viền đỏ) === */
+.password-field.password-field-custom {
+    -fx-border-color: #ff6666;
+    -fx-border-width: 2;
+}
+
+/* === Placeholder text (prompt) === */
+.text-field .text, .password-field .text {
+    -fx-prompt-text-fill: derive(gray, -30%);
+}
+
+/* === Thêm icon vào bên phải === */
+.text-field.username-field {
+    -fx-background-image: url("../assets/icon-palete.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: right 10 center;
+    -fx-background-size: 22px;
+}
+
+.password-field.password-field-custom {
+    -fx-background-image: url("../assets/icon-lock.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: right 10 center;
+    -fx-background-size: 22px;
+}
+
+/* Hiệu ứng hover */
+.username-field:hover, .password-field-custom:hover {
+    -fx-border-color: #4b0bcb;
+}
+
+/* Label cùng style nhưng khác màu */
+.input-label {
+    -fx-text-fill: #6a5acd; /* tím nhẹ, cùng tông với border */
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.register-link {
+    -fx-text-fill: #6a5acd;           /* tím nhẹ */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-underline: false;
+    -fx-cursor: hand;                /* đổi thành con trỏ tay khi rê chuột */
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 2, 0.3, 0, 1);
+}
+
+/* Hiệu ứng hover */
+.register-link:hover {
+    -fx-text-fill: #7b68ee;           /* tím sáng hơn một chút khi hover */     /* gạch chân khi hover */
+    -fx-effect: dropshadow(gaussian, rgba(106, 90, 205, 0.4), 4, 0.5, 0, 2);
+}
+
+
