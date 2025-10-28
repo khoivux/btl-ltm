@@ -45,9 +45,15 @@ public class GameManager {
         }
 
         // pick 5 random colors
-        List<String> pool = new ArrayList<>(COLOR_POOL);
-        Collections.shuffle(pool);
-        List<String> targetColors = pool.subList(0, Math.min(5, pool.size()));
+        Set<String> colorSet = new LinkedHashSet<>();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        while (colorSet.size() < 5) {
+            int r = rnd.nextInt(256);
+            int g = rnd.nextInt(256);
+            int b = rnd.nextInt(256);
+            colorSet.add(String.format("#%02X%02X%02X", r, g, b));
+        }
+        List<String> targetColors = new ArrayList<>(colorSet);
 
         GameSession session = new GameSession(ch1.getUser(), ch2.getUser(), targetColors);
 
