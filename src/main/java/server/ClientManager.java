@@ -35,6 +35,7 @@ public class ClientManager {
         if(clientHandler.getUser() != null) {
             User logoutInfo = new User(clientHandler.getUser());
             logoutInfo.setStatus(Status.OFFLINE);
+            clientMap.remove(clientHandler.getUser().getUsername());
             broadcast(new Message(MessageType.UPDATE_USER_STATUS, logoutInfo));
         }
     }

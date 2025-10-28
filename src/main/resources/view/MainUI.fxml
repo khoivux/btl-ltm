@@ -6,6 +6,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -13,35 +15,53 @@
 <AnchorPane prefHeight="700.0" prefWidth="1200.0" stylesheets="@../css/lobby.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MainController">
 
     <children>
-
-        <!-- ===== Nút chức năng phía trên ===== -->
-        <HBox layoutX="337.0" layoutY="150.0" spacing="40">
-            <children>
-                <Button fx:id="btnHistory" styleClass="history-button" text="Lịch sử đấu" />
-                <Button fx:id="btnRanking" onAction="#handleLeaderboard" styleClass="ranking-button" text="Bảng xếp hạng" />
-                <Button fx:id="btnLogout" onAction="#handleLogout" styleClass="logout-button" text="Đăng xuất" />
-            </children>
-        </HBox>
+          <Button fx:id="btnHistory" layoutX="257.0" layoutY="139.0" prefHeight="59.0" prefWidth="184.0" styleClass="history-button" text="Lịch sử đấu">
+              <graphic>
+                  <ImageView fitHeight="20" fitWidth="20">
+                      <image>
+                          <Image url="@../assets/icon-clock.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
+          </Button>
+          <Button fx:id="btnRanking" layoutX="518.0" layoutY="139.0" onAction="#handleLeaderboard" prefHeight="60.0" prefWidth="198.0" styleClass="ranking-button" text="Bảng xếp hạng">
+              <graphic>
+                  <ImageView fitHeight="20" fitWidth="20">
+                      <image>
+                          <Image url="@../assets/icon-crown.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
+          </Button>
+          <Button fx:id="btnLogout" layoutX="778.0" layoutY="139.0" onAction="#handleLogout" prefHeight="60.0" prefWidth="166.0" styleClass="logout-button" text="Đăng xuất">
+              <graphic>
+                  <ImageView fitHeight="20" fitWidth="20">
+                      <image>
+                          <Image url="@../assets/icon-exit.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
+          </Button>
 
         <!-- ===== Phần chính: Chat + Danh sách người chơi ===== -->
-        <HBox alignment="CENTER" layoutX="150.0" layoutY="250.0" spacing="80">
+        <HBox alignment="CENTER" layoutX="157.0" layoutY="250.0" spacing="80">
             <children>
 
                 <!-- Khung chat -->
-                <AnchorPane prefHeight="370.0" prefWidth="400.0" styleClass="chat-container">
+                <AnchorPane prefHeight="370.0" prefWidth="399.0" styleClass="chat-container">
                     <children>
                         <Label layoutX="130.0" layoutY="10.0" styleClass="chat-title" text="General Chat" />
 
-                        <ListView fx:id="listChats" layoutX="25.0" layoutY="50.0" prefHeight="260.0" prefWidth="350.0" styleClass="chat-list" />
+                        <ListView fx:id="listChats" layoutX="25.0" layoutY="50.0" prefHeight="260.0" prefWidth="360.0" styleClass="chat-list" />
 
-                        <TextField fx:id="addedChat" layoutX="25.0" layoutY="317.0" onAction="#handleAddChat" prefHeight="35.0" prefWidth="260.0" promptText="Nhập tin nhắn..." styleClass="chat-input" />
+                        <TextField fx:id="addedChat" layoutX="25.0" layoutY="317.0" onAction="#handleAddChat" prefHeight="35.0" prefWidth="289.0" promptText="Nhập tin nhắn..." styleClass="chat-input" />
 
-                        <Button fx:id="sendButton" layoutX="300.0" layoutY="317.0" onAction="#handleAddChat" prefHeight="35.0" prefWidth="63.0" styleClass="send-button" text="Gửi" />
+                        <Button fx:id="sendButton" layoutX="321.0" layoutY="317.0" onAction="#handleAddChat" prefHeight="35.0" prefWidth="63.0" styleClass="send-button" text="Gửi" />
                     </children>
                 </AnchorPane>
 
                 <!-- Danh sách người chơi -->
-                <VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="400.0" spacing="10" styleClass="player-list-container">
+                <VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="419.0" spacing="10" styleClass="player-list-container">
                     <children>
                         <Label alignment="CENTER" prefWidth="380.0" styleClass="player-list-title" text="Danh sách người chơi" />
                         <TableView fx:id="userTable" prefHeight="300.0" prefWidth="360.0" styleClass="player-table">
