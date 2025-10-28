@@ -14,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -182,23 +183,34 @@ public class GameController {
 
                 for (String col : colors) {
                     Rectangle r = new Rectangle(50, 50);
-                    r.setFill(parseColor(col));
-                    r.setStroke(Color.BLACK);
-                    r.setArcWidth(10);
-                    r.setArcHeight(10);
-                    String style =
-                            "-fx-background-color: derive(" + col + ", 20%); " +  // tăng sáng 20%
-                                    "-fx-background-radius: 12; " +
-                                    "-fx-border-color: rgba(255,255,255,0.4); " +           // viền sáng nhẹ
-                                    "-fx-border-width: 1; " +
-                                    "-fx-border-radius: 12; " +
-                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.2, 0, 2); " + // bóng nhẹ
-                                    "-fx-text-fill: white; " +
-                                    "-fx-font-weight: bold; " +
-                                    "-fx-font-size: 14px;";
-                    r.setStyle(style);
+
+                    // Lấy màu gốc
+                    Color baseColor = parseColor(col);
+
+                    // Tăng sáng 20% (tương đương derive(color, 20%) trong CSS)
+                    Color brighterColor = baseColor.deriveColor(0, 1, 1.2, 1.0);
+
+                    // Gán màu fill và viền
+                    r.setFill(brighterColor);
+                    r.setStroke(Color.rgb(255, 255, 255, 0.4)); // viền sáng nhẹ
+                    r.setStrokeWidth(1);
+
+                    // Bo góc
+                    r.setArcWidth(12);
+                    r.setArcHeight(12);
+
+                    // Thêm hiệu ứng bóng đổ
+                    DropShadow shadow = new DropShadow();
+                    shadow.setRadius(6);
+                    shadow.setOffsetY(2);
+                    shadow.setSpread(0.2);
+                    shadow.setColor(Color.rgb(0, 0, 0, 0.15));
+                    r.setEffect(shadow);
+
+                    // Thêm vào container
                     colorBox.getChildren().add(r);
                 }
+
 
                 modalContent.getChildren().add(colorBox);
 
