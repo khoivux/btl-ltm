@@ -2,9 +2,11 @@ package client.controller;
 
 import client.Client;
 import constant.MessageType;
+import constant.Status;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import model.Message;
 import model.User;
 
@@ -16,24 +18,32 @@ import java.io.IOException;
 public class LeaderboardController {
     @FXML
     private Button btnBack;
+    //    @FXML
+//    private Label userScore;
+//    @FXML
+//    private Label userRank;
+//    @FXML
+//    private Label userTop1;
+//    @FXML
+//    private Label userTop2;
+//    @FXML
+//    private Label userTop3;
+//    @FXML
+//    private Label userTop1Score;
+//    @FXML
+//    private Label userTop2Score;
+//    @FXML
+//    private Label userTop3Score;
+//    @FXML
+//    private ListView<User> underTop3Users;
     @FXML
-    private Label userScore;
+    private TableView<User> userTable;
     @FXML
-    private Label userRank;
+    private TableColumn<User, Integer> colRank;
     @FXML
-    private Label userTop1;
+    private TableColumn<User, String> colUsername;
     @FXML
-    private Label userTop2;
-    @FXML
-    private Label userTop3;
-    @FXML
-    private Label userTop1Score;
-    @FXML
-    private Label userTop2Score;
-    @FXML
-    private Label userTop3Score;
-    @FXML
-    private ListView<User> underTop3Users;
+    private TableColumn<User, Integer> colPoint;
 
     private Client client;
     private List<User> users;
@@ -42,19 +52,36 @@ public class LeaderboardController {
     @FXML
     private void initialize() {
         // Auto gọi khi FXML được load
-        if(client != null){
-            loadCurrentUserInfo();
-        }
+//        if(client != null){
+//            loadCurrentUserInfo();
+//        }
+        colRank.setCellValueFactory(new PropertyValueFactory<>("rank"));
+        colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colPoint.setCellValueFactory(new PropertyValueFactory<>("points"));
+
+        // Double-click vào một hàng để gửi lời mời
+        userTable.setRowFactory(tv -> {
+            TableRow<User> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    User selected = row.getItem();
+                    if (selected != null && client != null) {
+                        client.sendInvite(selected.getUsername());
+                    }
+                }
+            });
+            return row;
+        });
     }
 
-    private void loadCurrentUserInfo(){
-        User curUser = client.getUser();
-        if (curUser != null){
-            userScore.setText("Your score is: " + String.valueOf(curUser.getPoints()));
-            requestUserRank(curUser.getUsername());
-            requestLeaderboard();
-        }
-    }
+//    private void loadCurrentUserInfo(){
+//        User curUser = client.getUser();
+//        if (curUser != null){
+//            userScore.setText("Your score is: " + String.valueOf(curUser.getPoints()));
+//            requestUserRank(curUser.getUsername());
+//            requestLeaderboard();
+//        }
+//    }
 
     private void requestLeaderboard(){
         try{
@@ -79,7 +106,7 @@ public class LeaderboardController {
     public void setClient(Client client) {
         this.client = client;
         // When client is set after FXML load, trigger initial data fetch
-        loadCurrentUserInfo();
+//        loadCurrentUserInfo();
     }
 
     public void setUser(User user) {
@@ -103,43 +130,59 @@ public class LeaderboardController {
     //     }
     // }
 
-    @FXML
-    public void updateUserRank(User user) {
-        Platform.runLater(() -> {
-            userScore.setText("Your score is: " + String.valueOf(user.getPoints()));
-            userRank.setText("Rank: " + String.valueOf(user.getRank()));
-        });
-    }
+//    @FXML
+//    public void updateUserRank(User user) {
+//        Platform.runLater(() -> {
+//            userScore.setText("Your score is: " + String.valueOf(user.getPoints()));
+//            userRank.setText("Rank: " + String.valueOf(user.getRank()));
+//        });
+//    }
 
 
+
+//    public void updateLeaderboard(List<User> topUsers) {
+//        if (topUsers == null || topUsers.isEmpty()) {
+//            return;
+//        }
+//        this.users = topUsers;
+//        Platform.runLater(() -> {
+//            if (users.size() >= 1) {
+//                userTop1.setText(users.get(0).getUsername());
+//                userTop1Score.setText(String.valueOf(users.get(0).getPoints()));
+//            }
+//            if (users.size() >= 2) {
+//                userTop2.setText(users.get(1).getUsername());
+//                userTop2Score.setText(String.valueOf(users.get(1).getPoints()));
+//            }
+//            if (users.size() >= 3) {
+//                userTop3.setText(users.get(2).getUsername());
+//                userTop3Score.setText(String.valueOf(users.get(2).getPoints()));
+//            }
+//
+//            // Lấy các users từ vị trí thứ 4 trở đi (không thuộc top 3)
+//            ArrayList<User> remainingUsers = new ArrayList<User>();
+//            for(int i = 3; i < topUsers.size(); i++){
+//                remainingUsers.add(topUsers.get(i));
+//            }
+//            // Cập nhật ListView với các users còn lại
+//            underTop3Users.getItems().clear();
+//            underTop3Users.getItems().addAll(remainingUsers);
+//        });
+//    }
 
     public void updateLeaderboard(List<User> topUsers) {
-        if (topUsers == null || topUsers.isEmpty()) {
-            return;
-        }
-        this.users = topUsers;
         Platform.runLater(() -> {
-            if (users.size() >= 1) {
-                userTop1.setText(users.get(0).getUsername());
-                userTop1Score.setText(String.valueOf(users.get(0).getPoints()));
-            }
-            if (users.size() >= 2) {
-                userTop2.setText(users.get(1).getUsername());
-                userTop2Score.setText(String.valueOf(users.get(1).getPoints()));
-            }
-            if (users.size() >= 3) {
-                userTop3.setText(users.get(2).getUsername());
-                userTop3Score.setText(String.valueOf(users.get(2).getPoints()));
-            }
+            if (topUsers != null) {
+                this.users = topUsers; // Lưu lại danh sách nếu cần
 
-            // Lấy các users từ vị trí thứ 4 trở đi (không thuộc top 3)
-            ArrayList<User> remainingUsers = new ArrayList<User>();
-            for(int i = 3; i < topUsers.size(); i++){
-                remainingUsers.add(topUsers.get(i));
+                // Cách 1: Xóa cũ và thêm mới (đơn giản)
+                userTable.getItems().clear();
+                userTable.getItems().addAll(topUsers);
+
+                // Cách 2: Tạo ObservableList mới (cách này cũng rất tốt)
+                // (Cần import javafx.collections.FXCollections)
+                // userTable.setItems(FXCollections.observableArrayList(topUsers));
             }
-            // Cập nhật ListView với các users còn lại
-            underTop3Users.getItems().clear();
-            underTop3Users.getItems().addAll(remainingUsers);
         });
     }
 }
