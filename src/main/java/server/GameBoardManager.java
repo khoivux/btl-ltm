@@ -3,10 +3,11 @@ package server;
 import java.util.*;
 
 /**
- * GameBoardManager stores an 8x8 board where each cell is a color in hex (e.g. "#A1B2C3").
- * Board cells are generated as randomized variants close to the provided target colors,
- * and 2-3 exact target cells are placed for each target color.
+ * GameBoardManager lưu trữ một bảng màu 8x8, trong đó mỗi ô là một màu trong hệ RGB (ví dụ: "#A1B2C3").
+ * Các ô trên bàn cờ được tạo ra dưới dạng các màu ngẫu nhiên gần với màu mục tiêu được cung cấp,
+ * có 2-3 ô mục tiêu chính xác được đặt cho mỗi màu mục tiêu.
  */
+
 public class GameBoardManager {
     private final int ROWS = 8;
     private final int COLS = 8;
@@ -24,13 +25,6 @@ public class GameBoardManager {
 
         Random rand = new Random();
 
-        // Normalize targets to hex form (if caller sent names, try to map; otherwise assume hex)
-        List<String> normalizedTargets = new ArrayList<>();
-        for (String t : targetColors) {
-            normalizedTargets.add(t);
-        }
-
-
         // Fill board with perturbed variants of random target colors
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
@@ -38,17 +32,17 @@ public class GameBoardManager {
                 // pick a base target and perturb until variant is not exactly a target
                 int attempts = 0;
                 do {
-                    String base = normalizedTargets.get(rand.nextInt(normalizedTargets.size()));
+                    String base = targetColors.get(rand.nextInt(targetColors.size()));
                     variant = perturbColor(base, 100, rand);
                     attempts++;
                     if (attempts > 100) break; // fallback to base if something odd happens
-                } while (normalizedTargets.contains(variant));
+                } while (targetColors.contains(variant));
                 board[i][j] = variant;
             }
         }
 
         // Place 2-3 exact target cells for each target color
-        for (String color : normalizedTargets) {
+        for (String color : targetColors) {
             int count = 2 + rand.nextInt(2); // 2 or 3
             for (int k = 0; k < count; k++) {
                 int r, c, tries = 0;
@@ -58,7 +52,7 @@ public class GameBoardManager {
                     tries++;
                     // stop if too many tries (board may be mostly exacts)
                     if (tries > 200) break;
-                } while (normalizedTargets.contains(board[r][c])); // avoid overwriting an existing exact target
+                } while (targetColors.contains(board[r][c])); // avoid overwriting an existing exact target
                 board[r][c] = color;
             }
         }

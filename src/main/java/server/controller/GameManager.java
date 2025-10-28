@@ -16,7 +16,16 @@ public class GameManager {
     private final Map<String, SessionInfo> userSessionMap = new ConcurrentHashMap<>(); // username -> session
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
-    private static final List<String> COLOR_POOL = Arrays.asList("RED","GREEN","BLUE","YELLOW","ORANGE","PINK","PURPLE","CYAN");
+    private static final List<String> COLOR_POOL = Arrays.asList(
+            "#FF0000", // RED
+            "#00FF00", // GREEN
+            "#0000FF", // BLUE
+            "#FFFF00", // YELLOW
+            "#FFA500", // ORANGE
+            "#FFC0CB", // PINK
+            "#800080", // PURPLE
+            "#00FFFF"  // CYAN
+    );
 
     public GameManager() {
     }
@@ -46,11 +55,10 @@ public class GameManager {
         // pick 5 random colors
         Set<String> colorSet = new LinkedHashSet<>();
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        List<String> pool = COLOR_POOL;
         while (colorSet.size() < 5) {
-            int r = rnd.nextInt(256);
-            int g = rnd.nextInt(256);
-            int b = rnd.nextInt(256);
-            colorSet.add(String.format("#%02X%02X%02X", r, g, b));
+            String hex = pool.get(rnd.nextInt(pool.size()));
+            colorSet.add(hex);
         }
         List<String> targetColors = new ArrayList<>(colorSet);
 
