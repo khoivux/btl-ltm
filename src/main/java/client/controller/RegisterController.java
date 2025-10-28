@@ -57,6 +57,14 @@ public class RegisterController {
         } catch (IOException e) {
             e.printStackTrace();
             showError("Lỗi kết nối tới server!");
+
+        }
+    }
+
+    @FXML
+    private void redirectLogin() {
+        if (client != null) {
+            client.showLoginUI();
         }
     }
     

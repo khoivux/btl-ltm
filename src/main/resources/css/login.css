@@ -86,5 +86,24 @@
     -fx-font-weight: bold;
 }
 
+.register-link {
+    -fx-text-fill: #6a5acd;           /* tím nhẹ */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-underline: false;
+    -fx-cursor: hand;                /* đổi thành con trỏ tay khi rê chuột */
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 2, 0.3, 0, 1);
+}
+
+/* Hiệu ứng hover */
+.register-link:hover {
+    -fx-text-fill: #7b68ee;           /* tím sáng hơn một chút khi hover */     /* gạch chân khi hover */
+    -fx-effect: dropshadow(gaussian, rgba(106, 90, 205, 0.4), 4, 0.5, 0, 2);
+}
 
 
