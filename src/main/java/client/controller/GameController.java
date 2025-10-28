@@ -186,6 +186,17 @@ public class GameController {
                     r.setStroke(Color.BLACK);
                     r.setArcWidth(10);
                     r.setArcHeight(10);
+                    String style =
+                            "-fx-background-color: derive(" + col + ", 20%); " +  // tăng sáng 20%
+                                    "-fx-background-radius: 12; " +
+                                    "-fx-border-color: rgba(255,255,255,0.4); " +           // viền sáng nhẹ
+                                    "-fx-border-width: 1; " +
+                                    "-fx-border-radius: 12; " +
+                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.2, 0, 2); " + // bóng nhẹ
+                                    "-fx-text-fill: white; " +
+                                    "-fx-font-weight: bold; " +
+                                    "-fx-font-size: 14px;";
+                    r.setStyle(style);
                     colorBox.getChildren().add(r);
                 }
 

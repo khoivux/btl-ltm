@@ -1,15 +1,7 @@
 package server.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import constant.MessageType;
 import model.Message;
@@ -24,7 +16,16 @@ public class GameManager {
     private final Map<String, SessionInfo> userSessionMap = new ConcurrentHashMap<>(); // username -> session
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
-    private static final List<String> COLOR_POOL = Arrays.asList("RED","GREEN","BLUE","YELLOW","ORANGE","PINK","PURPLE","CYAN");
+    private static final List<String> COLOR_POOL = Arrays.asList(
+            "#FF0000", // RED
+            "#00FF00", // GREEN
+            "#0000FF", // BLUE
+            "#FFFF00", // YELLOW
+            "#FFA500", // ORANGE
+            "#FFC0CB", // PINK
+            "#800080", // PURPLE
+            "#00FFFF"  // CYAN
+    );
 
     public GameManager() {
     }
@@ -52,9 +53,14 @@ public class GameManager {
         }
 
         // pick 5 random colors
-        List<String> pool = new ArrayList<>(COLOR_POOL);
-        Collections.shuffle(pool);
-        List<String> targetColors = pool.subList(0, Math.min(5, pool.size()));
+        Set<String> colorSet = new LinkedHashSet<>();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        List<String> pool = COLOR_POOL;
+        while (colorSet.size() < 5) {
+            String hex = pool.get(rnd.nextInt(pool.size()));
+            colorSet.add(hex);
+        }
+        List<String> targetColors = new ArrayList<>(colorSet);
 
         GameSession session = new GameSession(ch1.getUser(), ch2.getUser(), targetColors);
 

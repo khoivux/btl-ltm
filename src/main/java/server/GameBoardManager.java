@@ -2,10 +2,16 @@ package server;
 
 import java.util.*;
 
+/**
+ * GameBoardManager lưu trữ một bảng màu 8x8, trong đó mỗi ô là một màu trong hệ RGB (ví dụ: "#A1B2C3").
+ * Các ô trên bàn cờ được tạo ra dưới dạng các màu ngẫu nhiên gần với màu mục tiêu được cung cấp,
+ * có 2-3 ô mục tiêu chính xác được đặt cho mỗi màu mục tiêu.
+ */
+
 public class GameBoardManager {
     private final int ROWS = 8;
     private final int COLS = 8;
-    private String[][] board; // mỗi ô là một màu (ví dụ: "RED", "BLUE"...)
+    private String[][] board; // each cell is a color hex (e.g. "#A1B2C3")
 
     public GameBoardManager(List<String> targetColors) {
         board = new String[ROWS][COLS];
@@ -13,35 +19,68 @@ public class GameBoardManager {
     }
 
     private void generateBoard(List<String> targetColors) {
-        // targetColors là danh sách 5 màu được server gửi xuống
-        Random rand = new Random();
-        // Cần đảm bảo các màu này khớp với JavaFX Color.valueOf()
-        List<String> allColors = Arrays.asList("RED", "GREEN", "BLUE", "YELLOW", "ORANGE", "PINK", "PURPLE", "CYAN", "LIMEGREEN", "DEEPPINK");
+        if (targetColors == null || targetColors.isEmpty()) {
+            throw new IllegalArgumentException("targetColors must contain at least one color");
+        }
 
-        // reset bảng toàn bộ về màu sai trước
+        Random rand = new Random();
+
+        // Fill board with perturbed variants of random target colors
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                // chọn màu ngẫu nhiên trong các màu sai
-                String wrongColor;
+                String variant;
+                // pick a base target and perturb until variant is not exactly a target
+                int attempts = 0;
                 do {
-                    wrongColor = allColors.get(rand.nextInt(allColors.size()));
-                } while (targetColors.contains(wrongColor));
-                board[i][j] = wrongColor;
+                    String base = targetColors.get(rand.nextInt(targetColors.size()));
+                    variant = perturbColor(base, 100, rand);
+                    attempts++;
+                    if (attempts > 100) break; // fallback to base if something odd happens
+                } while (targetColors.contains(variant));
+                board[i][j] = variant;
             }
         }
 
-        // đặt 2-3 ô đúng cho từng màu trong targetColors
+        // Place 2-3 exact target cells for each target color
         for (String color : targetColors) {
-            int count = 2 + rand.nextInt(2); // 2 hoặc 3 ô
+            int count = 2 + rand.nextInt(2); // 2 or 3
             for (int k = 0; k < count; k++) {
-                int r, c;
+                int r, c, tries = 0;
                 do {
                     r = rand.nextInt(ROWS);
                     c = rand.nextInt(COLS);
-                } while (targetColors.contains(board[r][c])); // tránh ghi đè lên các ô đúng khác
+                    tries++;
+                    // stop if too many tries (board may be mostly exacts)
+                    if (tries > 200) break;
+                } while (targetColors.contains(board[r][c])); // avoid overwriting an existing exact target
                 board[r][c] = color;
             }
         }
+    }
+
+    private String perturbColor(String hex, int maxDelta, Random rand) {
+        int[] rgb = hexToRgb(hex);
+        int r = clamp(rgb[0] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
+        int g = clamp(rgb[1] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
+        int b = clamp(rgb[2] + rand.nextInt(maxDelta * 2 + 1) - maxDelta, 0, 255);
+        return rgbToHex(r, g, b);
+    }
+
+    private int[] hexToRgb(String hex) {
+        String h = hex.startsWith("#") ? hex.substring(1) : hex;
+        if (h.length() != 6) return new int[] {0,0,0};
+        int r = Integer.parseInt(h.substring(0, 2), 16);
+        int g = Integer.parseInt(h.substring(2, 4), 16);
+        int b = Integer.parseInt(h.substring(4, 6), 16);
+        return new int[] { r, g, b };
+    }
+
+    private String rgbToHex(int r, int g, int b) {
+        return String.format("#%02X%02X%02X", r, g, b);
+    }
+
+    private int clamp(int v, int lo, int hi) {
+        return Math.max(lo, Math.min(hi, v));
     }
 
     public String getCell(int row, int col) {
@@ -49,12 +88,10 @@ public class GameBoardManager {
     }
 
     public void setCell(int row, int col, String mark) {
-        board[row][col] = mark; // đánh dấu P1/P2
+        board[row][col] = mark; // mark player P1/P2 or other
     }
 
-    // --- PHƯƠNG THỨC MỚI ĐỂ GỬI TOÀN BỘ BẢNG CHO CLIENT ---
     public String[][] getBoardData() {
-        // Tạo bản sao để tránh client sửa đổi trực tiếp
         String[][] data = new String[ROWS][COLS];
         for (int i = 0; i < ROWS; i++) {
             System.arraycopy(board[i], 0, data[i], 0, COLS);
@@ -63,7 +100,6 @@ public class GameBoardManager {
     }
 
     public void printBoard() {
-        // ... (Không thay đổi)
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 System.out.print(board[i][j] + "\t");
