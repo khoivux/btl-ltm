@@ -33,6 +33,7 @@ public enum MessageType {
     REMATCH_OFFER("rematch_offer"),
     REMATCH_RESPONSE("rematch_response"),
     EXIT_GAME("exit_game"),
+    OPPONENT_QUIT("opponent_quit"),
     UPDATE_SCORE("update_score"),
     // LEADERBOARD
     LEADERBOARD("leaderboard"),

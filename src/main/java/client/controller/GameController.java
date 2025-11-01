@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
@@ -346,8 +347,18 @@ public class GameController {
                 String title = "Kết quả trận đấu";
                 String header = null;
                 String body;
+                
+                // Kiểm tra xem có người quit không (người có award = 0 và không phải hòa)
+                boolean isQuitMatch = (award1 == 0 && award2 == 2) || (award1 == 2 && award2 == 0);
+                
                 if (winner == null) {
                     body = String.format("Hòa! Điểm: %d - %d\nMỗi người được +%d điểm.", score1, score2, award1);
+                } else if (isQuitMatch) {
+                    // Có người quit
+                    String quitter = (award1 == 0) ? lblPlayer1.getText() : lblPlayer2.getText();
+                    String winnerName = (award1 == 2) ? lblPlayer1.getText() : lblPlayer2.getText();
+                    body = String.format("%s đã thoát!\n%s thắng! Điểm: %d - %d\n%s được +2 điểm.", 
+                            quitter, winnerName, score1, score2, winnerName);
                 } else {
                     body = String.format("%s thắng! Điểm: %d - %d\n%s được +%d điểm.", winner, score1, score2,
                             winner.equals(lblPlayer1.getText()) ? lblPlayer1.getText() : lblPlayer2.getText(),
@@ -427,10 +438,45 @@ public class GameController {
 
     @FXML
     public void endGame() {
-        try {
-            client.sendMessage(new Message(MessageType.EXIT_GAME, null));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Platform.runLater(() -> {
+            try {
+                // Hiển thị dialog xác nhận
+                Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmAlert.setTitle("Xác nhận thoát");
+                confirmAlert.setHeaderText("Bạn có chắc muốn thoát game?");
+                confirmAlert.setContentText("Nếu thoát giữa trận, bạn sẽ thua và không nhận điểm!");
+                
+                ButtonType yesBtn = new ButtonType("Thoát");
+                ButtonType noBtn = new ButtonType("Ở lại", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+                confirmAlert.getButtonTypes().setAll(yesBtn, noBtn);
+                
+                ButtonType result = confirmAlert.showAndWait().orElse(noBtn);
+                
+                if (result == yesBtn) {
+                    // Gửi message EXIT_GAME đến server
+                    client.sendMessage(new Message(MessageType.EXIT_GAME, null));
+                    
+                    // Đóng result dialog nếu đang mở
+                    closeResultDialog();
+                    
+                    // Quay về màn hình chính
+                    Platform.runLater(() -> {
+                        try {
+                            client.showMainUI();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Hiển thị lỗi
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Lỗi");
+                errorAlert.setHeaderText(null);
+                errorAlert.setContentText("Không thể thoát game. Vui lòng thử lại!");
+                errorAlert.showAndWait();
+            }
+        });
     }
 }

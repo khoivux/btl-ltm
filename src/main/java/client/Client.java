@@ -264,7 +264,16 @@ public class Client {
                 }
                 break;
 
-
+            case MessageType.OPPONENT_QUIT:
+                String quitterUsername = (String) message.getContent();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Đối thủ đã thoát");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Người chơi " + quitterUsername + " đã thoát khỏi trận đấu.\nBạn thắng mặc định!");
+                    alert.showAndWait();
+                });
+                break;
 
             default:
                 System.out.println("Unknown message type: " + message.getType());
