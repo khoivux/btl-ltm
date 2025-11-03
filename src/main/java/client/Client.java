@@ -491,7 +491,7 @@ public class Client {
         Platform.runLater(() -> {
             if(leaderboardController != null){
                 leaderboardController.setUser(user);
-//                leaderboardController.updateUserRank(user);
+                leaderboardController.updateUserRank(user);
             }
             else{
                 System.out.println("leaderboardController là giá trị null");

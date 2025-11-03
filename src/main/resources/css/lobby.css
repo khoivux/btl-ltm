@@ -5,7 +5,6 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position: center center;
 }
-
 /* === Nút "Lịch sử đấu" (cam) === */
 .history-button {
     -fx-background-color:

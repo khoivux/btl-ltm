@@ -43,6 +43,7 @@
                 </ImageView>
             </graphic>
         </Label>
+      <Label fx:id="lblUserRank" layoutX="836.0" layoutY="135.0" text="Điểm của bạn là: 12          Xếp hạng: 3" />
 
     </children>
 </AnchorPane>
