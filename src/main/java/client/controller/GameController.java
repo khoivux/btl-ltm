@@ -2,28 +2,18 @@ package client.controller;
 
 import client.Client;
 import constant.MessageType;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.util.Duration;
 import model.Message;
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +32,7 @@ public class GameController {
     // Alert reference for the end-match dialog so it can be closed externally (e.g. on incoming rematch invite)
     private volatile javafx.scene.control.Alert resultAlert;
 
-
+    
     private Client client;
     private String[][] currentBoardData; // <-- BIẾN MỚI: Lưu trữ dữ liệu màu của bảng
 
@@ -67,29 +57,20 @@ public class GameController {
             for (int r = 0; r < 8; r++) {
                 for (int c = 0; c < 8; c++) {
                     Button btn = new Button(" ");
-                    btn.setMinSize(52, 52);
+                    btn.setMinSize(40, 40);
                     btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
                     // --- THAY ĐỔI: Gán màu nền cho nút dựa trên currentBoardData ---
                     String colorName = currentBoardData[r][c];
                     Color buttonColor = parseColor(colorName);
 
-                    // Đặt màu nền và kiểu dáng (bo góc + viền) cho từng ô
-                    String color = toWebColor(buttonColor);
-                    String style =
-                            "-fx-background-color: derive(" + color + ", 20%); " +  // tăng sáng 20%
-                                    "-fx-background-radius: 12; " +
-                                    "-fx-border-color: rgba(255,255,255,0.4); " +           // viền sáng nhẹ
-                                    "-fx-border-width: 1; " +
-                                    "-fx-border-radius: 12; " +
-                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.2, 0, 2); " + // bóng nhẹ
-                                    "-fx-text-fill: white; " +
-                                    "-fx-font-weight: bold; " +
-                                    "-fx-font-size: 14px;";
-
+                    // Đặt màu nền bằng CSS cho Button
+                    String style = String.format("-fx-background-color: %s; -fx-text-fill: black;",
+                            toWebColor(buttonColor));
                     btn.setStyle(style);
 
-
+                    // Đặt màu viền để dễ phân biệt ô
+                    btn.setStyle(btn.getStyle() + " -fx-border-color: #333333; -fx-border-width: 1; -fx-font-weight: bold;");
 
                     // -----------------------------------------------------------------
 
@@ -115,148 +96,55 @@ public class GameController {
         }
     }
 
-//    private void showPreview(List<String> colors) {
-//        Platform.runLater(() -> {
-//            try {
-//                // Xóa mọi ô cũ và reset lại chỉ có label "Màu mục tiêu (3s)"
-//                previewBox.getChildren().clear();
-//                Label title = new Label("Màu mục tiêu (3s)");
-//                title.setFont(new Font("System Bold", 24.0));
-//                previewBox.getChildren().add(title);
-//
-//
-//                // Thêm Rectangle cho từng màu (đặt ở giữa)
-//                for (String col : colors) {
-//                    Rectangle r = new Rectangle(50, 50);
-//                    r.setFill(parseColor(col));
-//                    r.setStroke(Color.BLACK);   // viền để dễ nhìn
-//                    r.setArcWidth(10);
-//                    r.setArcHeight(10);
-//                    previewBox.getChildren().add(r);
-//                }
-//
-//                // Hiển thị previewBox, ẩn boardGrid
-//                previewBox.setVisible(true);
-//                previewBox.setManaged(true);
-//
-//                boardGrid.setVisible(false);
-//                boardGrid.setManaged(false);
-//
-//
-//                // Sau 3 giây, ẩn previewBox và hiển thị board
-//                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-//                scheduler.schedule(() -> {
-//                    Platform.runLater(() -> {
-//                        previewBox.setVisible(false);
-//                        previewBox.setManaged(false);
-//
-//                        boardGrid.setVisible(true);
-//                        boardGrid.setManaged(true);
-//
-//                        // Build board sau khi preview ẩn
-//                        buildBoard();
-//                    });
-//                    scheduler.shutdown();
-//                }, 3, TimeUnit.SECONDS);
-//
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        });
-//    }
-
     private void showPreview(List<String> colors) {
         Platform.runLater(() -> {
             try {
-                // === Tạo VBox chứa nội dung preview ===
-                VBox modalContent = new VBox(20);
-                modalContent.setAlignment(Pos.CENTER);
-                modalContent.setPadding(new Insets(20));
-                modalContent.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 15;");
-
+                // Xóa mọi ô cũ và reset lại chỉ có label "Màu mục tiêu (3s)"
+                previewBox.getChildren().clear();
                 Label title = new Label("Màu mục tiêu (3s)");
-                title.setFont(new Font("System Bold", 22));
-                modalContent.getChildren().add(title);
+                title.setFont(new Font("System Bold", 24.0));
+                previewBox.getChildren().add(title);
 
-                HBox colorBox = new HBox(15);
-                colorBox.setAlignment(Pos.CENTER);
 
+                // Thêm Rectangle cho từng màu (đặt ở giữa)
                 for (String col : colors) {
                     Rectangle r = new Rectangle(50, 50);
-
-                    // Lấy màu gốc
-                    Color baseColor = parseColor(col);
-
-                    // Tăng sáng 20% (tương đương derive(color, 20%) trong CSS)
-                    Color brighterColor = baseColor.deriveColor(0, 1, 1.2, 1.0);
-
-                    // Gán màu fill và viền
-                    r.setFill(brighterColor);
-                    r.setStroke(Color.rgb(255, 255, 255, 0.4)); // viền sáng nhẹ
-                    r.setStrokeWidth(1);
-
-                    // Bo góc
-                    r.setArcWidth(12);
-                    r.setArcHeight(12);
-
-                    // Thêm hiệu ứng bóng đổ
-                    DropShadow shadow = new DropShadow();
-                    shadow.setRadius(6);
-                    shadow.setOffsetY(2);
-                    shadow.setSpread(0.2);
-                    shadow.setColor(Color.rgb(0, 0, 0, 0.15));
-                    r.setEffect(shadow);
-
-                    // Thêm vào container
-                    colorBox.getChildren().add(r);
+                    r.setFill(parseColor(col));
+                    r.setStroke(Color.BLACK);   // viền để dễ nhìn
+                    r.setArcWidth(10);
+                    r.setArcHeight(10);
+                    previewBox.getChildren().add(r);
                 }
 
+                // Hiển thị previewBox, ẩn boardGrid
+                previewBox.setVisible(true);
+                previewBox.setManaged(true);
 
-                modalContent.getChildren().add(colorBox);
+                boardGrid.setVisible(false);
+                boardGrid.setManaged(false);
 
-                Label countdownLabel = new Label("3");
-                countdownLabel.setFont(new Font("System Bold", 18));
-                countdownLabel.setTextFill(Color.RED);
-                modalContent.getChildren().add(countdownLabel);
 
-                // === Tạo Stage modal ===
-                Stage modalStage = new Stage();
-                modalStage.initModality(Modality.APPLICATION_MODAL); // chặn tương tác với cửa sổ chính
-                modalStage.setTitle("Xem trước màu");
-                modalStage.setResizable(false);
-                modalStage.setScene(new Scene(modalContent, 400, 300));
+                // Sau 3 giây, ẩn previewBox và hiển thị board
+                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                scheduler.schedule(() -> {
+                    Platform.runLater(() -> {
+                        previewBox.setVisible(false);
+                        previewBox.setManaged(false);
 
-                // Đặt modal ở giữa cửa sổ chính
-                Stage mainStage = (Stage) boardGrid.getScene().getWindow();
-                modalStage.setX(mainStage.getX() + mainStage.getWidth() / 2 - 200);
-                modalStage.setY(mainStage.getY() + mainStage.getHeight() / 2 - 150);
+                        boardGrid.setVisible(true);
+                        boardGrid.setManaged(true);
 
-                modalStage.show();
-
-                // === Đếm ngược 3 giây ===
-                Timeline countdown = new Timeline(
-                        new KeyFrame(Duration.seconds(1), e -> {
-                            int current = Integer.parseInt(countdownLabel.getText());
-                            if (current > 1) {
-                                countdownLabel.setText(String.valueOf(current - 1));
-                            } else {
-                                modalStage.close();
-                                // Hiện lại board khi modal đóng
-                                boardGrid.setVisible(true);
-                                boardGrid.setManaged(true);
-                                buildBoard();
-                            }
-                        })
-                );
-                countdown.setCycleCount(3);
-                countdown.play();
+                        // Build board sau khi preview ẩn
+                        buildBoard();
+                    });
+                    scheduler.shutdown();
+                }, 3, TimeUnit.SECONDS);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
     }
-
 
     /**
      * Chuyển màu dạng tên hoặc ARGB sang Color JavaFX
@@ -321,13 +209,7 @@ public class GameController {
 
                         // Đổi màu nền để biểu thị ô đã được chọn
                         Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
-                        String newStyle = String.format(
-                                "-fx-background-color: %s; " +
-                                        "-fx-background-radius: 10; " +
-                                        "-fx-border-color: rgba(0,0,0,0.35); " +
-                                        "-fx-border-width: 1; " +
-                                        "-fx-border-radius: 10; " +
-                                        "-fx-text-fill: white; ",
+                        String newStyle = String.format("-fx-background-color: %s; -fx-text-fill: white; ",
                                 toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
                         btn.setStyle(newStyle);
                     }

@@ -364,8 +364,8 @@ public class Client {
             showErrorAlert("Không thể tải giao diện game.");
         }
     }
-    //
-    // Gửi lời mời
+//
+   // Gửi lời mời
     public void sendInvite(String opponentName) {
         try {
             System.out.println("Gửi lời mời đến: " + opponentName);
@@ -400,7 +400,7 @@ public class Client {
         Platform.runLater(() -> {
             if(leaderboardController != null){
                 leaderboardController.setUser(user);
-//                leaderboardController.updateUserRank(user);
+                leaderboardController.updateUserRank(user);
             }
             else{
                 System.out.println("leaderboardController là giá trị null");
@@ -469,7 +469,7 @@ public class Client {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegisterUI.fxml"));
             Parent root = loader.load();
 
-            registerController = loader.getController();
+           registerController = loader.getController();
             if (registerController != null) {
                 registerController.setClient(this);
             }
@@ -580,20 +580,20 @@ public class Client {
    Gửi message về server
     */
     // Thêm debug trong sendMessage()
-    public void sendMessage(Message message) throws IOException {
-        System.out.println("Đang gửi message: " + message.getType());
-        if (out == null) {
-            System.out.println("ERROR: out is null!");
-            return;
-        }
-        if (socket == null || socket.isClosed()) {
-            System.out.println("ERROR: Socket is null or closed!");
-            return;
-        }
-        out.writeObject(message);
-        out.flush();
-        System.out.println("Message đã gửi thành công");
+public void sendMessage(Message message) throws IOException {
+    System.out.println("Đang gửi message: " + message.getType());
+    if (out == null) {
+        System.out.println("ERROR: out is null!");
+        return;
     }
+    if (socket == null || socket.isClosed()) {
+        System.out.println("ERROR: Socket is null or closed!");
+        return;
+    }
+    out.writeObject(message);
+    out.flush();
+    System.out.println("Message đã gửi thành công");
+}
 
     /*
     Hiển thị lỗi
