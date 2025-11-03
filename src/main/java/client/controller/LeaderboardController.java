@@ -16,6 +16,7 @@ import java.util.List;
 import java.io.IOException;
 
 public class LeaderboardController {
+    public Label lblUserRank;
     @FXML
     private Button btnBack;
     //    @FXML
@@ -36,6 +37,8 @@ public class LeaderboardController {
 //    private Label userTop3Score;
 //    @FXML
 //    private ListView<User> underTop3Users;
+    @FXML
+    private Label getLblUserRank;
     @FXML
     private TableView<User> userTable;
     @FXML
@@ -172,6 +175,13 @@ public class LeaderboardController {
                 // (Cần import javafx.collections.FXCollections)
                 // userTable.setItems(FXCollections.observableArrayList(topUsers));
             }
+        });
+    }
+
+    @FXML
+    public void updateUserRank(User user) {
+        Platform.runLater(() -> {
+            lblUserRank.setText("Điểm của bạn là: " + String.valueOf(user.getPoints()) + "         Xếp hạng: " + user.getRank());
         });
     }
 }
