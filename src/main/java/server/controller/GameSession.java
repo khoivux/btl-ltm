@@ -136,15 +136,35 @@ public class GameSession {
 
         int award1 = 0, award2 = 0;
         String winner = null;
-        if (score1 > score2) {
-            award1 = 2;
-            winner = getPlayer1Username();
-        } else if (score2 > score1) {
-            award2 = 2;
-            winner = getPlayer2Username();
+        
+        // Nếu có người quit, người đó thua và không được điểm
+        if (usernameQuit != null && !usernameQuit.isEmpty()) {
+            if (usernameQuit.equals(getPlayer1Username())) {
+                // Player1 quit -> Player2 thắng
+                award1 = 0;  // Người quit không nhận điểm
+                award2 = 2;  // Người còn lại thắng và nhận 2 điểm
+                winner = getPlayer2Username();
+                System.out.println("Player1 (" + getPlayer1Username() + ") quit. Player2 wins!");
+            } else if (usernameQuit.equals(getPlayer2Username())) {
+                // Player2 quit -> Player1 thắng
+                award1 = 2;  // Người còn lại thắng và nhận 2 điểm
+                award2 = 0;  // Người quit không nhận điểm
+                winner = getPlayer1Username();
+                System.out.println("Player2 (" + getPlayer2Username() + ") quit. Player1 wins!");
+            }
         } else {
-            award1 = 1;
-            award2 = 1;
+            // Trận đấu kết thúc bình thường theo điểm số
+            if (score1 > score2) {
+                award1 = 2;
+                winner = getPlayer1Username();
+            } else if (score2 > score1) {
+                award2 = 2;
+                winner = getPlayer2Username();
+            } else {
+                // Hòa
+                award1 = 1;
+                award2 = 1;
+            }
         }
 
         // update users' points
