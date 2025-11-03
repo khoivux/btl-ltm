@@ -22,6 +22,7 @@ public class GameSession {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private MatchDAO matchDAO;
+    private UserDAO userDAO;
     private DetailMatchDAO detailMatchDAO;
 
 
@@ -168,8 +169,8 @@ public class GameSession {
         }
 
         // update users' points
-        player1.setPoints(player1.getPoints() + award1);
-        player2.setPoints(player2.getPoints() + award2);
+        userDAO.savePoint(player1, player1.getPoints() + award1);
+        userDAO.savePoint(player2, player2.getPoints() + award2);
 
         if (matchDAO != null) {
             Match m = new Match(
