@@ -97,7 +97,7 @@ public class MatchHistoryController {
             System.out.println("DEBUG: Cập nhật UI cho user: " + currentUsername);
             System.out.println("DEBUG: Nhận được " + matches.size() + " trận đấu.");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
             javafx.collections.ObservableList<Match> validMatches =
                     javafx.collections.FXCollections.observableArrayList();
@@ -144,13 +144,21 @@ public class MatchHistoryController {
                 String ratioText = currentScore + " - " + opponentScore;
 
                 // Xác định kết quả
-                String resultText;
-                if (currentScore > opponentScore) {
-                    resultText = "VICTORY";
-                } else if (currentScore < opponentScore) {
-                    resultText = "DEFEAT";
-                } else {
-                    resultText = "DRAW";
+                String resultText; 
+                // --- LOGIC MỚI: Nếu có người thoát, hiển thị "QUIT" ---
+                if (currentUserDetail.isQuit()) {
+                    resultText = "QUIT";
+                }else if(opponentDetail.isQuit()){
+                    resultText="VICTORY";
+                }else {
+                    // Không ai thoát, xét kết quả theo điểm số như cũ
+                    if (currentScore > opponentScore) {
+                        resultText = "VICTORY";
+                    } else if (currentScore < opponentScore) {
+                        resultText = "DEFEAT";
+                    } else {
+                        resultText = "DRAW";
+                    }
                 }
 
                 String opponentName = opponentDetail.getPlayer().getUsername();
@@ -220,6 +228,8 @@ public class MatchHistoryController {
                             setStyle("-fx-background-color: #ff9999;");
                         } else if ("DRAW".equals(result)) {
                             setStyle("-fx-background-color: #fff9c4;");
+                        } else if ("QUIT".equals(result)) {
+                            setStyle("-fx-background-color: #e0e0e0;");
                         } else {
                             setStyle("");
                         }
@@ -259,4 +269,3 @@ public class MatchHistoryController {
         if (client != null) client.showMainUI();
     }
 }
-
