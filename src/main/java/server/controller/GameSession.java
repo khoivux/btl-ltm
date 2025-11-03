@@ -38,6 +38,7 @@ public class GameSession {
         try {
             // lazily initialize MatchDAO using the shared DAO connection
             this.matchDAO = new MatchDAO();
+            this.userDAO = new UserDAO();
             this.detailMatchDAO = new DetailMatchDAO();
         } catch (Exception ex) {
             // if DB is not available, just log and continue - match saving will be skipped
@@ -169,8 +170,10 @@ public class GameSession {
         }
 
         // update users' points
-        userDAO.savePoint(player1.getId(), player1.getPoints() + award1);
-        userDAO.savePoint(player2.getId(), player2.getPoints() + award2);
+        player1.setPoints(player1.getPoints() + award1);
+        player2.setPoints(player2.getPoints() + award2);
+        userDAO.updateUser(player1);
+        userDAO.updateUser(player2);
 
         if (matchDAO != null) {
             Match m = new Match(
