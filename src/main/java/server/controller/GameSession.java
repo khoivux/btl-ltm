@@ -169,8 +169,8 @@ public class GameSession {
         }
 
         // update users' points
-        userDAO.savePoint(player1, player1.getPoints() + award1);
-        userDAO.savePoint(player2, player2.getPoints() + award2);
+        userDAO.savePoint(player1.getId(), player1.getPoints() + award1);
+        userDAO.savePoint(player2.getId(), player2.getPoints() + award2);
 
         if (matchDAO != null) {
             Match m = new Match(

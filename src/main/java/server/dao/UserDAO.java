@@ -41,12 +41,12 @@ public class UserDAO extends DAO{
         return null;
     }
 
-    public boolean savePoint(User user, int point){
+    public boolean savePoint(int userId, int point){
         String SQL_QUERY = "UPDATE `btl_ltm`.`users` SET `points` = ? WHERE (`id` = ?);";
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
             ps.setInt(1, point);
-            ps.setInt(2, user.getId());
+            ps.setInt(2, userId);
             ps.executeUpdate();
             return true;
         } catch (Exception e) {
