@@ -127,8 +127,8 @@ public class GameManager {
         System.out.println("GameManager: handlePick from " + from.getUser().getUsername() + " at (" + row + "," + col + ")");
         GameSession.PickResult res = info.session.pickCell(from.getUser(), row, col);
 
-        // build payload: {row,col,hit,marker,scoreP1,scoreP2}
-        Object[] payload = new Object[]{row, col, res.hit, res.marker, res.scoreP1, res.scoreP2};
+        // build payload: {row,col,hit,marker,scoreP1,scoreP2, pickerUsername}
+        Object[] payload = new Object[]{row, col, res.hit, res.marker, res.scoreP1, res.scoreP2, from.getUser().getUsername()};
         broadcast(info, new Message(MessageType.PICK_RESULT, payload));
     }
 
