@@ -41,14 +41,28 @@ public class UserDAO extends DAO{
         return null;
     }
 
-    public boolean savePoint(User user, int point){
-        String SQL_QUERY = "UPDATE `btl_ltm`.`users` SET `points` = ? WHERE (`id` = ?);";
-        try {
-            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
-            ps.setInt(1, point);
-            ps.setInt(2, user.getId());
-            ps.executeUpdate();
-            return true;
+    public boolean updateUser(User user) {
+        String sql = "UPDATE users SET username = ?, password = ?, points = ?, status = ? WHERE id = ?";
+
+        try (
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPassword());
+            ps.setInt(3, user.getPoints());
+            ps.setString(4, user.getStatus().name()); // Chuyển enum thành String
+            ps.setInt(5, user.getId());
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Cập nhật user thành công: " + user.getUsername());
+                return true;
+            } else {
+                System.out.println("Không tìm thấy user với ID: " + user.getId());
+                return false;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
