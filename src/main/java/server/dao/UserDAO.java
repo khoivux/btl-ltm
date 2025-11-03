@@ -41,14 +41,24 @@ public class UserDAO extends DAO{
         return null;
     }
 
-    public boolean savePoint(User user, int point){
-        String SQL_QUERY = "UPDATE `btl_ltm`.`users` SET `points` = ? WHERE (`id` = ?);";
-        try {
-            PreparedStatement ps = con.prepareStatement(SQL_QUERY);
-            ps.setInt(1, point);
+    public boolean updateUser(User user) {
+        String sql = "UPDATE users SET points = ? WHERE id = ?";
+        System.out.println(user);
+        try (
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, user.getPoints());
             ps.setInt(2, user.getId());
-            ps.executeUpdate();
-            return true;
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Cập nhật user thành công: " + user.getUsername());
+                return true;
+            } else {
+                System.out.println("Không tìm thấy user với ID: " + user.getId());
+                return false;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
