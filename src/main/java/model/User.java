@@ -101,6 +101,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("User{id=%d, username='%s', status='%s', points=%d, rank=%d}", id, username, status, points, rank);
+        return String.format("#%d \t %s \t\t %dpts", rank, username, points);
     }
     }

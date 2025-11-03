@@ -1,70 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<StackPane prefWidth="350" prefHeight="450" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="client.controller.LoginController" style="-fx-background-color: transparent;">
-    <!-- Background Image with rounded corners -->
-    <ImageView fx:id="backgroundImage" fitWidth="350" fitHeight="450" preserveRatio="false">
-        <image>
-            <Image url="@../assets/login_bg.png" />
-        </image>
-        <clip>
-            <Rectangle width="350" height="450" arcWidth="30" arcHeight="30"/>
-        </clip>
-    </ImageView>
-    
-    <!-- Login Form -->
-    <AnchorPane prefWidth="350" prefHeight="450">
-        <!-- TextField tên đăng nhập -->
-        <TextField fx:id="usernameField"
-                   promptText=""
-                   AnchorPane.leftAnchor="40"
-                   AnchorPane.rightAnchor="40"
-                   AnchorPane.topAnchor="140"
-                   prefHeight="64"
-                   style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-font-size: 24px; -fx-font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bradley Hand', cursive; -fx-font-weight: bold;"/>
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/login.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.LoginController">
+    <children>
+        <!-- Label cho tên đăng nhập -->
+        <Label layoutX="274.0" layoutY="199.0" styleClass="input-label" text="Tên đăng nhập" />
 
-        <!-- PasswordField mật khẩu -->
-        <PasswordField fx:id="passwordField"
-                       AnchorPane.leftAnchor="40"
-                   AnchorPane.rightAnchor="40"
-                   AnchorPane.topAnchor="270"
-                   prefHeight="64"
-                   style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-font-size: 18px;"/>
+        <!-- Ô nhập tên -->
+        <TextField fx:id="usernameField" layoutX="261.0" layoutY="235.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập tên của bạn..." styleClass="username-field" />
 
-        <!-- Invisible Button overlay on OK button in background image -->
-        <Button onAction="#handleLogin"
-                AnchorPane.leftAnchor="125"
-                AnchorPane.rightAnchor="125"
-                AnchorPane.topAnchor="380"
-                prefHeight="50"
-                prefWidth="100"
-                style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;"
-                opacity="0.1">
-            <effect>
-                <javafx.scene.effect.DropShadow/>
-            </effect>
-        </Button>
-        
-        <!-- Error Label -->
-        <Label fx:id="errorLabel" textFill="red"
-               AnchorPane.leftAnchor="40"
-               AnchorPane.rightAnchor="40"
-               AnchorPane.topAnchor="320"
-               style="-fx-font-weight: bold; -fx-effect: dropshadow(gaussian, white, 1, 0.5, 0, 0);"/>
-        
-        <!-- Register Button -->
-        <Button text="Đăng ký tài khoản" onAction="#handleRegister"
-                AnchorPane.leftAnchor="40"
-                AnchorPane.rightAnchor="40"
-                AnchorPane.topAnchor="350"
-                prefHeight="30"
-                style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1; -fx-background-radius: 10; -fx-border-radius: 10; -fx-font-size: 12px; -fx-underline: true;"/>
-    </AnchorPane>
-</StackPane>
+        <!-- Label cho mật khẩu -->
+        <Label layoutX="274.0" layoutY="323.0" styleClass="input-label" text="Mật khẩu" />
+
+        <!-- Ô nhập mật khẩu -->
+        <PasswordField fx:id="passwordField" layoutX="261.0" layoutY="360.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập mật khẩu..." styleClass="password-field-custom" />
+        <Button layoutX="308.0" layoutY="468.0" onAction="#handleLogin" prefHeight="53.0" prefWidth="194.0" styleClass="login-button" text="Đăng nhập" />
+        <Label fx:id="errorLabel" textFill="red" />
+        <Hyperlink layoutX="323.0" layoutY="541.0" onAction="#handleRegister" styleClass="register-link" text="Đăng kí tài khoản mới" />
+    </children>
+</AnchorPane>

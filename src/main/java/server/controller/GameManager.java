@@ -1,11 +1,11 @@
 package server.controller;
 
-import model.Message;
-import constant.MessageType;
-import server.ClientHandler;
-
 import java.util.*;
 import java.util.concurrent.*;
+
+import constant.MessageType;
+import model.Message;
+import server.ClientHandler;
 
 /**
  * GameManager orchestrates game sessions between two connected clients.
@@ -16,7 +16,23 @@ public class GameManager {
     private final Map<String, SessionInfo> userSessionMap = new ConcurrentHashMap<>(); // username -> session
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
-    private static final List<String> COLOR_POOL = Arrays.asList("RED","GREEN","BLUE","YELLOW","ORANGE","PINK","PURPLE","CYAN");
+    private static final List<String> COLOR_POOL = Arrays.asList(
+            "#FF0000", // RED
+            "#00FF00", // GREEN
+            "#0000FF", // BLUE
+            "#FFFF00", // YELLOW
+            "#FFA500", // ORANGE
+            "#FFC0CB", // PINK
+            "#800080", // PURPLE
+            "#00FFFF",  // CYAN
+            "#FF00FF", // MAGENTA / FUCHSIA (Hồng đậm)
+            "#A52A2A", // BROWN (Nâu)
+            "#008080", // TEAL (Xanh mòng két)
+            "#32CD32", // LIME GREEN (Xanh lá mạ)
+            "#000080",
+            "#FFFFFF", // WHITE (Trắng)
+            "#808080" // GRAY (Xám)
+    );
 
     public GameManager() {
     }
@@ -44,9 +60,14 @@ public class GameManager {
         }
 
         // pick 5 random colors
-        List<String> pool = new ArrayList<>(COLOR_POOL);
-        Collections.shuffle(pool);
-        List<String> targetColors = pool.subList(0, Math.min(5, pool.size()));
+        Set<String> colorSet = new LinkedHashSet<>();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+        List<String> pool = COLOR_POOL;
+        while (colorSet.size() < 5) {
+            String hex = pool.get(rnd.nextInt(pool.size()));
+            colorSet.add(hex);
+        }
+        List<String> targetColors = new ArrayList<>(colorSet);
 
         GameSession session = new GameSession(ch1.getUser(), ch2.getUser(), targetColors);
 
@@ -76,6 +97,7 @@ public class GameManager {
         scheduler.schedule(() -> startGame(info), 3, TimeUnit.SECONDS);
     }
 
+
     private void startGame(SessionInfo info) {
         if (info == null || info.ch1 == null || info.ch2 == null) return;
         info.secondsLeft = 15;
@@ -94,7 +116,6 @@ public class GameManager {
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
-
     /**
      * Handle a pick from a client: call session.pickCell and broadcast PICK_RESULT.
      */
@@ -119,13 +140,47 @@ public class GameManager {
         if (info.tickTask != null) info.tickTask.cancel(false);
 
         System.out.println("GameManager: ending session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
+        
+        // Nếu có người quit, thông báo cho đối thủ
+        if (usernameQuit != null && !usernameQuit.isEmpty()) {
+            Message quitNotification = new Message(MessageType.OPPONENT_QUIT, usernameQuit);
+            // Gửi thông báo cho người chơi còn lại
+            if (usernameQuit.equals(info.ch1.getUser().getUsername())) {
+                try { if (info.ch2 != null) info.ch2.sendResponse(quitNotification); } catch (Exception ignored) {}
+            } else {
+                try { if (info.ch1 != null) info.ch1.sendResponse(quitNotification); } catch (Exception ignored) {}
+            }
+        }
+        
+        // Kết thúc match và tính điểm
         GameSession.MatchResult mr = info.session.endMatch(usernameQuit);
         Object[] payload = new Object[]{mr.score1, mr.score2, mr.winner, mr.awardP1, mr.awardP2};
         broadcast(info, new Message(MessageType.MATCH_RESULT, payload));
 
+        // Cập nhật trạng thái người chơi về AVAILABLE
+        if (info.ch1 != null && info.ch1.getUser() != null) {
+            try {
+                info.ch1.getClientManager().updateStatus(info.ch1.getUser().getUsername(), constant.Status.AVAILABLE);
+                System.out.println("Updated status for " + info.ch1.getUser().getUsername() + " to AVAILABLE");
+            } catch (Exception e) {
+                System.err.println("Failed to update status for player 1: " + e.getMessage());
+            }
+        }
+        
+        if (info.ch2 != null && info.ch2.getUser() != null) {
+            try {
+                info.ch2.getClientManager().updateStatus(info.ch2.getUser().getUsername(), constant.Status.AVAILABLE);
+                System.out.println("Updated status for " + info.ch2.getUser().getUsername() + " to AVAILABLE");
+            } catch (Exception e) {
+                System.err.println("Failed to update status for player 2: " + e.getMessage());
+            }
+        }
+
         // cleanup map entries for both users
         try { userSessionMap.remove(info.ch1.getUser().getUsername()); } catch (Exception ignored) {}
         try { userSessionMap.remove(info.ch2.getUser().getUsername()); } catch (Exception ignored) {}
+        
+        System.out.println("GameManager: Session ended. Players returned to lobby.");
     }
 
     /**
@@ -135,6 +190,10 @@ public class GameManager {
         if (from == null || from.getUser() == null) return;
         SessionInfo info = userSessionMap.get(from.getUser().getUsername());
         if (info == null) return;
+        
+        System.out.println("GameManager: " + from.getUser().getUsername() + " is exiting the game");
+        
+        // Kết thúc session với thông tin người quit
         endSession(info, from.getUser().getUsername());
     }
 

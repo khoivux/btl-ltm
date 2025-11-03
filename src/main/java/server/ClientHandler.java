@@ -396,5 +396,9 @@ public class ClientHandler implements Runnable{
 
 
     public User getUser(){return this.user;}
+    
+    public ClientManager getClientManager() {
+        return this.clientManager;
+    }
 }
 

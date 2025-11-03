@@ -13,6 +13,7 @@ public class MatchDAO extends DAO{
     public MatchDAO() {
         super();
     }
+
     /**
      * Lưu một trận đấu mới vào database
      */
@@ -124,11 +125,6 @@ public class MatchDAO extends DAO{
 
         return matches;
     }
-
-
-
-
-
 
     /**
      * Hàm tiện ích để chuyển ResultSet -> Match object

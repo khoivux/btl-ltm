@@ -12,6 +12,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.net.URL;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Chat;
 import model.Message;
@@ -27,6 +30,7 @@ public class MainController {
     @FXML private ListView<Chat> listChats;
     @FXML private TextField addedChat;
 
+    private MediaPlayer mediaPlayer;
     private Client client;
     private ObservableList<User> onlineUsers = FXCollections.observableArrayList();
 
@@ -36,6 +40,7 @@ public class MainController {
 
     @FXML
     private void handleLogout() throws IOException {
+        stopMusic();
         User logoutUser = client.getUser();
         if(logoutUser != null) {
             Message logoutMessage = new Message(MessageType.LOGOUT, null);
@@ -134,6 +139,9 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        // Phát nhạc nền
+        playBackgroundMusic();
+
         // Gán dữ liệu cho các cột
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
@@ -151,6 +159,37 @@ public class MainController {
             });
             return row;
         });
+
+        listChats.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // click đúp
+                Chat selectedChat = listChats.getSelectionModel().getSelectedItem();
+                if (selectedChat != null && selectedChat.getUser() != null && client != null) {
+                    client.sendInvite(selectedChat.getUser().getUsername());
+                }
+            }
+        });
     }
 
+    private void playBackgroundMusic() {
+        try {
+            URL resource = getClass().getResource("/sound/bg-music.mp3");
+            if (resource == null) {
+                System.out.println("Không tìm thấy tệp nhạc nền.");
+                return;
+            }
+            Media media = new Media(resource.toExternalForm());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.setVolume(0.5);
+            mediaPlayer.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopMusic() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+    }
 }

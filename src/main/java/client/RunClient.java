@@ -17,7 +17,7 @@ public class RunClient extends Application {
             client.showLoginUI();
             new Thread(() -> {
                 try {
-                    client.startConnection("127.0.0.1", 23456);//26.41.147.33
+                    client.startConnection("26.41.147.33", 23456);//26.41.147.33
                 } catch (Exception e) {
                     e.printStackTrace();
                     // UI phải cập nhật trên JavaFX Thread
