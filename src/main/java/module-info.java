@@ -4,6 +4,7 @@ module btl.ltm {
     requires java.sql;
     requires java.desktop;
     requires kotlin.stdlib;
+    requires javafx.media;
     requires javafx.graphics;
 
     exports client;

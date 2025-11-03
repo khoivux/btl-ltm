@@ -3,6 +3,8 @@ package server.controller;
 import model.User;
 import server.dao.UserDAO;
 
+import java.util.List;
+
 public class UserController {
     private UserDAO userDAO;
 
@@ -16,6 +18,14 @@ public class UserController {
 
     public void register(User registerInfo) throws Exception {
         userDAO.insertUser(registerInfo);
+    }
+
+    public List<User> getLeaderboard() {
+        return userDAO.getLeaderboard();
+    }
+
+    public User getRankByUsername(String username) {
+        return userDAO.getRankByUsername(username);
     }
 
     public User getUserById(int id){

@@ -17,7 +17,7 @@ public class RunClient1 extends Application {
             client.showLoginUI();
             new Thread(() -> {
                 try {
-                    client.startConnection("26.41.147.33", 23456);
+                    client.startConnection("127.0.0.1", 23456);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Platform.runLater(() -> client.showErrorAlert("Không thể kết nối tới server."));
