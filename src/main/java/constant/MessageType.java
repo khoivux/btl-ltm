@@ -40,6 +40,7 @@ public enum MessageType {
     LEADERBOARD_SUCCESS("leaderboard_success"),
     LEADERBOARD_FAILURE("leaderboard_failure"),
 
+
     // CHAT
     CHAT("chat"),
     CHAT_SUCCESS("chat_success"),
@@ -52,7 +53,10 @@ public enum MessageType {
     RANK("rank"),
     RANK_SUCCESS("rank_success"),
     RANK_FAILURE("rank_failure"),
-
+    //  MATCH HISTORY
+    MATCH_HISTORY("match_history"),
+    MATCH_HISTORY_SUCCESS("match_history_success"),
+    MATCH_HISTORY_FAILURE("match_history_failure"),
 
 
 

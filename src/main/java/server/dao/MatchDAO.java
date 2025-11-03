@@ -1,5 +1,6 @@
 package server.dao;
 
+import model.DetailMatch;
 import model.Match;
 
 import java.sql.*;
@@ -12,6 +13,7 @@ public class MatchDAO extends DAO{
     public MatchDAO() {
         super();
     }
+
     /**
      * Lưu một trận đấu mới vào database
      */
@@ -58,21 +60,69 @@ public class MatchDAO extends DAO{
     /**
      * Lấy lịch sử trận đấu của người chơi
      */
+//    public List<Match> getMatchesByUser(String username) {
+//        List<Match> matches = new ArrayList<>();
+//
+//        String sql = """
+//        SELECT DISTINCT m.*
+//        FROM tblmatch m
+//        JOIN tbldetail_match d ON m.match_id = d.match_id
+//        JOIN users u ON d.player_id = u.id
+//        WHERE u.username = ?
+//        ORDER BY m.start_time DESC
+//        """;
+//
+//        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+//            stmt.setString(1, username);
+//
+//            try (ResultSet rs = stmt.executeQuery()) {
+//                while (rs.next()) {
+//                    matches.add(extractMatchFromResultSet(rs));
+//                }
+//            }
+//        } catch (SQLException e) {
+//            System.err.println("Lỗi khi lấy lịch sử trận của " + username + ": " + e.getMessage());
+//        }
+//
+//        return matches;
+//    }
+
+
     public List<Match> getMatchesByUser(String username) {
         List<Match> matches = new ArrayList<>();
-        String sql = "SELECT * FROM tblmatch WHERE player1 = ? OR player2 = ? ORDER BY start_time DESC";
+
+        String sql = """
+        SELECT DISTINCT m.*
+        FROM tblmatch m
+        JOIN tbldetail_match d ON m.match_id = d.match_id
+        JOIN users u ON d.player_id = u.id
+        WHERE u.username = ?
+        ORDER BY m.start_time DESC
+        """;
+
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, username);
-            stmt.setString(2, username);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    matches.add(extractMatchFromResultSet(rs));
+                    Match match = extractMatchFromResultSet(rs);
+
+                    // ✅ Gọi DAO để lấy danh sách DetailMatch tương ứng
+                    DetailMatchDAO detailMatchDAO = new DetailMatchDAO();
+                    List<DetailMatch> details = List.of(detailMatchDAO.getDetailsByMatchId(match.getMatchId()));
+
+                    // ✅ Chuyển List -> mảng trước khi set vào Match
+                    if (details != null && !details.isEmpty()) {
+                        match.setDetailMatch(details.toArray(new DetailMatch[0]));
+                    }
+
+                    matches.add(match);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy lịch sử trận của " + username + ": " + e.getMessage());
         }
+
         return matches;
     }
 
@@ -82,10 +132,10 @@ public class MatchDAO extends DAO{
     private Match extractMatchFromResultSet(ResultSet rs) throws SQLException {
         Match match = new Match();
         match.setMatchId(rs.getInt("match_id"));
-        Timestamp st = rs.getTimestamp("start_time");
-        if (st != null) match.setStartTime(st.toLocalDateTime());
-        Timestamp et = rs.getTimestamp("end_time");
-        if (et != null) match.setEndTime(et.toLocalDateTime());
+        match.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+        match.setEndTime(rs.getTimestamp("end_time") != null
+                ? rs.getTimestamp("end_time").toLocalDateTime()
+                : null);
         return match;
     }
 }

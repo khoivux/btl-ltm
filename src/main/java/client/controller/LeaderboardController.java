@@ -118,17 +118,6 @@ public class LeaderboardController {
         client.showMainUI();
     }
 
-    // @FXML
-    // public void handleUserRank() throws IOException {
-    //     try{
-    //         String username = client.getUser().getUsername();
-    //         Message message = new Message(MessageType.RANK, username);
-    //         client.sendMessage(message);
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         client.showErrorAlert("Lỗi khi gửi message");
-    //     }
-    // }
 
 //    @FXML
 //    public void updateUserRank(User user) {

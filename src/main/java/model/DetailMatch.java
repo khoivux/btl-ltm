@@ -1,6 +1,9 @@
 package model;
 
-public class DetailMatch {
+import java.io.Serializable;
+
+public class DetailMatch implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private User player;
     private int score;
@@ -14,7 +17,7 @@ public class DetailMatch {
     public void setPlayer(User player) {
         this.player = player;
     }
-
+    public DetailMatch(){}
     public DetailMatch(User player, int point, boolean isWinner, boolean isQuit) {
         this.player = player;
         this.score = point;
@@ -53,4 +56,8 @@ public class DetailMatch {
     public void setQuit(boolean quit) {
         isQuit = quit;
     }
-}
+
+    public void setScore(int score) {this.score = score;}
+    }
+
+

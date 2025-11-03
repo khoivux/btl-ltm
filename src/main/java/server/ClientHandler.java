@@ -5,13 +5,14 @@ import java.net.Socket;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
+import client.controller.MatchHistoryController;
 import constant.MessageType;
 import constant.Status;
-import model.Chat;
-import model.Message;
-import model.User;
+import model.*;
 import server.controller.ChatController;
+import server.controller.MatchHitstoryController;
 import server.controller.UserController;
+import server.dao.MatchDAO;
 
 /**
  * ClientHandler là lớp này đại diện cho mỗi client kết nối tới server, mỗi client (user) khi dùng sẽ có 1 clientHandler
@@ -204,6 +205,11 @@ public class ClientHandler implements Runnable{
                 case MessageType.CHAT:
                     handleGetChat();
                     break;
+                case MATCH_HISTORY:
+                    handleGetMatchHistory(message);
+                    break;
+
+
 
                 default:
                     System.out.println("ERROR: Message không hợp lệ ");
@@ -333,6 +339,39 @@ public class ClientHandler implements Runnable{
             System.out.println("Lỗi Server khi gửi yêu cầu lấy XH cá nhân");
         }
     }
+
+    //nam them
+    private void handleGetMatchHistory(Message message) {
+        try {
+            String username = (String) message.getContent();
+            System.out.println("=== [SERVER] Nhận yêu cầu lấy lịch sử đấu của: " + username + " ===");
+
+            MatchDAO matchDAO = new MatchDAO();
+            List<Match> matches = matchDAO.getMatchesByUser(username);
+
+            if (matches != null && !matches.isEmpty()) {
+                System.out.println("Found " + matches.size() + " matches for " + username);
+                // Optionally log details:
+                for (Match m : matches) {
+                    System.out.println("  matchId=" + m.getMatchId() + ", start=" + m.getStartTime() + ", end=" + m.getEndTime());
+                    if (m.getDetailMatch() != null) {
+                        System.out.println("    details count=" + m.getDetailMatch().length);
+                        for(DetailMatch detailMatch : m.getDetailMatch()){
+                            System.out.println(detailMatch.getId());
+                        }
+                    }
+                }
+                sendResponse(new Message(MessageType.MATCH_HISTORY_SUCCESS, matches));
+            } else {
+                System.out.println("No matches found for " + username);
+                sendResponse(new Message(MessageType.MATCH_HISTORY_FAILURE, "Không có trận đấu nào"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(new Message(MessageType.MATCH_HISTORY_FAILURE, "Lỗi server khi lấy lịch sử trận đấu"));
+        }
+    }
+
 
 
     public void sendResponse(Message response) {

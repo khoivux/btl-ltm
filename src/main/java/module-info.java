@@ -5,6 +5,8 @@ module btl.ltm {
     requires java.desktop;
     requires kotlin.stdlib;
     requires javafx.media;
+    requires javafx.graphics;
+
     exports client;
     exports client.controller;
     exports model;

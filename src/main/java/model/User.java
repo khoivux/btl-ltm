@@ -103,4 +103,4 @@ public class User implements Serializable {
     public String toString() {
         return String.format("#%d \t %s \t\t %dpts", rank, username, points);
     }
-}
+    }

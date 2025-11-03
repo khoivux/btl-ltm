@@ -1,9 +1,6 @@
 package client;
 
-import client.controller.LoginController;
-import client.controller.MainController;
-import client.controller.LeaderboardController;
-import client.controller.RegisterController;
+import client.controller.*;
 import constant.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import model.Chat;
+import model.Match;
 import model.Message;
 import model.User;
 
@@ -34,10 +32,11 @@ public class Client {
     private Stage stage;
 
 
-    private LoginController loginController;
-    private LeaderboardController leaderboardController;
-    private MainController mainController;
-    private RegisterController registerController;
+        private LoginController loginController;
+        private LeaderboardController leaderboardController;
+        private MainController mainController;
+        private RegisterController registerController;
+        private MatchHistoryController matchHistoryController;
 
     private volatile boolean isRunning = true;
     // Game controller reference
@@ -245,24 +244,31 @@ public class Client {
                 }
                 break;
 
-            case MessageType.MATCH_RESULT:
-                if (gameController == null) {
-                    Platform.runLater(this::showGameUI);
-                }
-                if (gameController != null && message.getContent() instanceof Object[]) {
-                    Object[] arr = (Object[]) message.getContent();
-                    try {
-                        int s1 = (Integer) arr[0];
-                        int s2 = (Integer) arr[1];
-                        String winner = (String) arr[2];
-                        int a1 = (Integer) arr[3];
-                        int a2 = (Integer) arr[4];
-                        gameController.onGameEnd(s1, s2, winner, a1, a2);
-                    } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
-                        System.err.println("Invalid MATCH_RESULT payload");
+                case MessageType.MATCH_RESULT:
+                    if (gameController == null) {
+                        Platform.runLater(this::showGameUI);
                     }
-                }
-                break;
+                    if (gameController != null && message.getContent() instanceof Object[]) {
+                        Object[] arr = (Object[]) message.getContent();
+                        try {
+                            int s1 = (Integer) arr[0];
+                            int s2 = (Integer) arr[1];
+                            String winner = (String) arr[2];
+                            int a1 = (Integer) arr[3];
+                            int a2 = (Integer) arr[4];
+                            gameController.onGameEnd(s1, s2, winner, a1, a2);
+                        } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
+                            System.err.println("Invalid MATCH_RESULT payload");
+                        }
+                    }
+                    break;
+                    //nam them
+                case MessageType.MATCH_HISTORY_SUCCESS:
+                    handleMatchHistorySuccess(message);
+                    break;
+                case MessageType.MATCH_HISTORY_FAILURE:
+                    handleMatchHistoryFailure(message);
+                    break;
 
             case MessageType.OPPONENT_QUIT:
                 String quitterUsername = (String) message.getContent();
@@ -281,21 +287,72 @@ public class Client {
         }
     }
 
-    private void handleOnlineUsers(Message message) {
-        List<User> users = (List<User>) message.getContent();
-        users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
-        Platform.runLater(() -> {
-            if (mainController != null) {
-                mainController.updateOnlineUsers(users);
+        private void handleOnlineUsers(Message message) {
+            List<User> users = (List<User>) message.getContent();
+            users.removeIf(userA -> userA.getUsername().equals(user.getUsername()));
+            Platform.runLater(() -> {
+                if (mainController != null) {
+                    mainController.updateOnlineUsers(users);
+                }
+            });
+        }
+        //nam them
+        /**
+         * Xử lý khi nhận được danh sách lịch sử trận đấu thành công từ server.
+         */
+        private void handleMatchHistorySuccess(Message message) {
+            Object content = message.getContent();
+
+            // Cẩn thận: Kiểm tra xem server có trả về null không
+            if (content == null) {
+                System.err.println("LỖI: Server trả về nội dung (matches) là null!");
+                // Bạn có thể muốn cập nhật UI để hiển thị "Không có trận nào"
+                Platform.runLater(() -> {
+                    if (matchHistoryController != null) {
+                        // Giả sử updateMatchHistory có thể xử lý null hoặc danh sách rỗng
+                        matchHistoryController.updateMatchHistory(null);
+                    }
+                });
+                return;
             }
-        });
-    }
 
+            // Kiểm tra đúng kiểu dữ liệu
+            if (!(content instanceof List<?>)) {
+                System.err.println("LỖI: Nội dung MATCH_HISTORY không phải List, mà là: " + content.getClass().getName());
+                return;
+            }
 
-    private void handleLoginSuccess(Message message) {
-        this.user = (User) message.getContent();
-        Platform.runLater(this::showMainUI);
-    }
+            @SuppressWarnings("unchecked")
+            List<Match> matches = (List<Match>) content;
+
+            Platform.runLater(() -> {
+                if (matchHistoryController != null) {
+                    matchHistoryController.updateMatchHistory(matches);
+                } else {
+                    // Lỗi này cho thấy bạn đã quên gán controller khi mở FXML
+                    System.err.println("LỖI NGHIÊM TRỌNG: matchHistoryController bị null. Không thể cập nhật UI.");
+                }
+            });
+        }
+
+        /**
+         * Xử lý khi nhận được thông báo lỗi từ server về việc lấy lịch sử trận đấu.
+         */
+        private void handleMatchHistoryFailure(Message message) {
+            String errorMsg = (String) message.getContent();
+            Platform.runLater(() -> {
+                System.err.println("Lấy lịch sử trận đấu thất bại: " + errorMsg);
+
+                // (Tùy chọn) Bạn cũng có thể hiển thị lỗi này lên UI
+                // if (matchHistoryController != null && client != null) {
+                //     client.showErrorAlert("Lỗi tải lịch sử đấu: " + errorMsg);
+                // }
+            });
+        }
+        private void handleLoginSuccess(Message message) {
+            this.user = (User) message.getContent();
+            Platform.runLater(this::showMainUI);
+        }
 
     private void handleLoginFailure(Message message) {
         String errorMsg = (String) message.getContent();
@@ -358,33 +415,58 @@ public class Client {
         }
     }
 
-    public void showGameUI() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GameView.fxml"));
-            Parent root = loader.load();
-            gameController = loader.getController();
-            if (gameController != null) {
-                gameController.setClient(this);
+        public void showGameUI() {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/GameView.fxml"));
+                Parent root = loader.load();
+                gameController = loader.getController();
+                if (gameController != null) {
+                    gameController.setClient(this);
+                }
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showErrorAlert("Không thể tải giao diện game.");
             }
+        }
+    //
+    public void showMatchHistoryUI() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MatchHistoryUI.fxml"));
+            Parent root = loader.load();
+
+         matchHistoryController = loader.getController();
+            if (matchHistoryController != null) {
+                matchHistoryController.setClient(this); // Truyền tham chiếu client nếu cần tương tác
+            }
+
             stage.setScene(new Scene(root));
             stage.show();
+            if (user != null) {
+                System.out.println("Yêu cầu lấy lịch sử trận đấu cho user: " + user.getUsername());
+                sendMessage(new Message(MessageType.MATCH_HISTORY, user.getUsername()));
+            } else {
+                System.err.println("LỖI: user hiện tại đang null, chưa đăng nhập?");
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("Không thể tải giao diện game.");
+            showErrorAlert("Không thể tải giao diện lịch sử trận đấu.");
         }
     }
-//
-   // Gửi lời mời
-    public void sendInvite(String opponentName) {
-        try {
-            System.out.println("Gửi lời mời đến: " + opponentName);
-            Message inviteMsg = new Message(MessageType.INVITE_REQUEST, opponentName);
-            sendMessage(inviteMsg);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showErrorAlert("Không thể gửi lời mời tới " + opponentName);
+
+
+        // Gửi lời mời
+        public void sendInvite(String opponentName) {
+            try {
+                System.out.println("Gửi lời mời đến: " + opponentName);
+                Message inviteMsg = new Message(MessageType.INVITE_REQUEST, opponentName);
+                sendMessage(inviteMsg);
+            } catch (IOException e) {
+                e.printStackTrace();
+                showErrorAlert("Không thể gửi lời mời tới " + opponentName);
+            }
         }
-    }
 
     public void showLeaderboardUI() {
         try{
