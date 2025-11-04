@@ -3,6 +3,7 @@ package client.controller;
 import client.Client;
 import constant.MessageType;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -113,56 +114,6 @@ public class GameController {
             e.printStackTrace();
         }
     }
-
-//    private void showPreview(List<String> colors) {
-//        Platform.runLater(() -> {
-//            try {
-//                // Xóa mọi ô cũ và reset lại chỉ có label "Màu mục tiêu (3s)"
-//                previewBox.getChildren().clear();
-//                Label title = new Label("Màu mục tiêu (3s)");
-//                title.setFont(new Font("System Bold", 24.0));
-//                previewBox.getChildren().add(title);
-//
-//
-//                // Thêm Rectangle cho từng màu (đặt ở giữa)
-//                for (String col : colors) {
-//                    Rectangle r = new Rectangle(50, 50);
-//                    r.setFill(parseColor(col));
-//                    r.setStroke(Color.BLACK);   // viền để dễ nhìn
-//                    r.setArcWidth(10);
-//                    r.setArcHeight(10);
-//                    previewBox.getChildren().add(r);
-//                }
-//
-//                // Hiển thị previewBox, ẩn boardGrid
-//                previewBox.setVisible(true);
-//                previewBox.setManaged(true);
-//
-//                boardGrid.setVisible(false);
-//                boardGrid.setManaged(false);
-//
-//
-//                // Sau 3 giây, ẩn previewBox và hiển thị board
-//                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-//                scheduler.schedule(() -> {
-//                    Platform.runLater(() -> {
-//                        previewBox.setVisible(false);
-//                        previewBox.setManaged(false);
-//
-//                        boardGrid.setVisible(true);
-//                        boardGrid.setManaged(true);
-//
-//                        // Build board sau khi preview ẩn
-//                        buildBoard();
-//                    });
-//                    scheduler.shutdown();
-//                }, 3, TimeUnit.SECONDS);
-//
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        });
-//    }
 
     private void showPreview(List<String> colors) {
         Platform.runLater(() -> {
@@ -308,13 +259,13 @@ public class GameController {
         Platform.runLater(() -> timerLabel.setText(String.valueOf(secondsLeft)));
     }
 
-    public void onPickResult(int row, int col, boolean hit, String marker, int score1, int score2) {
+    public void onPickResult(int row, int col, boolean hit, String marker, int score1, int score2, String pickerUsername) {
         Platform.runLater(() -> {
             // update button text and style at row,col
             boardGrid.getChildren().stream().filter(n -> GridPane.getRowIndex(n) == row && GridPane.getColumnIndex(n) == col).findFirst().ifPresent(node -> {
                 if (node instanceof Button) {
                     Button btn = (Button) node;
-                    if(hit) {
+                    if (hit) {
                         btn.setText(marker);
                         btn.setDisable(true);
 
@@ -329,6 +280,17 @@ public class GameController {
                                         "-fx-text-fill: white; ",
                                 toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
                         btn.setStyle(newStyle);
+                    } else {
+                        // SỬA Ở ĐÂY: Xử lý khi click sai (miss)
+                        // Chỉ hiện dấu 'X' nếu người click sai là client này
+                        if (client != null && client.getUser() != null && client.getUser().getUsername().equals(pickerUsername)) {
+                            final String originalText = btn.getText();
+                            btn.setText("X");
+                            // Tạo hiệu ứng chờ để xóa dấu "X" sau 1 giây
+                            PauseTransition pause = new PauseTransition(Duration.seconds(1));
+                            pause.setOnFinished(e -> btn.setText(originalText)); // Quay lại trạng thái cũ
+                            pause.play();
+                        }
                     }
                 }
             });
