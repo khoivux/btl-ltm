@@ -106,7 +106,6 @@ public class Client {
     }
 
     private void handleMessage(Message message) throws IOException{
-        System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         // if (message.getType().equals(MessageType.RANK_SUCCESS)){
         //     System.out.println(message.getContent().getClass());
         // }

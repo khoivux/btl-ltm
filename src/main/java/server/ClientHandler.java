@@ -104,17 +104,14 @@ public class ClientHandler implements Runnable{
                     break;
 
                 case MessageType.LOGIN:
-                    System.out.println("--- Xử lý login ---");
                     handleLogin(message);
                     break;
 
                 case MessageType.LOGOUT:
-                    System.out.println("--- Xử lý logout ---");
                     handleLogout();
                     break;
 
                 case MessageType.ONLINE_LIST:
-                    System.out.println("--- Xử lý danh sách online ---");
                     handleGetOnlineUsers();
                     break;
 
