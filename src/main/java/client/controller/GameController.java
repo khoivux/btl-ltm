@@ -301,25 +301,24 @@ public class GameController {
 
     // ... (Các phương thức khác giữ nguyên)
 
-    public void onGameEnd(int score1, int score2, String winner, int award1, int award2) {
+    public void onGameEnd(int score1, int score2, String winner, int award1, int award2, boolean isQuit) {
         Platform.runLater(() -> {
             try {
                 String title = "Kết quả trận đấu";
                 String header = null;
                 String body;
 
-                // Kiểm tra xem có người quit không (người có award = 0 và không phải hòa)
-                boolean isQuitMatch = (award1 == 0 && award2 == 2) || (award1 == 2 && award2 == 0);
-
                 if (winner == null) {
+                    // Trường hợp hòa
                     body = String.format("Hòa! Điểm: %d - %d\nMỗi người được +%d điểm.", score1, score2, award1);
-                } else if (isQuitMatch) {
-                    // Có người quit
+                } else if (isQuit) {
+                    // Có người quit - CHỈ hiển thị khi server gửi flag isQuit = true
                     String quitter = (award1 == 0) ? lblPlayer1.getText() : lblPlayer2.getText();
                     String winnerName = (award1 == 2) ? lblPlayer1.getText() : lblPlayer2.getText();
                     body = String.format("%s đã thoát!\n%s thắng! Điểm: %d - %d\n%s được +2 điểm.",
                             quitter, winnerName, score1, score2, winnerName);
                 } else {
+                    // Thắng thua bình thường - KHÔNG hiển thị "bỏ cuộc"
                     body = String.format("%s thắng! Điểm: %d - %d\n%s được +%d điểm.", winner, score1, score2,
                             winner.equals(lblPlayer1.getText()) ? lblPlayer1.getText() : lblPlayer2.getText(),
                             winner.equals(lblPlayer1.getText()) ? award1 : award2);

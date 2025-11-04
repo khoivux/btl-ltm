@@ -257,7 +257,9 @@ public class Client {
                             String winner = (String) arr[2];
                             int a1 = (Integer) arr[3];
                             int a2 = (Integer) arr[4];
-                            gameController.onGameEnd(s1, s2, winner, a1, a2);
+                            // Nhận flag isQuit từ server (index 5, mặc định false nếu server cũ)
+                            boolean isQuit = (arr.length > 5 && arr[5] instanceof Boolean) ? (Boolean) arr[5] : false;
+                            gameController.onGameEnd(s1, s2, winner, a1, a2, isQuit);
                         } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
                             System.err.println("Invalid MATCH_RESULT payload");
                         }
@@ -270,17 +272,6 @@ public class Client {
                 case MessageType.MATCH_HISTORY_FAILURE:
                     handleMatchHistoryFailure(message);
                     break;
-
-            case MessageType.OPPONENT_QUIT:
-                String quitterUsername = (String) message.getContent();
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Đối thủ đã thoát");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Người chơi " + quitterUsername + " đã thoát khỏi trận đấu.\nBạn thắng mặc định!");
-                    alert.showAndWait();
-                });
-                break;
 
             default:
                 System.out.println("Unknown message type: " + message.getType());
