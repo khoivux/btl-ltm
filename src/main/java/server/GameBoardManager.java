@@ -45,7 +45,7 @@ public class GameBoardManager {
 
         // Place 2-3 exact target cells for each target color
         for (String color : targetColors) {
-            int count = 2 + rand.nextInt(2); // 2 or 3
+            int count = 3 + rand.nextInt(3); // 2 or 3
             for (int k = 0; k < count; k++) {
                 int r, c, tries = 0;
                 do {

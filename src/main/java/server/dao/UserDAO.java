@@ -4,7 +4,6 @@ import model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,32 +40,25 @@ public class UserDAO extends DAO{
         return null;
     }
 
-    public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, points = ?, status = ? WHERE id = ?";
+    public void updateUser(User user) {
+        String sql = "UPDATE users SET points = ? WHERE id = ?";
 
         try (
              PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPassword());
-            ps.setInt(3, user.getPoints());
-            ps.setString(4, user.getStatus().name()); // Chuyển enum thành String
-            ps.setInt(5, user.getId());
+            ps.setInt(1, user.getPoints());
+            ps.setInt(2, user.getId());
 
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
                 System.out.println("Cập nhật user thành công: " + user.getUsername());
-                return true;
             } else {
                 System.out.println("Không tìm thấy user với ID: " + user.getId());
-                return false;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     public User authenticateUser(User user) {
