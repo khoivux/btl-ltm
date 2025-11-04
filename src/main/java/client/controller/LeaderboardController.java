@@ -167,13 +167,9 @@ public class LeaderboardController {
             if (topUsers != null) {
                 this.users = topUsers; // Lưu lại danh sách nếu cần
 
-                // Cách 1: Xóa cũ và thêm mới (đơn giản)
                 userTable.getItems().clear();
                 userTable.getItems().addAll(topUsers);
 
-                // Cách 2: Tạo ObservableList mới (cách này cũng rất tốt)
-                // (Cần import javafx.collections.FXCollections)
-                // userTable.setItems(FXCollections.observableArrayList(topUsers));
             }
         });
     }

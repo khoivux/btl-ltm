@@ -2,6 +2,7 @@ package client;
 
 import client.controller.*;
 import constant.MessageType;
+import constant.Status;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -256,7 +257,9 @@ public class Client {
                             String winner = (String) arr[2];
                             int a1 = (Integer) arr[3];
                             int a2 = (Integer) arr[4];
-                            gameController.onGameEnd(s1, s2, winner, a1, a2);
+                            // Nhận flag isQuit từ server (index 5, mặc định false nếu server cũ)
+                            boolean isQuit = (arr.length > 5 && arr[5] instanceof Boolean) ? (Boolean) arr[5] : false;
+                            gameController.onGameEnd(s1, s2, winner, a1, a2, isQuit);
                         } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
                             System.err.println("Invalid MATCH_RESULT payload");
                         }
@@ -269,17 +272,6 @@ public class Client {
                 case MessageType.MATCH_HISTORY_FAILURE:
                     handleMatchHistoryFailure(message);
                     break;
-
-            case MessageType.OPPONENT_QUIT:
-                String quitterUsername = (String) message.getContent();
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Đối thủ đã thoát");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Người chơi " + quitterUsername + " đã thoát khỏi trận đấu.\nBạn thắng mặc định!");
-                    alert.showAndWait();
-                });
-                break;
 
             default:
                 System.out.println("Unknown message type: " + message.getType());
@@ -614,9 +606,23 @@ public class Client {
 
     // Khi đối thủ từ chối lời mời
     private void handleInviteRejected(Message message) {
-        String opponent = (String) message.getContent();
+        Object opponent =  message.getContent();
+
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.WARNING);
+            if(opponent.equals(Status.OFFLINE)) {
+                alert.setTitle("Lời mời không thành công");
+                alert.setHeaderText(null);
+                alert.setContentText("Người chơi bạn mời hiện không online");
+                alert.showAndWait();
+                return;
+            } else if (opponent.equals(Status.NOT_AVAILABLE)) {
+                alert.setTitle("Lời mời không thành công");
+                alert.setHeaderText(null);
+                alert.setContentText("Người chơi bạn mời đang trong trận");
+                alert.showAndWait();
+                return;
+            }
             alert.setTitle("Lời mời bị từ chối");
             alert.setHeaderText(null);
             alert.setContentText("Người chơi " + opponent + " đã từ chối lời mời của bạn.");

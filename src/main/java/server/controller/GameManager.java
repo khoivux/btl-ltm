@@ -141,20 +141,11 @@ public class GameManager {
 
         System.out.println("GameManager: ending session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
         
-        // Nếu có người quit, thông báo cho đối thủ
-        if (usernameQuit != null && !usernameQuit.isEmpty()) {
-            Message quitNotification = new Message(MessageType.OPPONENT_QUIT, usernameQuit);
-            // Gửi thông báo cho người chơi còn lại
-            if (usernameQuit.equals(info.ch1.getUser().getUsername())) {
-                try { if (info.ch2 != null) info.ch2.sendResponse(quitNotification); } catch (Exception ignored) {}
-            } else {
-                try { if (info.ch1 != null) info.ch1.sendResponse(quitNotification); } catch (Exception ignored) {}
-            }
-        }
-        
         // Kết thúc match và tính điểm
         GameSession.MatchResult mr = info.session.endMatch(usernameQuit);
-        Object[] payload = new Object[]{mr.score1, mr.score2, mr.winner, mr.awardP1, mr.awardP2};
+        // Thêm flag isQuit vào payload để client biết chính xác có người quit hay không
+        boolean isQuit = (usernameQuit != null && !usernameQuit.isEmpty());
+        Object[] payload = new Object[]{mr.score1, mr.score2, mr.winner, mr.awardP1, mr.awardP2, isQuit};
         broadcast(info, new Message(MessageType.MATCH_RESULT, payload));
 
         // Cập nhật trạng thái người chơi về AVAILABLE
