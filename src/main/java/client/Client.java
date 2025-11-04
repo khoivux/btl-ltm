@@ -304,10 +304,8 @@ public class Client {
         private void handleMatchHistorySuccess(Message message) {
             Object content = message.getContent();
 
-            // Cẩn thận: Kiểm tra xem server có trả về null không
             if (content == null) {
                 System.err.println("LỖI: Server trả về nội dung (matches) là null!");
-                // Bạn có thể muốn cập nhật UI để hiển thị "Không có trận nào"
                 Platform.runLater(() -> {
                     if (matchHistoryController != null) {
                         // Giả sử updateMatchHistory có thể xử lý null hoặc danh sách rỗng

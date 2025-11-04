@@ -12,7 +12,7 @@ public class GameBoardManager {
     private final int ROWS = 8;
     private final int COLS = 8;
     private String[][] board; // each cell is a color hex (e.g. "#A1B2C3")
-    int minDelta = 50; // minimum perturbation per channel
+    int minDelta = 100; // minimum perturbation per channel
     int maxDelta = 200; // maximum perturbation per channel
 
     public GameBoardManager(List<String> targetColors) {
@@ -45,7 +45,7 @@ public class GameBoardManager {
 
         // Place 2-3 exact target cells for each target color
         for (String color : targetColors) {
-            int count = 2 + rand.nextInt(2); // 2 or 3
+            int count = 3 + rand.nextInt(2);
             for (int k = 0; k < count; k++) {
                 int r, c, tries = 0;
                 do {

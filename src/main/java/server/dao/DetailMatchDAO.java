@@ -31,7 +31,7 @@ public class DetailMatchDAO extends DAO {
         List<DetailMatch> details = new ArrayList<>();
         String sql =
                 "SELECT dm.id AS detail_id, " +
-                        "       dm.score AS detail_score, " +   // alias riêng cho score của DetailMatch
+                        "       dm.score AS detail_score, " +
                         "       dm.is_winner, dm.is_quit, " +
                         "       u.id AS user_id, " +
                         "       u.username " +
@@ -46,7 +46,6 @@ public class DetailMatchDAO extends DAO {
                     User player = new User();
                     player.setId(rs.getInt("user_id"));
                     player.setUsername(rs.getString("username"));
-                    player.setPoints(rs.getInt("detail_score")); // lấy score từ alias
 
                     DetailMatch detail = new DetailMatch();
                     detail.setId(rs.getInt("detail_id"));
