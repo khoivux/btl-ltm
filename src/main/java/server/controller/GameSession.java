@@ -59,7 +59,7 @@ public class GameSession {
         public final boolean valid; // false nếu input không hợp lệ (out of bounds)
         public final boolean hit; // true nếu đúng màu target
         public final boolean locked; // true nếu ô đã bị chọn trước đó
-        public final String marker; // "P1" hoặc "P2" khi hit
+        public final String marker; // "P1" hoặc "P2"
         public final int scoreP1;
         public final int scoreP2;
         public final String message;
@@ -88,15 +88,14 @@ public class GameSession {
             }
 
             boolean hit = isTargetColor(cell);
-            String marker = cell;
+            String username = player.getUsername();
+            String marker = username.equals(getPlayer1Username()) ? "P1" : "P2";
+
             if (hit) {
-                String username = player.getUsername();
                 int prev = scores.getOrDefault(username, 0);
                 scores.put(username, prev + 1);
-                marker = username.equals(getPlayer1Username()) ? "P1" : "P2";
                 board.setCell(row, col, marker);
             } else {
-                String username = player.getUsername();
                 int prev = scores.getOrDefault(username, 0);
                 scores.put(username, Math.max(prev - 1, 0));
             }

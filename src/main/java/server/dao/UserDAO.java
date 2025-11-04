@@ -40,9 +40,9 @@ public class UserDAO extends DAO{
         return null;
     }
 
-    public void updateUser(User user) {
+    public boolean updateUser(User user) {
         String sql = "UPDATE users SET points = ? WHERE id = ?";
-
+        System.out.println(user);
         try (
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, user.getPoints());
@@ -52,13 +52,16 @@ public class UserDAO extends DAO{
 
             if (rowsAffected > 0) {
                 System.out.println("Cập nhật user thành công: " + user.getUsername());
+                return true;
             } else {
                 System.out.println("Không tìm thấy user với ID: " + user.getId());
+                return false;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public User authenticateUser(User user) {

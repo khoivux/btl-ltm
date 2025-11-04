@@ -237,7 +237,8 @@ public class Client {
                         String marker = (String) arr[3];
                         int s1 = (Integer) arr[4];
                         int s2 = (Integer) arr[5];
-                        gameController.onPickResult(row, col, hit, marker, s1, s2);
+                        String pickerUsername = (String) arr[6]; // <-- SỬA Ở ĐÂY
+                        gameController.onPickResult(row, col, hit, marker, s1, s2, pickerUsername);
                     } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
                         System.err.println("Invalid PICK_RESULT payload");
                     }
@@ -303,10 +304,8 @@ public class Client {
         private void handleMatchHistorySuccess(Message message) {
             Object content = message.getContent();
 
-            // Cẩn thận: Kiểm tra xem server có trả về null không
             if (content == null) {
                 System.err.println("LỖI: Server trả về nội dung (matches) là null!");
-                // Bạn có thể muốn cập nhật UI để hiển thị "Không có trận nào"
                 Platform.runLater(() -> {
                     if (matchHistoryController != null) {
                         // Giả sử updateMatchHistory có thể xử lý null hoặc danh sách rỗng
@@ -491,7 +490,7 @@ public class Client {
         Platform.runLater(() -> {
             if(leaderboardController != null){
                 leaderboardController.setUser(user);
-//                leaderboardController.updateUserRank(user);
+                leaderboardController.updateUserRank(user);
             }
             else{
                 System.out.println("leaderboardController là giá trị null");
