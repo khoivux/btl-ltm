@@ -53,17 +53,13 @@ public class Client {
     Connect server
      */
     public void startConnection(String address, int port) {
-        System.out.println("Đang cố kết nối tới server: " + address + ":" + port);
         try {
             socket = new Socket(address, port);
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
-
             in = new ObjectInputStream(socket.getInputStream());
 
             isRunning = true;
-            System.out.println("Kết nối server hoàn tất!");
-            System.out.println("=== Bắt đầu listenForMessages ===");
             listenForMessages();
 
         } catch (IOException e) {
@@ -75,12 +71,10 @@ public class Client {
      * hàm nghe message từ server
      */
     private void listenForMessages() {
-        System.out.println("=== BẮT ĐẦU tạo listening thread ===");
         new Thread(() -> {
             isRunning = true;
             try {
                 while (isRunning) {
-                    System.out.println("=== Đang chờ message từ server... ===");
                     Message message = (Message) in.readObject();
                     System.out.println("=== Nhận được message: " + (message != null ? message.getType() : "null") + " ===");
                     if (message != null) {
@@ -296,7 +290,6 @@ public class Client {
             Object content = message.getContent();
 
             if (content == null) {
-                System.err.println("LỖI: Server trả về nội dung (matches) là null!");
                 Platform.runLater(() -> {
                     if (matchHistoryController != null) {
                         // Giả sử updateMatchHistory có thể xử lý null hoặc danh sách rỗng
