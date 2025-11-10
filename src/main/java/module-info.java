@@ -16,4 +16,5 @@ module btl.ltm {
     // Cho phép JavaFX FXML truy cập vào controller để inject @FXML fields
     opens client.controller to javafx.fxml;
     exports server.controller;
+    exports server.manager;
 }

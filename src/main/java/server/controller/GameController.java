@@ -1,10 +1,10 @@
-// model/GameSession.java
+
 package server.controller;
 
 import model.DetailMatch;
 import model.Match;
 import model.User;
-import server.GameBoardManager;
+import server.manager.GameBoardManager;
 import server.dao.DetailMatchDAO;
 import server.dao.MatchDAO;
 import server.dao.UserDAO;
@@ -12,7 +12,7 @@ import server.dao.UserDAO;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class GameSession {
+public class GameController {
     private User player1;
     private User player2;
     private GameBoardManager board;
@@ -25,7 +25,7 @@ public class GameSession {
     private DetailMatchDAO detailMatchDAO;
 
 
-    public GameSession(User p1, User p2, List<String> targetColors) {
+    public GameController(User p1, User p2, List<String> targetColors) {
         this.player1 = p1;
         this.player2 = p2;
         this.targetColors = new ArrayList<>(Objects.requireNonNull(targetColors));
@@ -39,7 +39,7 @@ public class GameSession {
             this.userDAO = new UserDAO();
             this.detailMatchDAO = new DetailMatchDAO();
         } catch (Exception ex) {
-            System.err.println("GameSession: Không thể khởi tạo DAO: " + ex.getMessage());
+            System.err.println("GameController: Không thể khởi tạo DAO: " + ex.getMessage());
             this.matchDAO = null;
         }
     }

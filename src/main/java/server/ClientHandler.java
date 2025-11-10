@@ -5,14 +5,13 @@ import java.net.Socket;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
-import client.controller.MatchHistoryController;
 import constant.MessageType;
 import constant.Status;
 import model.*;
 import server.controller.ChatController;
-import server.controller.MatchHitstoryController;
 import server.controller.UserController;
 import server.dao.MatchDAO;
+import server.manager.ClientManager;
 
 /**
  * ClientHandler là lớp này đại diện cho mỗi client kết nối tới server, mỗi client (user) khi dùng sẽ có 1 clientHandler
@@ -147,8 +146,8 @@ public class ClientHandler implements Runnable{
                             ClientHandler inviterHandler = clientManager.getClientByUsername(inviter);
                             if (inviterHandler != null) {
                                 inviterHandler.sendResponse(new Message(MessageType.INVITE_ACCEPT, user.getUsername()));
-                                System.out.println("Creating game session between " + inviter + " and " + user.getUsername());
-                                server.getGameManager().createSession(inviterHandler, this);
+                                System.out.println("Creating game game between " + inviter + " and " + user.getUsername());
+                                server.getGameManager().createGame(inviterHandler, this);
                                 clientManager.updateStatus(inviter, Status.NOT_AVAILABLE);
                                 clientManager.updateStatus(user.getUsername(), Status.NOT_AVAILABLE);
                             } else {

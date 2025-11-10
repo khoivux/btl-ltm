@@ -1,9 +1,10 @@
-package server;
+package server.manager;
 
 import constant.MessageType;
 import constant.Status;
 import model.Message;
 import model.User;
+import server.ClientHandler;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
