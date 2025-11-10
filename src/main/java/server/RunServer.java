@@ -1,6 +1,7 @@
 package server;
 
 import server.manager.ClientManager;
+import server.manager.GameManager;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,13 +11,13 @@ public class RunServer {
     private static final int PORT = 23456;
     private ServerSocket serverSocket;
     private ClientManager clientManager;
-    private server.controller.GameManager gameManager;
+    private GameManager gameManager;
 
     public RunServer() {
         try {
             serverSocket = new ServerSocket(PORT);
             clientManager = new ClientManager();
-            gameManager = new server.controller.GameManager();
+            gameManager = new GameManager();
             System.out.println("Server đã khởi động trên cổng " + PORT);
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +41,7 @@ public class RunServer {
         return clientManager;
     }
 
-    public server.controller.GameManager getGameManager() {
+    public GameManager getGameManager() {
         return gameManager;
     }
 

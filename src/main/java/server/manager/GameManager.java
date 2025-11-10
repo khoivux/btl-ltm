@@ -1,4 +1,4 @@
-package server.controller;
+package server.manager;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import constant.MessageType;
 import model.Message;
 import server.ClientHandler;
+import server.controller.GameController;
 
 public class GameManager {
     private final Map<String, GameInfo> userSessionMap = new ConcurrentHashMap<>();
