@@ -16,7 +16,6 @@ public class GameSession {
     private User player1;
     private User player2;
     private GameBoardManager board;
-    // use username as key to avoid relying on User.equals/hashCode
     private Map<String, Integer> scores;
     private List<String> targetColors;
     private LocalDateTime startTime;
@@ -36,12 +35,10 @@ public class GameSession {
         scores.put(p2.getUsername(), 0);
         this.startTime = LocalDateTime.now();
         try {
-            // lazily initialize MatchDAO using the shared DAO connection
             this.matchDAO = new MatchDAO();
             this.userDAO = new UserDAO();
             this.detailMatchDAO = new DetailMatchDAO();
         } catch (Exception ex) {
-            // if DB is not available, just log and continue - match saving will be skipped
             System.err.println("GameSession: Không thể khởi tạo DAO: " + ex.getMessage());
             this.matchDAO = null;
         }
@@ -54,12 +51,11 @@ public class GameSession {
     public String getPlayer1Username() { return player1.getUsername(); }
     public String getPlayer2Username() { return player2.getUsername(); }
 
-    // Xử lý chọn ô - trả về thông tin chi tiết để server gửi tới clients
     public static class PickResult {
-        public final boolean valid; // false nếu input không hợp lệ (out of bounds)
-        public final boolean hit; // true nếu đúng màu target
-        public final boolean locked; // true nếu ô đã bị chọn trước đó
-        public final String marker; // "P1" hoặc "P2"
+        public final boolean valid;
+        public final boolean hit;
+        public final boolean locked;
+        public final String marker;
         public final int scoreP1;
         public final int scoreP2;
         public final String message;
@@ -77,7 +73,6 @@ public class GameSession {
     }
 
     public synchronized PickResult pickCell(User player, int row, int col) {
-        // bounds check
         if (row < 0 || col < 0) {
             return new PickResult(false, false, false, null, scores.get(getPlayer1Username()), scores.get(getPlayer2Username()), "Invalid coordinates");
         }
@@ -108,17 +103,15 @@ public class GameSession {
 
     private boolean isTargetColor(String color) {
         if (color == null) return false;
-        // if cell already marked as P1/P2 -> not a color
         if ("P1".equals(color) || "P2".equals(color)) return false;
         return targetColors.contains(color);
     }
 
-    // Kết thúc ván - trả về kết quả chấm điểm
     public static class MatchResult {
         public final int score1;
         public final int score2;
-        public final String winner; // null nếu hòa
-        public final int awardP1; // points awarded to player1 (2/1/0)
+        public final String winner;
+        public final int awardP1;
         public final int awardP2;
 
         public MatchResult(int score1, int score2, String winner, int awardP1, int awardP2) {
@@ -137,24 +130,20 @@ public class GameSession {
 
         int award1 = 0, award2 = 0;
         String winner = null;
-        
-        // Nếu có người quit, người đó thua và không được điểm
+
         if (usernameQuit != null && !usernameQuit.isEmpty()) {
             if (usernameQuit.equals(getPlayer1Username())) {
-                // Player1 quit -> Player2 thắng
-                award1 = 0;  // Người quit không nhận điểm
-                award2 = 2;  // Người còn lại thắng và nhận 2 điểm
+                award1 = 0;
+                award2 = 2;
                 winner = getPlayer2Username();
                 System.out.println("Player1 (" + getPlayer1Username() + ") quit. Player2 wins!");
             } else if (usernameQuit.equals(getPlayer2Username())) {
-                // Player2 quit -> Player1 thắng
-                award1 = 2;  // Người còn lại thắng và nhận 2 điểm
-                award2 = 0;  // Người quit không nhận điểm
+                award1 = 2;
+                award2 = 0;
                 winner = getPlayer1Username();
                 System.out.println("Player2 (" + getPlayer2Username() + ") quit. Player1 wins!");
             }
         } else {
-            // Trận đấu kết thúc bình thường theo điểm số
             if (score1 > score2) {
                 award1 = 2;
                 winner = getPlayer1Username();
@@ -168,7 +157,6 @@ public class GameSession {
             }
         }
 
-        // update users' points
         player1.setPoints(player1.getPoints() + award1);
         player2.setPoints(player2.getPoints() + award2);
         userDAO.updateUser(player1);
@@ -211,9 +199,5 @@ public class GameSession {
             System.out.println("MatchDAO chưa được khởi tạo.");
         }
         return new MatchResult(score1, score2, winner, award1, award2);
-    }
-
-    public Map<String, Integer> getScores() {
-        return Collections.unmodifiableMap(scores);
     }
 }
