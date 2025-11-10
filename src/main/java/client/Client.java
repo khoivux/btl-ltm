@@ -2,6 +2,7 @@ package client;
 
 import client.controller.*;
 import constant.MessageType;
+import constant.Status;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -106,7 +107,6 @@ public class Client {
     }
 
     private void handleMessage(Message message) throws IOException{
-        System.out.println("=== CLIENT NHẬN ĐƯỢC: " + message.getType() + " ===");
         // if (message.getType().equals(MessageType.RANK_SUCCESS)){
         //     System.out.println(message.getContent().getClass());
         // }
@@ -606,9 +606,23 @@ public class Client {
 
     // Khi đối thủ từ chối lời mời
     private void handleInviteRejected(Message message) {
-        String opponent = (String) message.getContent();
+        Object opponent =  message.getContent();
+
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.WARNING);
+            if(opponent.equals(Status.OFFLINE)) {
+                alert.setTitle("Lời mời không thành công");
+                alert.setHeaderText(null);
+                alert.setContentText("Người chơi bạn mời hiện không online");
+                alert.showAndWait();
+                return;
+            } else if (opponent.equals(Status.NOT_AVAILABLE)) {
+                alert.setTitle("Lời mời không thành công");
+                alert.setHeaderText(null);
+                alert.setContentText("Người chơi bạn mời đang trong trận");
+                alert.showAndWait();
+                return;
+            }
             alert.setTitle("Lời mời bị từ chối");
             alert.setHeaderText(null);
             alert.setContentText("Người chơi " + opponent + " đã từ chối lời mời của bạn.");

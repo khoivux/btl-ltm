@@ -309,16 +309,16 @@ public class GameController {
 
                 if (winner == null) {
                     // Trường hợp hòa
-                    body = String.format("Hòa! Điểm: %d - %d\nMỗi người được +%d điểm.", score1, score2, award1);
+                    body = String.format("Hòa! Tỉ số: %d - %d\nMỗi người được +%d điểm.", score1, score2, award1);
                 } else if (isQuit) {
                     // Có người quit - CHỈ hiển thị khi server gửi flag isQuit = true
                     String quitter = (award1 == 0) ? lblPlayer1.getText() : lblPlayer2.getText();
                     String winnerName = (award1 == 2) ? lblPlayer1.getText() : lblPlayer2.getText();
-                    body = String.format("%s đã thoát!\n%s thắng! Điểm: %d - %d\n%s được +2 điểm.",
+                    body = String.format("%s đã thoát!\n%s thắng! Tỉ số: %d - %d\n%s được +2 điểm.",
                             quitter, winnerName, score1, score2, winnerName);
                 } else {
                     // Thắng thua bình thường - KHÔNG hiển thị "bỏ cuộc"
-                    body = String.format("%s thắng! Điểm: %d - %d\n%s được +%d điểm.", winner, score1, score2,
+                    body = String.format("%s thắng! Tỉ số: %d - %d\n%s được +%d điểm.", winner, score1, score2,
                             winner.equals(lblPlayer1.getText()) ? lblPlayer1.getText() : lblPlayer2.getText(),
                             winner.equals(lblPlayer1.getText()) ? award1 : award2);
                 }

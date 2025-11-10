@@ -104,17 +104,14 @@ public class ClientHandler implements Runnable{
                     break;
 
                 case MessageType.LOGIN:
-                    System.out.println("--- Xử lý login ---");
                     handleLogin(message);
                     break;
 
                 case MessageType.LOGOUT:
-                    System.out.println("--- Xử lý logout ---");
                     handleLogout();
                     break;
 
                 case MessageType.ONLINE_LIST:
-                    System.out.println("--- Xử lý danh sách online ---");
                     handleGetOnlineUsers();
                     break;
 
@@ -126,11 +123,16 @@ public class ClientHandler implements Runnable{
                             ClientHandler target = clientManager.getClientByUsername(targetName);
                             if (target != null) {
                                 // forward invite to target
+                                if(target.getUser().getStatus() != Status.AVAILABLE) {
+                                    // target not available
+                                    sendResponse(new Message(MessageType.INVITE_REJECT, Status.NOT_AVAILABLE));
+                                    break;
+                                }
                                 System.out.println("Forwarding INVITE_REQUEST from " + user.getUsername() + " to " + targetName);
                                 target.sendResponse(new Message(MessageType.INVITE_RECEIVED, user.getUsername()));
                             } else {
-                                // target not online
-                                sendResponse(new Message(MessageType.INVITE_REJECT, "Target not online"));
+                                // target not onli
+                                sendResponse(new Message(MessageType.INVITE_REJECT, Status.OFFLINE));
                             }
                         }
                     } catch (Exception ex) {
@@ -150,7 +152,7 @@ public class ClientHandler implements Runnable{
                                 clientManager.updateStatus(inviter, Status.NOT_AVAILABLE);
                                 clientManager.updateStatus(user.getUsername(), Status.NOT_AVAILABLE);
                             } else {
-                                sendResponse(new Message(MessageType.INVITE_REJECT, "Inviter not online"));
+                                sendResponse(new Message(MessageType.INVITE_REJECT, "OFFLINE"));
                             }
                         }
                     } catch (Exception ex) {

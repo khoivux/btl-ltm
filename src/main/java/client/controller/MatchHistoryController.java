@@ -12,7 +12,6 @@ import constant.MessageType;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.*;
 
 /**
@@ -20,23 +19,27 @@ import java.util.*;
  * Nhận dữ liệu từ server (List<Match>) và render lên giao diện JavaFX.
  */
 public class MatchHistoryController {
+
     @FXML
-    private Label eloLabel; // hiển thị điểm
+    private Label eloLabel; // hiển thị điểm người chơi
 
     @FXML
     private Button backButton;
+
     @FXML
-    private TableView<Match>  matchTable;
+    private TableView<Match> matchTable;
+
     @FXML
-    private TableColumn<Match,String> colOpponent;
+    private TableColumn<Match, String> colOpponent;
     @FXML
-    private TableColumn<Match,String> colResult;
+    private TableColumn<Match, String> colResult;
     @FXML
-    private TableColumn<Match,String> colRatio;
+    private TableColumn<Match, String> colRatio;
     @FXML
-    private TableColumn<Match,String> colStartTime;
+    private TableColumn<Match, String> colStartTime;
     @FXML
-    private TableColumn<Match,String> colEndTime;
+    private TableColumn<Match, String> colEndTime;
+
     private Client client;
     private User user;
 
@@ -58,9 +61,7 @@ public class MatchHistoryController {
         requestMatchHistory();
     }
 
-    /**
-     * Gửi request lên server để lấy danh sách lịch sử trận đấu của user hiện tại.
-     */
+    /** Gửi request lên server để lấy danh sách lịch sử trận đấu */
     private void requestMatchHistory() {
         User curUser = (user != null) ? user : (client != null ? client.getUser() : null);
         if (curUser == null || client == null) return;
@@ -79,7 +80,6 @@ public class MatchHistoryController {
      * Cập nhật giao diện hiển thị danh sách các trận đấu.
      * @param matches Danh sách các trận (nhận từ server)
      */
-
     public void updateMatchHistory(List<Match> matches) {
         Platform.runLater(() -> {
             if (matches == null || matches.isEmpty()) {
@@ -99,14 +99,13 @@ public class MatchHistoryController {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-            javafx.collections.ObservableList<Match> validMatches =
-                    javafx.collections.FXCollections.observableArrayList();
+            var validMatches = javafx.collections.FXCollections.<Match>observableArrayList();
 
             Map<Integer, String> opponentMap = new HashMap<>();
             Map<Integer, String> resultMap = new HashMap<>();
             Map<Integer, String> startMap = new HashMap<>();
             Map<Integer, String> endMap = new HashMap<>();
-            Map<Integer, String> ratioMap = new HashMap<>(); // 🆕 Thêm map tỉ số
+            Map<Integer, String> ratioMap = new HashMap<>();
 
             for (Match match : matches) {
                 DetailMatch[] detailsArr = match.getDetailMatch();
@@ -120,45 +119,30 @@ public class MatchHistoryController {
 
                 for (DetailMatch detail : detailsArr) {
                     User player = detail.getPlayer();
-                    if (player == null || player.getUsername() == null) {
-                        System.out.println("DEBUG: Bỏ qua detail vì player hoặc username null.");
-                        continue;
-                    }
-
-                    if (player.getUsername().equals(currentUsername)) {
+                    if (player == null || player.getUsername() == null) continue;
+                    if (player.getUsername().equals(currentUsername))
                         currentUserDetail = detail;
-                    } else {
+                    else
                         opponentDetail = detail;
-                    }
                 }
 
-                if (currentUserDetail == null || opponentDetail == null) {
-                    System.out.println("DEBUG: Bỏ qua trận ID " + match.getMatchId() + " vì thiếu dữ liệu người chơi.");
-                    continue;
-                }
+                if (currentUserDetail == null || opponentDetail == null) continue;
 
                 int currentScore = currentUserDetail.getScore();
                 int opponentScore = opponentDetail.getScore();
-
-                // 🆕 Tính tỉ số
                 String ratioText = currentScore + " - " + opponentScore;
 
-                // Xác định kết quả
-                String resultText; 
-                // --- LOGIC MỚI: Nếu có người thoát, hiển thị "QUIT" ---
+                String resultText;
                 if (currentUserDetail.isQuit()) {
                     resultText = "QUIT";
-                }else if(opponentDetail.isQuit()){
-                    resultText="VICTORY";
-                }else {
-                    // Không ai thoát, xét kết quả theo điểm số như cũ
-                    if (currentScore > opponentScore) {
-                        resultText = "VICTORY";
-                    } else if (currentScore < opponentScore) {
-                        resultText = "DEFEAT";
-                    } else {
-                        resultText = "DRAW";
-                    }
+                } else if (opponentDetail.isQuit()) {
+                    resultText = "VICTORY";
+                } else if (currentScore > opponentScore) {
+                    resultText = "VICTORY";
+                } else if (currentScore < opponentScore) {
+                    resultText = "DEFEAT";
+                } else {
+                    resultText = "DRAW";
                 }
 
                 String opponentName = opponentDetail.getPlayer().getUsername();
@@ -169,12 +153,12 @@ public class MatchHistoryController {
                 resultMap.put(match.getMatchId(), resultText);
                 startMap.put(match.getMatchId(), startTimeText);
                 endMap.put(match.getMatchId(), endTimeText);
-                ratioMap.put(match.getMatchId(), ratioText); // 🆕 Lưu tỉ số
+                ratioMap.put(match.getMatchId(), ratioText);
 
                 validMatches.add(match);
             }
 
-            // --- Gắn dữ liệu vào các cột ---
+            // Gán dữ liệu cho cột
             colOpponent.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(
                             opponentMap.getOrDefault(cellData.getValue().getMatchId(), "N/A")));
@@ -191,59 +175,61 @@ public class MatchHistoryController {
                     new javafx.beans.property.SimpleStringProperty(
                             endMap.getOrDefault(cellData.getValue().getMatchId(), "N/A")));
 
-            // 🆕 Cột tỉ số
             colRatio.setCellValueFactory(cellData ->
                     new javafx.beans.property.SimpleStringProperty(
                             ratioMap.getOrDefault(cellData.getValue().getMatchId(), "N/A")));
 
             matchTable.setItems(validMatches);
-            // 🆕🆕🆕 THÊM ĐOẠN NÀY ĐỂ TỰ ĐỘNG ĐIỀU CHỈNH CHIỀU CAO 🆕🆕🆕
-            matchTable.setFixedCellSize(40); // Chiều cao mỗi dòng là 40px
 
-            // Tính toán chiều cao dựa trên số dòng thực tế
-            // Header height (~35px) + (số dòng * chiều cao mỗi dòng) + padding
+            // Thiết lập chiều cao động
+            matchTable.setFixedCellSize(40);
             double headerHeight = 35;
             double rowHeight = matchTable.getFixedCellSize();
-            int numRows = validMatches.size();
-            double calculatedHeight = headerHeight + (numRows * rowHeight) + 2;
+            double calculatedHeight = headerHeight + (validMatches.size() * rowHeight) + 2;
+            matchTable.setPrefHeight(Math.min(calculatedHeight, 500));
 
-            // Set chiều cao tối đa để tránh bảng quá cao
-            double maxHeight = 500; // Chiều cao tối đa
-            matchTable.setPrefHeight(Math.min(calculatedHeight, maxHeight));
-            matchTable.setItems(validMatches);
-
-// 🔽 Thêm vào ngay sau dòng này
-            matchTable.setRowFactory(tableView -> new TableRow<Match>() {
-                @Override
-                protected void updateItem(Match match, boolean empty) {
-                    super.updateItem(match, empty);
-
-                    if (empty || match == null) {
-                        setStyle("");
-                    } else {
-                        String result = resultMap.get(match.getMatchId());
-                        if ("VICTORY".equals(result)) {
-                            setStyle("-fx-background-color: #d0f8ce;");
-                        } else if ("DEFEAT".equals(result)) {
-                            setStyle("-fx-background-color: #ff9999;");
-                        } else if ("DRAW".equals(result)) {
-                            setStyle("-fx-background-color: #fff9c4;");
-                        } else if ("QUIT".equals(result)) {
-                            setStyle("-fx-background-color: #e0e0e0;");
-                        } else {
+            // 🔹 Gộp cả tô màu + double click vào cùng một RowFactory
+            matchTable.setRowFactory(tableView -> {
+                TableRow<Match> row = new TableRow<>() {
+                    @Override
+                    protected void updateItem(Match match, boolean empty) {
+                        super.updateItem(match, empty);
+                        if (empty || match == null) {
                             setStyle("");
+                        } else {
+                            String result = resultMap.get(match.getMatchId());
+                            switch (result) {
+                                case "VICTORY" -> setStyle("-fx-background-color: #d0f8ce;");
+                                case "DEFEAT" -> setStyle("-fx-background-color: #ff9999;");
+                                case "DRAW" -> setStyle("-fx-background-color: #fff9c4;");
+                                case "QUIT" -> setStyle("-fx-background-color: #e0e0e0;");
+                                default -> setStyle("");
+                            }
                         }
                     }
-                }
+                };
+
+                row.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2 && !row.isEmpty()) {
+                        Match selected = row.getItem();
+                        DetailMatch[] details = selected.getDetailMatch();
+
+                        for (DetailMatch detail : details) {
+                            User player = detail.getPlayer();
+                            if (player != null && !player.getUsername().equals(currentUsername)) {
+                                System.out.println("DEBUG: Invite " + player.getUsername());
+                                if (client != null) client.sendInvite(player.getUsername());
+                            }
+                        }
+                    }
+                });
+
+                return row;
             });
 
-            matchTable.setFixedCellSize(40);
             matchTable.refresh();
         });
     }
-
-
-
 
     public void setClient(Client client) {
         this.client = client;
@@ -255,9 +241,7 @@ public class MatchHistoryController {
         return this.client;
     }
 
-    /**
-     * Thiết lập user (nếu muốn override client.getUser()).
-     */
+    /** Thiết lập user (nếu muốn override client.getUser()). */
     public void setUser(User user) {
         this.user = user;
         loadUserInfo();
