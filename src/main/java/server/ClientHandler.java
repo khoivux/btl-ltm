@@ -5,14 +5,13 @@ import java.net.Socket;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
-import client.controller.MatchHistoryController;
 import constant.MessageType;
 import constant.Status;
 import model.*;
 import server.controller.ChatController;
-import server.controller.MatchHitstoryController;
 import server.controller.UserController;
 import server.dao.MatchDAO;
+import server.manager.ClientManager;
 
 /**
  * ClientHandler là lớp này đại diện cho mỗi client kết nối tới server, mỗi client (user) khi dùng sẽ có 1 clientHandler

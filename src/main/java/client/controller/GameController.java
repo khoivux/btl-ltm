@@ -39,12 +39,11 @@ public class GameController {
     @FXML private Label timerLabel;
     @FXML private GridPane boardGrid;
     @FXML private HBox previewBox;
-    // Alert reference for the end-match dialog so it can be closed externally (e.g. on incoming rematch invite)
     private volatile javafx.scene.control.Alert resultAlert;
 
 
     private Client client;
-    private String[][] currentBoardData; // <-- BIẾN MỚI: Lưu trữ dữ liệu màu của bảng
+    private String[][] currentBoardData;
 
     public void setClient(Client client) {
         this.client = client;
