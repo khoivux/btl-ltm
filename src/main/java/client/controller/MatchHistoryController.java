@@ -54,9 +54,9 @@ public class MatchHistoryController {
         User curUser = (user != null) ? user : (client != null ? client.getUser() : null);
 
         if (curUser != null) {
-            eloLabel.setText("ELO: " + curUser.getPoints());
+            eloLabel.setText("Điểm của bạn: " + curUser.getPoints() + " điểm");
         } else {
-            eloLabel.setText("ELO: N/A");
+            eloLabel.setText("Điểm của bạn: N/A");
         }
         requestMatchHistory();
     }

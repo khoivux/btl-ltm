@@ -118,6 +118,9 @@ public class ClientHandler implements Runnable{
                     // content: String opponentUsername
                     try {
                         String targetName = (String) message.getContent();
+                        if(user.getUsername().equals(targetName)) {
+                            return;
+                        }
                         if (targetName != null && user != null) {
                             ClientHandler target = clientManager.getClientByUsername(targetName);
                             if (target != null) {

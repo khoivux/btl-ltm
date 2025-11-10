@@ -59,6 +59,7 @@
 }
 
 .elo-label {
+
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: black;
@@ -84,7 +85,7 @@
 }
 
 .table-view .column-header {
-    -fx-text-fill: black;
+    -fx-text-fill: white;
     -fx-alignment: CENTER;
     -fx-font-weight: bold;
     -fx-font-size: 15px;

@@ -17,17 +17,18 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import model.Message;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 
@@ -121,10 +122,30 @@ public class GameController {
                 VBox modalContent = new VBox(20);
                 modalContent.setAlignment(Pos.CENTER);
                 modalContent.setPadding(new Insets(20));
-                modalContent.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 15;");
+                modalContent.setPrefSize(400, 200);
+                modalContent.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+                URL url = getClass().getResource("/assets/bgmodal.jpg");
+                System.out.println("BG URL = " + url);
 
-                Label title = new Label("Màu mục tiêu (3s)");
-                title.setFont(new Font("System Bold", 22));
+                Image img = new Image(
+                        getClass().getResource("/assets/bgmodal.jpg").toExternalForm()
+                );
+                BackgroundImage bgImage = new BackgroundImage(
+                        img,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(
+                                1.0, 1.0, true, true, true, true   // scale ảnh theo kích thước VBox
+                        )
+                );
+
+                modalContent.setBackground(new Background(bgImage));
+
+                Label title = new Label("Chọn các màu sau để ghi điểm:");
+                title.setFont(new Font("System Bold", 18));
+                title.setTextFill(Color.WHITE);
+
                 modalContent.getChildren().add(title);
 
                 HBox colorBox = new HBox(15);
@@ -164,16 +185,15 @@ public class GameController {
                 modalContent.getChildren().add(colorBox);
 
                 Label countdownLabel = new Label("3");
-                countdownLabel.setFont(new Font("System Bold", 18));
+                countdownLabel.setFont(new Font("System Bold", 16));
                 countdownLabel.setTextFill(Color.RED);
                 modalContent.getChildren().add(countdownLabel);
 
                 // === Tạo Stage modal ===
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL); // chặn tương tác với cửa sổ chính
-                modalStage.setTitle("Xem trước màu");
                 modalStage.setResizable(false);
-                modalStage.setScene(new Scene(modalContent, 400, 300));
+                modalStage.setScene(new Scene(modalContent, 400, 200));
 
                 // Đặt modal ở giữa cửa sổ chính
                 Stage mainStage = (Stage) boardGrid.getScene().getWindow();
@@ -181,6 +201,14 @@ public class GameController {
                 modalStage.setY(mainStage.getY() + mainStage.getHeight() / 2 - 150);
 
                 modalStage.show();
+
+                Rectangle clip = new Rectangle(400, 200); // đúng với kích thước Scene tạo bên dưới
+                clip.setArcWidth(15);
+                clip.setArcHeight(15);
+
+                clip.widthProperty().bind(modalContent.widthProperty());
+                clip.heightProperty().bind(modalContent.heightProperty());
+                modalContent.setClip(clip);
 
                 // === Đếm ngược 3 giây ===
                 Timeline countdown = new Timeline(

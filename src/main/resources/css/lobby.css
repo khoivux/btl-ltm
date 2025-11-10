@@ -114,6 +114,42 @@
     linear-gradient(to bottom, #fa4347, #e63032);
     -fx-translate-y: 1;
 }
+/* === Nút "Đăng xuất" (đỏ cam) === */
+.logout-button {
+    -fx-background-color:
+    #FD9246,
+    #FEDE84,
+    linear-gradient(to bottom, #fb585b, #fa4347);
+
+    -fx-background-insets: 0, 3, 6;
+    -fx-background-radius: 40, 37, 34;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10 25 10 25;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-graphic-text-gap: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 2, 2);
+}
+
+.logout-button:hover {
+    -fx-background-color:
+    #FEA15E,
+    #FFE69A,
+    linear-gradient(to bottom, #fc6c6e, #fb4f53);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.logout-button:pressed {
+    -fx-background-color:
+    #FB7A2D,
+    #FED86C,
+    linear-gradient(to bottom, #fa4347, #e63032);
+    -fx-translate-y: 1;
+}
 
 /* ==== Container cho bảng danh sách ==== */
 .player-list-container {
