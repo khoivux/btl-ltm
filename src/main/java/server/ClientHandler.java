@@ -41,7 +41,6 @@ public class ClientHandler implements Runnable{
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(socket.getInputStream());
-            System.out.println("=== ClientHandler TẠO THÀNH CÔNG ===");
         } catch (IOException e) {
             System.out.println("=== LỖI TẠO ClientHandler ===");
             e.printStackTrace();
@@ -50,12 +49,9 @@ public class ClientHandler implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("=== ClientHandler THREAD BẮT ĐẦU CHẠY ===");
         try {
             // Khi còn chạy
             while (isRunning) {
-                System.out.println("Đang chờ message...");
-                // đọc message từ client
                 Message message = (Message) in.readObject();
                 System.out.println("Nhận được message: " + (message != null ? message.getType() : "null"));
                 // xử lý message

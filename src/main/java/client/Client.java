@@ -76,7 +76,6 @@ public class Client {
             try {
                 while (isRunning) {
                     Message message = (Message) in.readObject();
-                    System.out.println("=== Nhận được message: " + (message != null ? message.getType() : "null") + " ===");
                     if (message != null) {
                         handleMessage(message);
                     }
@@ -313,7 +312,7 @@ public class Client {
                     matchHistoryController.updateMatchHistory(matches);
                 } else {
                     // Lỗi này cho thấy bạn đã quên gán controller khi mở FXML
-                    System.err.println("LỖI NGHIÊM TRỌNG: matchHistoryController bị null. Không thể cập nhật UI.");
+                    System.err.println("LỖI : matchHistoryController bị null. Không thể cập nhật UI.");
                 }
             });
         }
@@ -669,7 +668,6 @@ public class Client {
     */
     // Thêm debug trong sendMessage()
 public void sendMessage(Message message) throws IOException {
-    System.out.println("Đang gửi message: " + message.getType());
     if (out == null) {
         System.out.println("ERROR: out is null!");
         return;
@@ -679,8 +677,6 @@ public void sendMessage(Message message) throws IOException {
         return;
     }
     out.writeObject(message);
-    out.flush();
-    System.out.println("Message đã gửi thành công");
 }
 
     /*

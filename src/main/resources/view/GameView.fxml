@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
     <children>
         <!-- Background Image -->
         <ImageView fitHeight="700.0" fitWidth="1200.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -21,7 +16,7 @@
                 <Image url="@../assets/bg1.jpg" />
             </image>
         </ImageView>
-        
+
 <!--        <VBox alignment="TOP_CENTER" layoutX="307.0" layoutY="183.2" prefHeight="503.0" prefWidth="606.0" spacing="20.0" style="-fx-background-color: rgba(148, 197, 229, 0.5); -fx-background-radius: 14; -fx-border-color: rgba(255,255,255,0.8); -fx-border-width: 2; -fx-border-radius: 14;" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="307.0" AnchorPane.rightAnchor="287.0" AnchorPane.topAnchor="183.0">-->
 <!--            <padding>-->
 <!--                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />-->
@@ -35,24 +30,11 @@
 <!--                </GridPane>-->
 <!--            </children>-->
 <!--        </VBox>-->
-        <VBox alignment="CENTER"
-              layoutX="307.0" layoutY="183.2"
-              prefHeight="503.0" prefWidth="606.0"
-              spacing="20.0"
-              style="-fx-background-color: rgba(148, 197, 229, 0.5);
-             -fx-background-radius: 14;
-             -fx-border-color: rgba(255,255,255,0.8);
-             -fx-border-width: 2;
-             -fx-border-radius: 14;
-             -fx-padding: 8;">
+        <VBox alignment="CENTER" layoutX="307.0" layoutY="183.2" prefHeight="503.0" prefWidth="606.0" spacing="20.0" style="-fx-background-color: rgba(148, 197, 229, 0.5);              -fx-background-radius: 14;              -fx-border-color: rgba(255,255,255,0.8);              -fx-border-width: 2;              -fx-border-radius: 14;              -fx-padding: 8;">
             <children>
-                <GridPane fx:id="boardGrid"
-                          alignment="CENTER"
-                          hgap="8" vgap="8"
-                          prefWidth="580" prefHeight="480"
-                          style="-fx-background-color: transparent;">
+                <GridPane fx:id="boardGrid" alignment="CENTER" hgap="8" prefHeight="480" prefWidth="580" style="-fx-background-color: transparent;" vgap="8">
                     <padding>
-                        <Insets bottom="6" left="6" right="6" top="6"/>
+                        <Insets bottom="6" left="6" right="6" top="6" />
                     </padding>
                 </GridPane>
             </children>
@@ -140,23 +122,12 @@
         </StackPane>
 
       <!-- Nút Thoát Game -->
-      <VBox alignment="CENTER" layoutX="950.0" layoutY="600.0" spacing="10.0">
-         <children>
-            <javafx.scene.control.Button onAction="#endGame" prefHeight="45.0" prefWidth="180.0" 
-                  style="-fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b); 
-                         -fx-text-fill: white; 
-                         -fx-font-size: 16px; 
-                         -fx-font-weight: bold; 
-                         -fx-background-radius: 10; 
-                         -fx-cursor: hand;
-                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);" 
-                  text="Thoát Game">
-               <font>
-                  <Font name="System Bold" size="16.0" />
-               </font>
-            </javafx.scene.control.Button>
-         </children>
-      </VBox>
+      <VBox alignment="CENTER" layoutX="950.0" layoutY="600.0" spacing="10.0" />
+      <javafx.scene.control.Button layoutX="1012.0" layoutY="600.0" onAction="#endGame" prefHeight="46.0" prefWidth="124.0" style="-fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);                          -fx-text-fill: white;                          -fx-font-size: 16px;                          -fx-font-weight: bold;                          -fx-background-radius: 10;                          -fx-cursor: hand;                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);" text="Thoát Game">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </javafx.scene.control.Button>
 
     </children>
 </AnchorPane>
