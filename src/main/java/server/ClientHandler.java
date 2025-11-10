@@ -146,8 +146,8 @@ public class ClientHandler implements Runnable{
                             ClientHandler inviterHandler = clientManager.getClientByUsername(inviter);
                             if (inviterHandler != null) {
                                 inviterHandler.sendResponse(new Message(MessageType.INVITE_ACCEPT, user.getUsername()));
-                                System.out.println("Creating game session between " + inviter + " and " + user.getUsername());
-                                server.getGameManager().createSession(inviterHandler, this);
+                                System.out.println("Creating game game between " + inviter + " and " + user.getUsername());
+                                server.getGameManager().createGame(inviterHandler, this);
                                 clientManager.updateStatus(inviter, Status.NOT_AVAILABLE);
                                 clientManager.updateStatus(user.getUsername(), Status.NOT_AVAILABLE);
                             } else {

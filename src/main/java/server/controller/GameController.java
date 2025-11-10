@@ -1,4 +1,4 @@
-// model/GameSession.java
+
 package server.controller;
 
 import model.DetailMatch;
@@ -39,7 +39,7 @@ public class GameController {
             this.userDAO = new UserDAO();
             this.detailMatchDAO = new DetailMatchDAO();
         } catch (Exception ex) {
-            System.err.println("GameSession: Không thể khởi tạo DAO: " + ex.getMessage());
+            System.err.println("GameController: Không thể khởi tạo DAO: " + ex.getMessage());
             this.matchDAO = null;
         }
     }

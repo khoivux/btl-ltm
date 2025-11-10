@@ -9,7 +9,7 @@ import server.ClientHandler;
 import server.controller.GameController;
 
 public class GameManager {
-    private final Map<String, SessionInfo> userSessionMap = new ConcurrentHashMap<>();
+    private final Map<String, GameInfo> userSessionMap = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
     private static final List<String> COLOR_POOL = Arrays.asList(
@@ -33,22 +33,22 @@ public class GameManager {
     public GameManager() {
     }
 
-    private static class SessionInfo {
-        GameController session;
+    private static class GameInfo {
+        GameController game;
         ClientHandler ch1;
         ClientHandler ch2;
         ScheduledFuture<?> tickTask;
         int secondsLeft;
     }
 
-    public synchronized void createSession(ClientHandler ch1, ClientHandler ch2) {
+    public synchronized void createGame(ClientHandler ch1, ClientHandler ch2) {
         if (ch1 == null || ch2 == null) return;
         if (ch1.getUser() == null || ch2.getUser() == null) return;
         String u1 = ch1.getUser().getUsername();
         String u2 = ch2.getUser().getUsername();
         if (u1 == null || u2 == null) return;
         if (userSessionMap.containsKey(u1) || userSessionMap.containsKey(u2)) {
-            System.out.println("GameManager: one of players already in session: " + u1 + "," + u2);
+            System.out.println("GameManager: one of players already in game: " + u1 + "," + u2);
             return;
         }
 
@@ -62,10 +62,10 @@ public class GameManager {
         }
         List<String> targetColors = new ArrayList<>(colorSet);
 
-        GameController session = new GameController(ch1.getUser(), ch2.getUser(), targetColors);
+        GameController gameController = new GameController(ch1.getUser(), ch2.getUser(), targetColors);
 
-        SessionInfo info = new SessionInfo();
-        info.session = session;
+        GameInfo info = new GameInfo();
+        info.game = gameController;
         info.ch1 = ch1;
         info.ch2 = ch2;
         info.secondsLeft = 15;
@@ -73,10 +73,10 @@ public class GameManager {
         userSessionMap.put(u1, info);
         userSessionMap.put(u2, info);
 
-        System.out.println("GameManager: creating session for " + u1 + " vs " + u2 + ", colors=" + targetColors);
+        System.out.println("GameManager: creating game for " + u1 + " vs " + u2 + ", colors=" + targetColors);
 
-        Object[] payload1 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , session.getBoard().getBoardData()};
-        Object[] payload2 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , session.getBoard().getBoardData()};
+        Object[] payload1 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , gameController.getBoard().getBoardData()};
+        Object[] payload2 = new Object[]{ new ArrayList<>(targetColors), u1, u2 , gameController.getBoard().getBoardData()};
         try { if (info.ch1 != null) info.ch1.sendResponse(new Message(MessageType.START_GAME, payload1)); } catch (Exception ignored) {}
         try { if (info.ch2 != null) info.ch2.sendResponse(new Message(MessageType.START_GAME, payload2)); } catch (Exception ignored) {}
 
@@ -89,10 +89,10 @@ public class GameManager {
     }
 
 
-    private void startGame(SessionInfo info) {
+    private void startGame(GameInfo info) {
         if (info == null || info.ch1 == null || info.ch2 == null) return;
         info.secondsLeft = 15;
-        System.out.println("GameManager: starting game, ticking for session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
+        System.out.println("GameManager: starting game, ticking for game between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
         broadcast(info, new Message(MessageType.GAME_TICK, info.secondsLeft));
 
         info.tickTask = scheduler.scheduleAtFixedRate(() -> {
@@ -101,31 +101,31 @@ public class GameManager {
                 broadcast(info, new Message(MessageType.GAME_TICK, info.secondsLeft));
             }
             if (info.secondsLeft <= 0) {
-                System.out.println("GameManager: time up for session " + info.ch1.getUser().getUsername() + " vs " + info.ch2.getUser().getUsername());
-                endSession(info,null);
+                System.out.println("GameManager: time up for game " + info.ch1.getUser().getUsername() + " vs " + info.ch2.getUser().getUsername());
+                endGame(info,null);
             }
         }, 1, 1, TimeUnit.SECONDS);
     }
 
     public void handlePick(ClientHandler from, int row, int col) {
         if (from == null || from.getUser() == null) return;
-        SessionInfo info = userSessionMap.get(from.getUser().getUsername());
+        GameInfo info = userSessionMap.get(from.getUser().getUsername());
         if (info == null) return;
 
         System.out.println("GameManager: handlePick from " + from.getUser().getUsername() + " at (" + row + "," + col + ")");
-        GameController.PickResult res = info.session.pickCell(from.getUser(), row, col);
+        GameController.PickResult res = info.game.pickCell(from.getUser(), row, col);
 
         Object[] payload = new Object[]{row, col, res.hit, res.marker, res.scoreP1, res.scoreP2, from.getUser().getUsername()};
         broadcast(info, new Message(MessageType.PICK_RESULT, payload));
     }
 
-    private synchronized void endSession(SessionInfo info, String usernameQuit) {
-        if (info == null || info.session == null) return;
+    private synchronized void endGame(GameInfo info, String usernameQuit) {
+        if (info == null || info.game == null) return;
         if (info.tickTask != null) info.tickTask.cancel(false);
 
-        System.out.println("GameManager: ending session between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
+        System.out.println("GameManager: ending game between " + info.ch1.getUser().getUsername() + " and " + info.ch2.getUser().getUsername());
 
-        GameController.MatchResult mr = info.session.endMatch(usernameQuit);
+        GameController.MatchResult mr = info.game.endMatch(usernameQuit);
         boolean isQuit = (usernameQuit != null && !usernameQuit.isEmpty());
         Object[] payload = new Object[]{mr.score1, mr.score2, mr.winner, mr.awardP1, mr.awardP2, isQuit};
         broadcast(info, new Message(MessageType.MATCH_RESULT, payload));
@@ -151,20 +151,20 @@ public class GameManager {
         try { userSessionMap.remove(info.ch1.getUser().getUsername()); } catch (Exception ignored) {}
         try { userSessionMap.remove(info.ch2.getUser().getUsername()); } catch (Exception ignored) {}
         
-        System.out.println("GameManager: Session ended. Players returned to lobby.");
+        System.out.println("GameManager: Game ended. Players returned to lobby.");
     }
 
     public void handleExit(ClientHandler from) {
         if (from == null || from.getUser() == null) return;
-        SessionInfo info = userSessionMap.get(from.getUser().getUsername());
+        GameInfo info = userSessionMap.get(from.getUser().getUsername());
         if (info == null) return;
         
         System.out.println("GameManager: " + from.getUser().getUsername() + " is exiting the game");
 
-        endSession(info, from.getUser().getUsername());
+        endGame(info, from.getUser().getUsername());
     }
 
-    private void broadcast(SessionInfo info, Message msg) {
+    private void broadcast(GameInfo info, Message msg) {
         try {
             if (info.ch1 != null) info.ch1.sendResponse(msg);
         } catch (Exception e) {
