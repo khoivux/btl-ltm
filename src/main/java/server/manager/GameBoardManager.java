@@ -11,9 +11,9 @@ import java.util.*;
 public class GameBoardManager {
     private final int ROWS = 8;
     private final int COLS = 8;
-    private String[][] board; // each cell is a color hex (e.g. "#A1B2C3")
-    int minDelta = 100; // minimum perturbation per channel
-    int maxDelta = 200; // maximum perturbation per channel
+    private String[][] board;
+    int minDelta = 100;
+    int maxDelta = 200;
 
     public GameBoardManager(List<String> targetColors) {
         board = new String[ROWS][COLS];
@@ -27,17 +27,15 @@ public class GameBoardManager {
 
         Random rand = new Random();
 
-        // Fill board with perturbed variants of random target colors
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 String variant;
-                // pick a base target and perturb until variant is not exactly a target
                 int attempts = 0;
                 do {
                     String base = targetColors.get(rand.nextInt(targetColors.size()));
                     variant = perturbColor(base, minDelta, maxDelta, rand);
                     attempts++;
-                    if (attempts > 100) break; // fallback to base if something odd happens
+                    if (attempts > 100) break;
                 } while (targetColors.contains(variant));
                 board[i][j] = variant;
             }
@@ -52,9 +50,8 @@ public class GameBoardManager {
                     r = rand.nextInt(ROWS);
                     c = rand.nextInt(COLS);
                     tries++;
-                    // stop if too many tries (board may be mostly exacts)
                     if (tries > 200) break;
-                } while (targetColors.contains(board[r][c])); // avoid overwriting an existing exact target
+                } while (targetColors.contains(board[r][c]));
                 board[r][c] = color;
             }
         }

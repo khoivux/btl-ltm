@@ -50,7 +50,7 @@
                 <!-- Khung chat -->
                 <AnchorPane prefHeight="370.0" prefWidth="399.0" styleClass="chat-container">
                     <children>
-                        <Label layoutX="130.0" layoutY="10.0" styleClass="chat-title" text="General Chat" />
+                        <Label layoutX="130.0" layoutY="10.0" styleClass="chat-title" text="Trò chuyện" />
 
                         <ListView fx:id="listChats" layoutX="25.0" layoutY="50.0" prefHeight="260.0" prefWidth="360.0" styleClass="chat-list" />
 
@@ -63,7 +63,7 @@
                 <!-- Danh sách người chơi -->
                 <VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="419.0" spacing="10" styleClass="player-list-container">
                     <children>
-                        <Label alignment="CENTER" prefWidth="380.0" styleClass="player-list-title" text="Danh sách người chơi" />
+                        <Label alignment="CENTER" prefWidth="380.0" styleClass="player-list-title" text="Danh sách người chơi Online" />
                         <TableView fx:id="userTable" prefHeight="300.0" prefWidth="360.0" styleClass="player-table">
                             <columns>
                                 <TableColumn fx:id="colUsername" prefWidth="180.0" text="Người chơi" />

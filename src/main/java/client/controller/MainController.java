@@ -7,11 +7,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.net.URL;
@@ -145,6 +141,35 @@ public class MainController {
         // Gán dữ liệu cho các cột
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colStatus.setCellFactory(column -> new TableCell<User, Status>() {
+            @Override
+            protected void updateItem(Status status, boolean empty) {
+                super.updateItem(status, empty);
+
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+
+                setText(status.toString());
+
+                // Đổi màu theo trạng thái
+                switch (status) {
+                    case AVAILABLE:
+                        setStyle("-fx-text-fill: #58D58D; -fx-font-weight: bold;");
+                        break;
+                    case NOT_AVAILABLE:
+                        setStyle("-fx-text-fill: orange; -fx-font-weight: bold;");
+                        break;
+                    case OFFLINE:
+                        setStyle("-fx-text-fill: gray;");
+                        break;
+                    default:
+                        setStyle("");
+                }
+            }
+        });
 
         // Double-click vào một hàng để gửi lời mời
         userTable.setRowFactory(tv -> {

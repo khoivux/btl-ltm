@@ -230,7 +230,7 @@ public class Client {
                         String marker = (String) arr[3];
                         int s1 = (Integer) arr[4];
                         int s2 = (Integer) arr[5];
-                        String pickerUsername = (String) arr[6]; // <-- SỬA Ở ĐÂY
+                        String pickerUsername = (String) arr[6];
                         gameController.onPickResult(row, col, hit, marker, s1, s2, pickerUsername);
                     } catch (ClassCastException | ArrayIndexOutOfBoundsException ex) {
                         System.err.println("Invalid PICK_RESULT payload");

@@ -22,6 +22,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -288,7 +289,7 @@ public class GameController {
 
     public void onPickResult(int row, int col, boolean hit, String marker, int score1, int score2, String pickerUsername) {
         Platform.runLater(() -> {
-            // update button text and style at row,col
+
             boardGrid.getChildren().stream().filter(n -> GridPane.getRowIndex(n) == row && GridPane.getColumnIndex(n) == col).findFirst().ifPresent(node -> {
                 if (node instanceof Button) {
                     Button btn = (Button) node;
@@ -296,8 +297,7 @@ public class GameController {
                         btn.setText(marker);
                         btn.setDisable(true);
 
-                        // Đổi màu nền để biểu thị ô đã được chọn
-                        Color pickedColor = parseColor(currentBoardData[row][col]); // Lấy màu ban đầu
+                        Color pickedColor = parseColor(currentBoardData[row][col]);
                         String newStyle = String.format(
                                 "-fx-background-color: %s; " +
                                         "-fx-background-radius: 10; " +
@@ -305,17 +305,26 @@ public class GameController {
                                         "-fx-border-width: 1; " +
                                         "-fx-border-radius: 10; " +
                                         "-fx-text-fill: white; ",
-                                toWebColor(pickedColor.darker().darker())); // Làm tối màu để đánh dấu
+                                toWebColor(pickedColor.darker().darker()));
                         btn.setStyle(newStyle);
                     } else {
-                        // SỬA Ở ĐÂY: Xử lý khi click sai (miss)
-                        // Chỉ hiện dấu 'X' nếu người click sai là client này
                         if (client != null && client.getUser() != null && client.getUser().getUsername().equals(pickerUsername)) {
+
                             final String originalText = btn.getText();
-                            btn.setText("X");
-                            // Tạo hiệu ứng chờ để xóa dấu "X" sau 1 giây
+
+                            Text xText = new Text("X");
+                            xText.setFill(Color.RED);
+                            xText.setStroke(Color.BLACK);
+                            xText.setStrokeWidth(0.3);
+
+                            btn.setGraphic(xText);
+                            btn.setText(""); // ẩn text gốc
+
                             PauseTransition pause = new PauseTransition(Duration.seconds(1));
-                            pause.setOnFinished(e -> btn.setText(originalText)); // Quay lại trạng thái cũ
+                            pause.setOnFinished(e -> {
+                                btn.setGraphic(null);
+                                btn.setText(originalText);
+                            });
                             pause.play();
                         }
                     }
