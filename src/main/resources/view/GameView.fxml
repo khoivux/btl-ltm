@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
+    <children>
+        <!-- Background Image -->
+        <ImageView fitHeight="700.0" fitWidth="1200.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <image>
+                <Image url="@../assets/bg1.jpg" />
+            </image>
+        </ImageView>
+
+<!--        <VBox alignment="TOP_CENTER" layoutX="307.0" layoutY="183.2" prefHeight="503.0" prefWidth="606.0" spacing="20.0" style="-fx-background-color: rgba(148, 197, 229, 0.5); -fx-background-radius: 14; -fx-border-color: rgba(255,255,255,0.8); -fx-border-width: 2; -fx-border-radius: 14;" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="307.0" AnchorPane.rightAnchor="287.0" AnchorPane.topAnchor="183.0">-->
+<!--            <padding>-->
+<!--                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />-->
+<!--            </padding>-->
+<!--            <children>-->
+
+<!--                <GridPane fx:id="boardGrid" alignment="CENTER" hgap="10" prefWidth="506.0" vgap="10">-->
+<!--                    <padding>-->
+<!--                        <Insets bottom="10" left="10" right="10" top="10" />-->
+<!--                    </padding>-->
+<!--                </GridPane>-->
+<!--            </children>-->
+<!--        </VBox>-->
+        <VBox alignment="CENTER" layoutX="307.0" layoutY="183.2" prefHeight="503.0" prefWidth="606.0" spacing="20.0" style="-fx-background-color: rgba(148, 197, 229, 0.5);              -fx-background-radius: 14;              -fx-border-color: rgba(255,255,255,0.8);              -fx-border-width: 2;              -fx-border-radius: 14;              -fx-padding: 8;">
+            <children>
+                <GridPane fx:id="boardGrid" alignment="CENTER" hgap="8" prefHeight="480" prefWidth="580" style="-fx-background-color: transparent;" vgap="8">
+                    <padding>
+                        <Insets bottom="6" left="6" right="6" top="6" />
+                    </padding>
+                </GridPane>
+            </children>
+        </VBox>
+
+
+        <VBox layoutX="90.0" layoutY="190.0" prefHeight="95.0" prefWidth="170.0" spacing="5.0" style="-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-padding: 10;">
+              <children>
+                  <Label text="Người chơi 1">
+                      <font>
+                          <Font name="System Bold" size="14.0" />
+                      </font>
+                  </Label>
+                  <HBox spacing="10.0">
+                      <children>
+                          <Label text="Username:" />
+                          <Label fx:id="lblPlayer1" text="PlayerOne" />
+                      </children>
+                  </HBox>
+                  <HBox spacing="10.0">
+                      <children>
+                          <Label text="Điểm:" />
+                          <Label fx:id="scorePlayer1" text="0" />
+                      </children>
+                  </HBox>
+              </children>
+          </VBox>
+          <VBox layoutX="962.0" layoutY="194.0" prefHeight="86.0" prefWidth="190.0" spacing="5.0" style="-fx-background-color: #ffebee; -fx-background-radius: 10; -fx-padding: 10;">
+              <children>
+                  <Label text="Người chơi 2">
+                      <font>
+                          <Font name="System Bold" size="14.0" />
+                      </font>
+                  </Label>
+                  <HBox prefHeight="18.0" prefWidth="166.0" spacing="10.0">
+                      <children>
+                          <Label text="Username:" />
+                          <Label fx:id="lblPlayer2" text="PlayerTwo" />
+                      </children>
+                  </HBox>
+                  <HBox spacing="10.0">
+                      <children>
+                          <Label text="Điểm:" />
+                          <Label fx:id="scorePlayer2" text="0" />
+                      </children>
+                  </HBox>
+              </children>
+          </VBox>
+
+
+
+        <!--                <Label style="-fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 0);" text="HÃY TÌM VÀ CHỌN 5 MÀU SAU:">-->
+<!--                    <font>-->
+<!--                        <Font name="System Bold" size="18.0" />-->
+<!--                    </font>-->
+<!--                </Label>-->
+<!--                <HBox fx:id="previewBox" alignment="CENTER" prefHeight="60.0" spacing="20.0">-->
+<!--               <children>-->
+<!--            -->
+<!--                    <VBox alignment="TOP_CENTER" prefHeight="361.0" prefWidth="211.0" spacing="20.0" style="-fx-background-color: transparent;" />-->
+<!--               </children></HBox>-->
+
+
+        <StackPane fx:id="timerContainer" layoutX="561.0" layoutY="84.0" prefHeight="120.0" prefWidth="120.0">
+            <effect>
+                <!-- Hiệu ứng phát sáng bao quanh toàn bộ đồng hồ -->
+                <DropShadow color="#f08a57" radius="15" spread="0.005" />
+            </effect>
+
+            <children>
+                <!-- Vòng tròn nền -->
+                <Circle fx:id="circleBackground" fill="linear-gradient(to right, #F66697, #8F56E5)" radius="34.0" />
+
+                <!-- Label hiển thị thời gian -->
+                <Label fx:id="timerLabel" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;" text="15">
+                    <effect>
+                        <DropShadow color="white" radius="6" spread="0.0" />
+                    </effect>
+                </Label>
+
+                <!-- Vòng tròn viền có hiệu ứng sáng riêng -->
+                <Circle fx:id="circleProgress" fill="transparent" radius="31.0" stroke="#ffcc00" strokeDashArray="345" strokeDashOffset="0" strokeWidth="8">
+                </Circle>
+            </children>
+        </StackPane>
+
+      <!-- Nút Thoát Game -->
+      <VBox alignment="CENTER" layoutX="950.0" layoutY="600.0" spacing="10.0" />
+      <javafx.scene.control.Button layoutX="1012.0" layoutY="600.0" onAction="#endGame" prefHeight="46.0" prefWidth="124.0" style="-fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);                          -fx-text-fill: white;                          -fx-font-size: 16px;                          -fx-font-weight: bold;                          -fx-background-radius: 10;                          -fx-cursor: hand;                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);" text="Thoát Game">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </javafx.scene.control.Button>
+
+    </children>
+</AnchorPane>

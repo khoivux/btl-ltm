@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/login.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.RegisterController">
+    <children>
+        <!-- Label cho tên đăng nhập -->
+        <Label layoutX="266.0" layoutY="165.0" styleClass="input-label" text="Tên đăng nhập" />
+
+        <!-- Ô nhập tên -->
+        <TextField fx:id="usernameField" layoutX="253.0" layoutY="193.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập tên của bạn..." styleClass="username-field" />
+
+        <!-- Label cho mật khẩu -->
+        <Label layoutX="268.0" layoutY="254.0" styleClass="input-label" text="Mật khẩu" />
+
+        <!-- Ô nhập mật khẩu -->
+        <PasswordField fx:id="passwordField" layoutX="253.0" layoutY="282.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập mật khẩu..." styleClass="password-field-custom" />
+        <!-- Label cho mật khẩu -->
+        <Label layoutX="268.0" layoutY="344.0" styleClass="input-label" text="Mật khẩu xác nhận" />
+        <PasswordField fx:id="confirmPasswordField" layoutX="253.0" layoutY="379.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập mật khẩu xác nhận..." styleClass="password-field-custom" />
+        <Button layoutX="308.0" layoutY="468.0" onAction="#handleRegister" prefHeight="53.0" prefWidth="194.0" styleClass="login-button" text="Đăng ký" />
+        <Label fx:id="errorLabel" textFill="red" />
+        <Hyperlink layoutX="363.0" layoutY="538.0" onAction="#redirectLogin" styleClass="register-link" text="Đăng nhập" />
+    </children>
+</AnchorPane>
