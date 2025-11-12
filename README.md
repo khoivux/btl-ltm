@@ -58,12 +58,12 @@ btl_ltm/
 
 ### 1. Màn hình đăng nhập
 ![Login](img/login.png)
-### 1. Màn hình chính
+### 2. Màn hình chính
 ![Lobby](img/lobby.png)
-### 2. Màn hình game đấu
+### 3. Màn hình game đấu
 ![Game Board 1](img/game1.png)
 ![Game Board 2](img/game2.png)
-### 1. Màn hình xem lịch sử đấu
+### 4. Màn hình xem lịch sử đấu
 ![Match Result](img/history.png)
-### 1. Màn hình xem bảng xếp hạng
+### 5. Màn hình xem bảng xếp hạng
 ![Leaderboard](img/leaderboard.png)
