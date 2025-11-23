@@ -16,11 +16,10 @@ public class RunClient extends Application {
             Client client = new Client(primaryStage);
             client.showLoginUI();
             new Thread(() -> {
-                try {
-                    client.startConnection("127.0.0.1", 23456);//26.41.147.33
+                try { // IP của máy chủ trong Radmin VPN là 26.41.147.33
+                    client.startConnection("26.41.147.33", 23456);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // UI phải cập nhật trên JavaFX Thread
                     Platform.runLater(() -> client.showErrorAlert("Không thể kết nối tới server."));
                 }
             }).start();

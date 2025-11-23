@@ -13,7 +13,7 @@ public class UserDAO extends DAO{
     }
 
     public void insertUser(User loginInfo) throws Exception {
-        String SQL_QUERY = "INSERT INTO users (username, password, points) VALUES (?, ?, ?)";
+        String SQL_QUERY = "INSERT INTO tblusers (username, password, points) VALUES (?, ?, ?)";
         PreparedStatement ps = con.prepareStatement(SQL_QUERY);
         ps.setString(1, loginInfo.getUsername());
         ps.setString(2, loginInfo.getPassword());
@@ -41,7 +41,7 @@ public class UserDAO extends DAO{
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET points = ? WHERE id = ?";
+        String sql = "UPDATE tblusers SET points = ? WHERE id = ?";
         System.out.println(user);
         try (
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -65,7 +65,7 @@ public class UserDAO extends DAO{
     }
 
     public User authenticateUser(User user) {
-        String SQL_QUERY = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String SQL_QUERY = "SELECT * FROM tblusers WHERE username = ? AND password = ?";
 
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -110,7 +110,7 @@ public class UserDAO extends DAO{
 
     public List<User> getLeaderboard() {
         List<User> users = new ArrayList<>();
-        String SQL_QUERY = "SELECT username, points FROM users ORDER BY points DESC";
+        String SQL_QUERY = "SELECT username, points FROM tblusers ORDER BY points DESC";
 
         try {
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -160,12 +160,4 @@ public class UserDAO extends DAO{
         return null;
     }
 
-//     public static void main(String[] args) {
-//        System.out.println("=== Testing UserDAO ===");
-
-//        UserDAO userDAO = new UserDAO();
-//        User user = userDAO.getRankByUsername("lamngu");
-//        System.out.println(user.getUsername() + " " + user.getPoints() + " " + user.getRank());
-
-//    }
 }

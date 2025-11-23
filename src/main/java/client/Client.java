@@ -325,10 +325,6 @@ public class Client {
             Platform.runLater(() -> {
                 System.err.println("Lấy lịch sử trận đấu thất bại: " + errorMsg);
 
-                // (Tùy chọn) Bạn cũng có thể hiển thị lỗi này lên UI
-                // if (matchHistoryController != null && client != null) {
-                //     client.showErrorAlert("Lỗi tải lịch sử đấu: " + errorMsg);
-                // }
             });
         }
         private void handleLoginSuccess(Message message) {
@@ -427,6 +423,7 @@ public class Client {
             stage.show();
             if (user != null) {
                 System.out.println("Yêu cầu lấy lịch sử trận đấu cho user: " + user.getUsername());
+                sendMessage(new Message(MessageType.MATCH_HISTORY, user.getUsername()));
                 sendMessage(new Message(MessageType.MATCH_HISTORY, user.getUsername()));
             } else {
                 System.err.println("LỖI: user hiện tại đang null, chưa đăng nhập?");

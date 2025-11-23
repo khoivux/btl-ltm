@@ -19,7 +19,7 @@ public class ChatDAO extends DAO{
     }
 
     public boolean saveChat(Chat newChat){
-        String SQL_QUERY = "INSERT INTO chats (content, user_id) VALUES (?,?)";
+        String SQL_QUERY = "INSERT INTO tblchats (content, user_id) VALUES (?,?)";
 
         try{
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
@@ -34,7 +34,7 @@ public class ChatDAO extends DAO{
     }
 
     public List<Chat> getAllChats(){
-        String SQL_QUERY = "SELECT id, content, user_id FROM chats ORDER BY id ASC";
+        String SQL_QUERY = "SELECT id, content, user_id FROM tblchats ORDER BY id ASC";
         List<Chat> result = new ArrayList<>();
 
         try{

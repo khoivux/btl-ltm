@@ -57,37 +57,6 @@ public class MatchDAO extends DAO{
         return matches;
     }
 
-    /**
-     * Lấy lịch sử trận đấu của người chơi
-     */
-//    public List<Match> getMatchesByUser(String username) {
-//        List<Match> matches = new ArrayList<>();
-//
-//        String sql = """
-//        SELECT DISTINCT m.*
-//        FROM tblmatch m
-//        JOIN tbldetail_match d ON m.match_id = d.match_id
-//        JOIN users u ON d.player_id = u.id
-//        WHERE u.username = ?
-//        ORDER BY m.start_time DESC
-//        """;
-//
-//        try (PreparedStatement stmt = con.prepareStatement(sql)) {
-//            stmt.setString(1, username);
-//
-//            try (ResultSet rs = stmt.executeQuery()) {
-//                while (rs.next()) {
-//                    matches.add(extractMatchFromResultSet(rs));
-//                }
-//            }
-//        } catch (SQLException e) {
-//            System.err.println("Lỗi khi lấy lịch sử trận của " + username + ": " + e.getMessage());
-//        }
-//
-//        return matches;
-//    }
-
-
     public List<Match> getMatchesByUser(String username) {
         List<Match> matches = new ArrayList<>();
 
@@ -95,7 +64,7 @@ public class MatchDAO extends DAO{
         SELECT DISTINCT m.*
         FROM tblmatch m
         JOIN tbldetail_match d ON m.match_id = d.match_id
-        JOIN users u ON d.player_id = u.id
+        JOIN tblusers u ON d.player_id = u.id
         WHERE u.username = ?
         ORDER BY m.start_time DESC
         """;

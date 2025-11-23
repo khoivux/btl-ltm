@@ -27,7 +27,7 @@ public class RunServer {
         try {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("=== CLIENT ĐÃ KẾT NỐI: " + clientSocket.getRemoteSocketAddress() + " ===");
+                System.out.println("Client đã kết nối tại ip: " + clientSocket.getRemoteSocketAddress() + "");
                 ClientHandler clientHandler = new ClientHandler(clientSocket, this);
                 Thread handlerThread = new Thread(clientHandler);
                 handlerThread.start();

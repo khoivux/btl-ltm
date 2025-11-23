@@ -20,7 +20,7 @@
         <Label layoutX="268.0" layoutY="344.0" styleClass="input-label" text="Mật khẩu xác nhận" />
         <PasswordField fx:id="confirmPasswordField" layoutX="253.0" layoutY="379.0" prefHeight="53.0" prefWidth="293.0" promptText="Nhập mật khẩu xác nhận..." styleClass="password-field-custom" />
         <Button layoutX="308.0" layoutY="468.0" onAction="#handleRegister" prefHeight="53.0" prefWidth="194.0" styleClass="login-button" text="Đăng ký" />
-        <Label fx:id="errorLabel" textFill="red" />
+        <Label fx:id="errorLabel" alignment="CENTER" layoutX="276.0" layoutY="439.0" prefHeight="18.0" prefWidth="257.0" textAlignment="CENTER" textFill="red" style="-fx-font-weight: bold;"/>
         <Hyperlink layoutX="363.0" layoutY="538.0" onAction="#redirectLogin" styleClass="register-link" text="Đăng nhập" />
     </children>
 </AnchorPane>

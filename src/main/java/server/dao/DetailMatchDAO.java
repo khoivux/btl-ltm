@@ -36,7 +36,7 @@ public class DetailMatchDAO extends DAO {
                         "       u.id AS user_id, " +
                         "       u.username " +
                         "FROM tbldetail_match AS dm " +
-                        "JOIN users AS u ON dm.player_id = u.id " +
+                        "JOIN tblusers AS u ON dm.player_id = u.id " +
                         "WHERE dm.match_id = ?";
 
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
