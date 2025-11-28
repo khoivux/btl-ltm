@@ -22,7 +22,7 @@ public class UserDAO extends DAO{
     }
 
     public User getUserById(int id){
-        String SQL_QUERY = "SELECT * FROM users WHERE id = ?";
+        String SQL_QUERY = "SELECT * FROM tblusers WHERE id = ?";
 
         try{
             PreparedStatement ps = con.prepareStatement(SQL_QUERY);
